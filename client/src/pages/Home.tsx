@@ -176,7 +176,7 @@ export default function Home() {
               <h2 className="font-display font-bold text-4xl mt-3">Popular Diagnostic Tests</h2>
              </div>
              <Link href="/tests">
-               <Button variant="link" className="text-primary font-bold">View All Tests &rarr;</Button>
+               <Button variant="ghost" className="text-primary font-bold">View All Tests &rarr;</Button>
              </Link>
           </div>
 
