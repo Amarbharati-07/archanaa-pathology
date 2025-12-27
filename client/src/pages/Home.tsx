@@ -252,7 +252,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Packages */}
+      {/* Featured Packages Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -261,11 +261,27 @@ export default function Home() {
             <p className="text-muted-foreground text-lg">Comprehensive health checkups designed for your specific needs at affordable prices.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredPackages.map((pkg) => (
-              <PackageCard key={pkg.id} pkg={pkg} />
-            ))}
-          </div>
+          <Carousel 
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {featuredPackages.map((pkg) => (
+                <CarouselItem key={pkg.id} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-2 h-full">
+                    <PackageCard pkg={pkg} />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center gap-4 mt-8">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
+          </Carousel>
 
           <div className="text-center mt-12">
             <Link href="/packages">
@@ -365,7 +381,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Tests */}
+      {/* Popular Tests Section */}
       <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
@@ -378,11 +394,27 @@ export default function Home() {
              </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {popularTests.map((test) => (
-              <TestCard key={test.id} test={test} />
-            ))}
-          </div>
+          <Carousel 
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {popularTests.map((test) => (
+                <CarouselItem key={test.id} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-2 h-full">
+                    <TestCard test={test} />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center gap-4 mt-8">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
+          </Carousel>
         </div>
       </section>
 
