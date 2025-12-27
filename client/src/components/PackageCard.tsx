@@ -22,16 +22,11 @@ export function PackageCard({ pkg }: { pkg: Package }) {
   const { toast } = useToast();
 
   const handleBook = () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login or register to book tests and packages. All fields are mandatory for registration.",
-        variant: "destructive",
-      });
-      setLocation("/login");
-      return;
-    }
     addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price });
+    toast({
+      title: "Added to Cart",
+      description: `${pkg.name} has been added to your booking list.`,
+    });
   };
 
   return (

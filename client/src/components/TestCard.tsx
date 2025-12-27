@@ -13,16 +13,11 @@ export function TestCard({ test }: { test: Test }) {
   const { toast } = useToast();
 
   const handleBook = () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login or register to book tests and packages. All fields are mandatory for registration.",
-        variant: "destructive",
-      });
-      setLocation("/login");
-      return;
-    }
     addItem({ id: test.id, type: "test", name: test.name, price: test.price });
+    toast({
+      title: "Added to Cart",
+      description: `${test.name} has been added to your booking list.`,
+    });
   };
 
   const getCategoryImage = (category: string) => {
