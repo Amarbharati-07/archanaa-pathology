@@ -1,12 +1,13 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Activity, Clock, ShieldCheck, Truck, Microscope, Upload, Star } from "lucide-react";
 import { useTests } from "@/hooks/use-tests";
 import { usePackages } from "@/hooks/use-packages";
 import { useReviews } from "@/hooks/use-reviews";
 import { TestCard } from "@/components/TestCard";
 import { PackageCard } from "@/components/PackageCard";
+import { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -17,10 +18,45 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+const HERO_SLIDES = [
+  {
+    image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=2070",
+    title: "Your Health,",
+    subtitle: "Our Priority",
+    description: "Experience world-class diagnostic services with accurate results and state-of-the-art technology."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1581595221445-262de1ef92c1?auto=format&fit=crop&q=80&w=2070",
+    title: "Advanced",
+    subtitle: "Diagnostics",
+    description: "Precision in every report. Our laboratory is equipped with the latest medical technology."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1531053326607-9d349096d887?auto=format&fit=crop&q=80&w=2070",
+    title: "Home",
+    subtitle: "Collection",
+    description: "Safe and hygienic sample collection from the comfort of your home at no extra cost."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1631815587646-b85a1bb027e1?auto=format&fit=crop&q=80&w=2070",
+    title: "Reliable",
+    subtitle: "Care",
+    description: "Trusted by thousands for accurate medical reports and compassionate patient care."
+  }
+];
+
 export default function Home() {
   const { data: tests } = useTests();
   const { data: packages } = usePackages();
   const { data: reviews } = useReviews();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const featuredPackages = packages?.filter(p => p.isFeatured) || [];
   const popularTests = tests?.filter(t => t.isPopular) || [];
@@ -29,21 +65,30 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative w-full h-[600px] md:h-[700px] flex items-center overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
-          {/* Medical Laboratory Background */}
-          <img 
-            src="https://images.unsplash.com/photo-1538333308182-2f92b850c54e?auto=format&fit=crop&q=80&w=2070" 
-            alt="Modern Medical Laboratory" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/80 to-transparent"></div>
-        </div>
+        {/* Hero Slider */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 z-0"
+          >
+            <img 
+              src={HERO_SLIDES[currentSlide].image} 
+              alt="Medical Lab" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/60 to-transparent"></div>
+          </motion.div>
+        </AnimatePresence>
 
         <div className="container relative z-10 mx-auto px-4">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            key={currentSlide + "-content"}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             className="max-w-2xl text-white"
           >
@@ -51,11 +96,11 @@ export default function Home() {
               Leading Pathology Lab
             </span>
             <h1 className="font-display font-extrabold text-5xl md:text-7xl leading-tight mb-6">
-              Your Health, <br/>
-              <span className="text-blue-300">Our Priority</span>
+              {HERO_SLIDES[currentSlide].title} <br/>
+              <span className="text-blue-300">{HERO_SLIDES[currentSlide].subtitle}</span>
             </h1>
             <p className="text-lg md:text-xl text-blue-100 mb-8 leading-relaxed max-w-lg">
-              Experience world-class diagnostic services with accurate results, state-of-the-art technology, and compassionate care.
+              {HERO_SLIDES[currentSlide].description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/tests">
@@ -71,6 +116,19 @@ export default function Home() {
               </Link>
             </div>
           </motion.div>
+        </div>
+        
+        {/* Slide Indicators */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                currentSlide === i ? "bg-white w-8" : "bg-white/40"
+              }`}
+            />
+          ))}
         </div>
       </section>
 
