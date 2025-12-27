@@ -151,7 +151,7 @@ export default function Home() {
             <p className="text-muted-foreground text-lg">Comprehensive health checkups designed for your specific needs at affordable prices.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredPackages.map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} />
             ))}
@@ -180,7 +180,7 @@ export default function Home() {
              </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {popularTests.map((test) => (
               <TestCard key={test.id} test={test} />
             ))}

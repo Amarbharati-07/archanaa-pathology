@@ -42,7 +42,7 @@ export default function Packages() {
           {categories.map((cat) => (
             <TabsContent key={cat} value={cat}>
               {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="h-[500px] bg-white rounded-2xl shadow-sm border p-6 flex flex-col gap-4">
                       <Skeleton className="h-8 w-3/4 mx-auto" />
@@ -53,7 +53,7 @@ export default function Packages() {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {packages
                     ?.filter(p => cat === "All" || p.category.includes(cat) || (cat === "General Wellness" && !p.category)) // loose matching for demo
                     .map((pkg) => (

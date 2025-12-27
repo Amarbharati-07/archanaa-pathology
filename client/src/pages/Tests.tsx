@@ -75,7 +75,7 @@ export default function Tests() {
 
         {/* Results */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border h-[300px] flex flex-col gap-4">
                 <Skeleton className="h-6 w-3/4" />
@@ -95,7 +95,7 @@ export default function Tests() {
             <p className="text-muted-foreground/70">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTests.map((test) => (
               <TestCard key={test.id} test={test} />
             ))}
