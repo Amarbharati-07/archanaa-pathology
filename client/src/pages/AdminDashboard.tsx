@@ -14,7 +14,11 @@ import {
   ArrowUpRight,
   TrendingUp,
   Clock,
-  Activity
+  Activity,
+  Sparkles,
+  Settings,
+  Megaphone,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,9 +55,14 @@ export default function AdminDashboard() {
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "patients", label: "Patients", icon: Users },
-    { id: "bookings", label: "Bookings", icon: CalendarCheck },
+    { id: "walk-in", label: "Walk-in Collections", icon: Activity },
     { id: "reports", label: "Reports", icon: FileText },
     { id: "tests", label: "Tests", icon: FlaskConical },
+    { id: "packages", label: "Health Packages", icon: Sparkles },
+    { id: "settings", label: "Lab Settings", icon: Settings },
+    { id: "bookings", label: "Bookings", icon: CalendarCheck },
+    { id: "ads", label: "Advertisements", icon: Megaphone },
+    { id: "reviews", label: "Reviews", icon: MessageSquare },
   ];
 
   return (
@@ -63,13 +72,17 @@ export default function AdminDashboard() {
         <div className="p-6 border-b">
           <div className="flex items-center gap-2">
             <div className="bg-blue-600 p-1.5 rounded-lg">
-              <Activity className="w-5 h-5 text-white" />
+              <FlaskConical className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg tracking-tight">Archana Admin</span>
+            <span className="font-bold text-lg tracking-tight">Archana Pathology</span>
           </div>
         </div>
         
-        <nav className="flex-1 p-4 space-y-1">
+        <div className="px-6 py-4">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Menu</p>
+        </div>
+        
+        <nav className="flex-1 px-4 space-y-0.5">
           {sidebarItems.map((item) => (
             <button
               key={item.id}
@@ -86,11 +99,14 @@ export default function AdminDashboard() {
           ))}
         </nav>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t bg-slate-50/50">
+          <div className="px-4 py-2 mb-2">
+            <p className="text-[10px] font-medium text-slate-400">Logged in as: <span className="text-slate-900 font-bold">Admin User</span></p>
+          </div>
           <Button 
             variant="ghost" 
             onClick={handleLogout}
-            className="w-full justify-start gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 font-bold rounded-xl"
+            className="w-full justify-start gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 font-bold rounded-xl h-10 px-4"
           >
             <LogOut className="w-4 h-4" />
             Logout
