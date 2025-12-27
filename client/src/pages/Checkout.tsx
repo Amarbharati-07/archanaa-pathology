@@ -36,16 +36,35 @@ export default function Checkout() {
   });
 
   function onSubmit(values: any) {
-    // Ensure current items/total are used
     const bookingData = {
       ...values,
       items: items, 
+      totalAmount: total,
+      date: new Date().toISOString(), // Ensure date is provided as string
+      time: "10:00 AM", // Placeholder or from form if added
+    };
+    
+    // For now, handling single item booking as per schema
+    const firstItem = items[0];
+    const payload = {
+      testId: firstItem.type === 'test' ? firstItem.id : undefined,
+      packageId: firstItem.type === 'package' ? firstItem.id : undefined,
+      date: bookingData.date,
+      time: bookingData.time,
       totalAmount: total
     };
-    mutate(bookingData, {
+
+    mutate(payload, {
       onSuccess: () => {
         clearCart();
-        setTimeout(() => setLocation("/"), 5000); // Redirect after 5s
+        toast({ title: "Success", description: "Your booking has been confirmed!" });
+      },
+      onError: (error: any) => {
+        toast({ 
+          title: "Booking Failed", 
+          description: error.message, 
+          variant: "destructive" 
+        });
       }
     });
   }
