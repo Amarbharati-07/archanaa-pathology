@@ -18,7 +18,7 @@ export default function Cart() {
     if (!isAuthenticated) {
       toast({
         title: "Login Required",
-        description: "Please login or register to book these tests. All registration fields are mandatory for accurate medical records.",
+        description: "Please login to book these tests.",
         variant: "destructive",
       });
       setLocation("/login");
@@ -34,7 +34,7 @@ export default function Cart() {
           <ShoppingBag className="w-10 h-10 text-blue-600" />
         </div>
         <h1 className="font-display font-bold text-3xl mb-4 text-slate-900">Your cart is empty</h1>
-        <p className="text-slate-500 mb-8 max-w-xs text-center">Looks like you haven't added any diagnostic tests or health packages yet.</p>
+        <p className="text-slate-500 mb-8 max-w-xs text-center">Looks like you haven't added any diagnostic tests yet.</p>
         <Link href="/tests">
           <Button size="lg" className="px-10 h-14 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-200">
             Browse Tests
@@ -71,9 +71,9 @@ export default function Cart() {
                   <Info className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-amber-900 mb-1">Mandatory Login for Booking</h4>
+                  <h4 className="font-bold text-amber-900 mb-1">Login Required</h4>
                   <p className="text-sm text-amber-800 leading-relaxed">
-                    You can browse and add items, but you must log in to complete your booking. New patients are required to fill all mandatory profile fields for accurate medical records.
+                    Please log in to complete your booking.
                   </p>
                 </div>
               </motion.div>
@@ -174,10 +174,10 @@ export default function Cart() {
                   )}
                 </Button>
                 
-                {!isAuthenticated ? (
+                {!isAuthenticated && (
                   <div className="text-center mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
                     <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                      New patient? <Link href="/register" className="text-blue-600 font-bold hover:underline">Register with all mandatory fields</Link> to access your reports online.
+                      Please login to book tests and access your reports.
                     </p>
                   </div>
                 ) : (
