@@ -79,14 +79,13 @@ app.use((req, res, next) => {
 
   const port = parseInt(process.env.PORT || "5000", 10);
 
-  // ✅ FIXED HERE
   httpServer.listen(
     {
       port,
-      host: "127.0.0.1",  // <-- Use localhost instead of 0.0.0.0
+      host: "0.0.0.0",
     },
     () => {
-      log(`serving on http://127.0.0.1:${port}`);
+      log(`serving on http://0.0.0.0:${port}`);
     },
   );
 })();
