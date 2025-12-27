@@ -54,20 +54,24 @@ export default function Tests() {
               className="pl-10 h-12 text-lg border-slate-200"
             />
           </div>
-          <div className="flex gap-4 w-full md:w-auto">
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-[180px] h-12">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(c => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button size="lg" className="h-12 px-6">
+          <div className="flex gap-4 w-full md:w-auto relative z-20">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 w-[200px]">
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="h-12 border-0 focus:ring-0 focus:ring-offset-0">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-slate-400" />
+                    <SelectValue placeholder="Category" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-xl z-[100]">
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button size="lg" className="h-12 px-6 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 font-bold">
               Search
             </Button>
           </div>
