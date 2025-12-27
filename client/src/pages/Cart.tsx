@@ -1,13 +1,30 @@
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Trash2, ArrowRight, ShoppingBag } from "lucide-react";
+import { Trash2, ArrowRight, ShoppingBag, Info } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Cart() {
   const { items, removeItem, total, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const [_, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please login or register to book these tests. All registration fields are mandatory for accurate medical records.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+      return;
+    }
+    setLocation("/checkout");
+  };
 
   if (items.length === 0) {
     return (
@@ -32,6 +49,15 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items List */}
           <div className="lg:col-span-2 space-y-4">
+            {!isAuthenticated && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 mb-6">
+                <Info className="w-5 h-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-amber-800">Login to Book</h4>
+                  <p className="text-sm text-amber-700">You can add items to your cart, but you'll need to log in to complete your booking. New users must fill all mandatory registration fields.</p>
+                </div>
+              </div>
+            )}
             {items.map((item, index) => (
               <div 
                 key={`${item.id}-${item.type}-${index}`} 
@@ -90,14 +116,20 @@ export default function Cart() {
                 </div>
 
                 <Button 
-                  className="w-full h-12 text-lg shadow-xl shadow-primary/20" 
-                  onClick={() => setLocation("/checkout")}
+                  className="w-full h-12 text-lg shadow-xl shadow-primary/20 bg-blue-600 hover:bg-blue-700 font-bold" 
+                  onClick={handleCheckout}
                 >
-                  Proceed to Checkout <ArrowRight className="ml-2 w-5 h-5" />
+                  {isAuthenticated ? "Proceed to Checkout" : "Login to Book"} <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 
+                {!isAuthenticated && (
+                  <p className="text-xs text-center text-blue-600 mt-4 font-medium">
+                    New patient? <Link href="/register" className="underline">Register here with all details</Link>
+                  </p>
+                )}
+                
                 <p className="text-xs text-center text-muted-foreground mt-4">
-                  Secure checkout powered by Stripe
+                  Secure booking & verified medical reports
                 </p>
               </CardContent>
             </Card>
