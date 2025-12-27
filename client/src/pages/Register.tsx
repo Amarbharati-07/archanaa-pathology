@@ -5,26 +5,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
-import { Microscope, User, Mail, Phone, Lock, Calendar, ChevronRight } from "lucide-react";
+import { Microscope, User, Mail, Phone, Lock, Calendar } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
     gender: "",
-    dob: ""
+    age: ""
   });
-  const { login } = useAuth();
+  const { userRegister, loading } = useAuth();
   const [_, setLocation] = useLocation();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would validate all fields here
-    login(formData.email);
-    setLocation("/");
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast({ title: "Error", description: "Passwords don't match", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await userRegister({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        gender: formData.gender,
+        age: parseInt(formData.age),
+      });
+      toast({ title: "Registration successful!", description: "Welcome!" });
+      setLocation("/");
+    } catch (err: any) {
+      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -39,21 +58,21 @@ export default function Register() {
             <Microscope className="w-8 h-8 text-blue-500" />
           </div>
           <h1 className="font-display font-bold text-2xl text-slate-900">Create Account</h1>
-          <p className="text-sm text-slate-500 mt-1">Fill in mandatory fields for your medical reports.</p>
+          <p className="text-sm text-slate-500 mt-1">Register to book your health tests</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div className="space-y-1">
-            <Label htmlFor="fullName" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Full Name *</Label>
+            <Label htmlFor="name" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Full Name *</Label>
             <div className="relative">
               <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input 
-                id="fullName" 
+                id="name" 
                 placeholder="Full name" 
                 className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                 required 
-                value={formData.fullName}
-                onChange={(e) => handleChange("fullName", e.target.value)}
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
               />
             </div>
           </div>
@@ -107,13 +126,13 @@ export default function Register() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="confirmPassword" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Confirm *</Label>
+              <Label htmlFor="confirmPassword" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Confirm Password *</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
                   id="confirmPassword" 
                   type="password" 
-                  placeholder="Confirm" 
+                  placeholder="Confirm Password" 
                   className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
                   value={formData.confirmPassword}
@@ -125,8 +144,8 @@ export default function Register() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label className="text-xs text-slate-700 font-bold uppercase tracking-wider">Gender *</Label>
-              <Select onValueChange={(v) => handleChange("gender", v)} required>
+              <Label htmlFor="gender" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Gender *</Label>
+              <Select value={formData.gender} onValueChange={(val) => handleChange("gender", val)}>
                 <SelectTrigger className="h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -138,29 +157,34 @@ export default function Register() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="dob" className="text-xs text-slate-700 font-bold uppercase tracking-wider">DOB *</Label>
+              <Label htmlFor="age" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Age *</Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 z-10" />
+                <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
-                  id="dob" 
-                  type="date" 
+                  id="age" 
+                  type="number" 
+                  placeholder="Age" 
                   className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
-                  value={formData.dob}
-                  onChange={(e) => handleChange("dob", e.target.value)}
+                  value={formData.age}
+                  onChange={(e) => handleChange("age", e.target.value)}
                 />
               </div>
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-50 mt-2 active:scale-[0.98] transition-all">
-            Create Account
+          <Button 
+            type="submit" 
+            disabled={loading}
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-100 mt-6"
+          >
+            {loading ? "Creating account..." : "Create Account"}
           </Button>
         </form>
 
-        <div className="text-center mt-6 pt-4 border-t border-slate-100">
-          <span className="text-xs text-slate-500">Already have an account? </span>
-          <Link href="/login" className="text-xs text-blue-600 font-bold hover:underline">Log in</Link>
+        <div className="text-center text-sm pt-4 border-t border-slate-100">
+          <span className="text-slate-500">Already have an account? </span>
+          <Link href="/login" className="text-blue-600 font-bold hover:underline">Sign in</Link>
         </div>
       </div>
     </div>

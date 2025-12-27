@@ -23,6 +23,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import Contact from "@/pages/Contact";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+import UserDashboard from "@/pages/UserDashboard";
 
 function AppLoader() {
   return (
@@ -103,10 +104,11 @@ function Router() {
         <Route path="/register" component={Register} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/contact" component={Contact} />
-        {/* Placeholder for About - reuse Contact or Home for now since content wasn't specified */}
+        <Route path="/dashboard" component={UserDashboard} />
         <Route path="/about" component={Contact} /> 
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin" component={AdminDashboard} />
+        <Route path="/user/dashboard" component={UserDashboard} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

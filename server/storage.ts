@@ -1,169 +1,153 @@
 import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 import {
-  tests, packages, reviews, bookings,
-  type Test, type Package, type Review, type Booking, type InsertBooking
+  users, admins, tests, packages, reviews, bookings,
+  type User, type Admin, type Test, type Package, type Review, type Booking,
+  type RegisterInput, type LoginInput, type AdminLoginInput,
 } from "@shared/schema";
-import { eq } from "drizzle-orm";
 
 export interface IStorage {
+  // Users
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
+  createUser(data: RegisterInput): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+
+  // Admins
+  getAdminByEmail(email: string): Promise<Admin | undefined>;
+  getAdminById(id: number): Promise<Admin | undefined>;
+  createAdmin(email: string, password: string, name: string): Promise<Admin>;
+
+  // Tests
   getTests(): Promise<Test[]>;
   getTest(id: number): Promise<Test | undefined>;
+  createTest(data: any): Promise<Test>;
+  updateTest(id: number, data: any): Promise<Test | undefined>;
+  deleteTest(id: number): Promise<boolean>;
+
+  // Packages
   getPackages(): Promise<Package[]>;
   getPackage(id: number): Promise<Package | undefined>;
+  createPackage(data: any): Promise<Package>;
+  updatePackage(id: number, data: any): Promise<Package | undefined>;
+  deletePackage(id: number): Promise<boolean>;
+
+  // Reviews
   getReviews(): Promise<Review[]>;
-  createBooking(booking: InsertBooking): Promise<Booking>;
+
+  // Bookings
+  createBooking(userId: number, data: any): Promise<Booking>;
+  getBookingsByUser(userId: number): Promise<Booking[]>;
+  getAllBookings(): Promise<Booking[]>;
+  updateBookingStatus(id: number, testStatus: string, paymentStatus?: string): Promise<Booking | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private tests: Map<number, Test>;
-  private packages: Map<number, Package>;
-  private reviews: Map<number, Review>;
-  private bookings: Map<number, Booking>;
-  private currentBookingId: number;
-
-  constructor() {
-    this.tests = new Map();
-    this.packages = new Map();
-    this.reviews = new Map();
-    this.bookings = new Map();
-    this.currentBookingId = 1;
-    this.seedData();
+export class DatabaseStorage implements IStorage {
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
   }
 
-  private seedData() {
-    // Seed Tests
-    const testCategories = ["Hematology", "Biochemistry", "Hormones", "Diabetes", "Cardiology", "Immunology", "Microbiology"];
-    const testData = [
-      { id: 1, name: "Complete Blood Count (CBC)", description: "Evaluates overall health and detects a wide range of disorders.", price: 400, reportTime: "12 Hours", category: "Hematology", isPopular: true },
-      { id: 2, name: "Thyroid Profile (T3, T4, TSH)", description: "Checks thyroid function and hormone levels.", price: 600, reportTime: "24 Hours", category: "Hormones", isPopular: true },
-      { id: 3, name: "Lipid Profile", description: "Measures cholesterol and triglyceride levels.", price: 800, reportTime: "12 Hours", category: "Biochemistry", isPopular: true },
-      { id: 4, name: "Liver Function Test (LFT)", description: "Assesses liver health and function.", price: 700, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 5, name: "Kidney Function Test (KFT)", description: "Evaluates kidney function.", price: 750, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 6, name: "HbA1c (Glycated Hemoglobin)", description: "Average blood glucose level over the past 3 months.", price: 500, reportTime: "6 Hours", category: "Diabetes", isPopular: true },
-      { id: 7, name: "Blood Glucose Fasting", description: "Measures blood sugar after an overnight fast.", price: 100, reportTime: "4 Hours", category: "Diabetes", isPopular: true },
-      { id: 8, name: "Urine Routine & Microscopy", description: "Detects UTIs, kidney disorders, and diabetes.", price: 200, reportTime: "6 Hours", category: "Biochemistry", isPopular: true },
-      { id: 9, name: "Vitamin D (25-Hydroxy)", description: "Measures Vitamin D levels for bone health.", price: 1200, reportTime: "24 Hours", category: "Hormones", isPopular: true },
-      { id: 10, name: "Vitamin B12", description: "Checks for B12 deficiency affecting nerves and blood.", price: 1000, reportTime: "24 Hours", category: "Hormones", isPopular: false },
-      { id: 11, name: "Iron Studies", description: "Evaluates iron levels and storage in the body.", price: 900, reportTime: "24 Hours", category: "Hematology", isPopular: false },
-      { id: 12, name: "Calcium", description: "Checks calcium levels for bone and nerve health.", price: 300, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 13, name: "Uric Acid", description: "Measures uric acid to detect gout or kidney stones.", price: 250, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 14, name: "ESR (Erythrocyte Sedimentation Rate)", description: "Detects inflammation in the body.", price: 150, reportTime: "12 Hours", category: "Hematology", isPopular: false },
-      { id: 15, name: "Ferritin", description: "Measures stored iron in the body.", price: 800, reportTime: "24 Hours", category: "Hematology", isPopular: false },
-      { id: 16, name: "PSA (Prostate Specific Antigen)", description: "Screening for prostate cancer in men.", price: 1500, reportTime: "48 Hours", category: "Cardiology", isPopular: false },
-      { id: 17, name: "Cardiac Profile", description: "Set of tests to evaluate heart health.", price: 2500, reportTime: "24 Hours", category: "Cardiology", isPopular: true },
-      { id: 18, name: "Electrolytes (Serum)", description: "Measures sodium, potassium, and chloride.", price: 500, reportTime: "6 Hours", category: "Biochemistry", isPopular: false },
-      { id: 19, name: "Amylase", description: "Checks for pancreatic health.", price: 600, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 20, name: "Lipase", description: "Used with amylase to check pancreas function.", price: 650, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-    ];
+  async getUserById(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
 
-    // Add 52 more tests to make it 72
-    for (let i = 21; i <= 72; i++) {
-      testData.push({
-        id: i,
-        name: `Advanced Test ${i}`,
-        description: `Detailed diagnostic evaluation for specific medical concerns. High precision clinical analysis for accurate diagnosis.`,
-        price: 300 + (i * 15),
-        reportTime: i % 2 === 0 ? "24 Hours" : "48 Hours",
-        category: testCategories[i % testCategories.length],
-        isPopular: i % 10 === 0
-      });
-    }
-    testData.forEach(t => this.tests.set(t.id, t));
+  async createUser(data: RegisterInput): Promise<User> {
+    const result = await db.insert(users).values(data).returning();
+    return result[0];
+  }
 
-    // Seed Packages
-    const packageData = [
-      {
-        id: 1,
-        name: "Men's Basic Health Checkup",
-        description: "Essential health screening package for men covering basic parameters for overall health assessment.",
-        price: 1080,
-        category: "Men",
-        includes: ["Complete Blood Count (CBC)", "Blood Sugar Fasting", "Liver Function Test (LFT)", "Kidney Function Test (KFT)", "Lipid Profile", "Thyroid Profile"],
-        isFeatured: true
-      },
-      {
-        id: 2,
-        name: "Women's Wellness Package",
-        description: "Comprehensive health screening designed for women's specific physiological needs.",
-        price: 1499,
-        category: "Women",
-        includes: ["Complete Blood Count (CBC)", "Iron Studies", "Vitamin D & B12", "Thyroid Profile", "Calcium"],
-        isFeatured: true
-      },
-      {
-        id: 3,
-        name: "Young Adult Fitness",
-        description: "Designed for young adults to monitor energy levels and general health markers.",
-        price: 899,
-        category: "Young/General",
-        includes: ["CBC", "Lipid Profile", "Blood Sugar", "Urine Analysis"],
-        isFeatured: false
-      },
-      {
-        id: 4,
-        name: "Senior Citizen Care (Male)",
-        description: "Advanced health monitoring for senior men focusing on age-related health concerns.",
-        price: 2499,
-        category: "Senior Citizen",
-        includes: ["CBC", "Cardiac Risk Markers", "PSA (Prostate)", "Bone Health", "Vitamin D"],
-        isFeatured: false
-      },
-      {
-        id: 5,
-        name: "Senior Citizen Care (Female)",
-        description: "Advanced health monitoring for senior women focusing on bone health and hormone balance.",
-        price: 2499,
-        category: "Senior Citizen",
-        includes: ["CBC", "Bone Density Markers", "Thyroid Profile", "Vitamin D & B12", "Cardiac Profile"],
-        isFeatured: false
-      },
-      {
-        id: 6,
-        name: "Master Health Checkup",
-        description: "Our most comprehensive screening for a total health overview.",
-        price: 3999,
-        category: "Young/General",
-        includes: ["70+ Essential Tests", "Full Body Coverage", "Expert Consult Included"],
-        isFeatured: false
-      }
-    ];
-    packageData.forEach(p => this.packages.set(p.id, p));
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users);
+  }
 
-    // Seed Reviews
-    const reviewData = [
-      { id: 1, name: "Amit Sharma", rating: 5, comment: "Excellent service! The home collection was on time and very professional.", date: "2 days ago" },
-      { id: 2, name: "Priya Patel", rating: 4, comment: "Very clean lab and quick reporting. Highly recommended.", date: "1 week ago" },
-      { id: 3, name: "Rahul Verma", rating: 5, comment: "Best pathology lab in the city. Staff is very polite.", date: "2 weeks ago" },
-    ];
-    reviewData.forEach(r => this.reviews.set(r.id, r));
+  async getAdminByEmail(email: string): Promise<Admin | undefined> {
+    const result = await db.select().from(admins).where(eq(admins.email, email));
+    return result[0];
+  }
+
+  async getAdminById(id: number): Promise<Admin | undefined> {
+    const result = await db.select().from(admins).where(eq(admins.id, id));
+    return result[0];
+  }
+
+  async createAdmin(email: string, password: string, name: string): Promise<Admin> {
+    const result = await db.insert(admins).values({ email, password, name }).returning();
+    return result[0];
   }
 
   async getTests(): Promise<Test[]> {
-    return Array.from(this.tests.values());
+    return db.select().from(tests);
   }
 
   async getTest(id: number): Promise<Test | undefined> {
-    return this.tests.get(id);
+    const result = await db.select().from(tests).where(eq(tests.id, id));
+    return result[0];
+  }
+
+  async createTest(data: any): Promise<Test> {
+    const result = await db.insert(tests).values(data).returning();
+    return result[0];
+  }
+
+  async updateTest(id: number, data: any): Promise<Test | undefined> {
+    const result = await db.update(tests).set(data).where(eq(tests.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteTest(id: number): Promise<boolean> {
+    await db.delete(tests).where(eq(tests.id, id));
+    return true;
   }
 
   async getPackages(): Promise<Package[]> {
-    return Array.from(this.packages.values());
+    return db.select().from(packages);
   }
 
   async getPackage(id: number): Promise<Package | undefined> {
-    return this.packages.get(id);
+    const result = await db.select().from(packages).where(eq(packages.id, id));
+    return result[0];
+  }
+
+  async createPackage(data: any): Promise<Package> {
+    const result = await db.insert(packages).values(data).returning();
+    return result[0];
+  }
+
+  async updatePackage(id: number, data: any): Promise<Package | undefined> {
+    const result = await db.update(packages).set(data).where(eq(packages.id, id)).returning();
+    return result[0];
+  }
+
+  async deletePackage(id: number): Promise<boolean> {
+    await db.delete(packages).where(eq(packages.id, id));
+    return true;
   }
 
   async getReviews(): Promise<Review[]> {
-    return Array.from(this.reviews.values());
+    return db.select().from(reviews);
   }
 
-  async createBooking(insertBooking: InsertBooking): Promise<Booking> {
-    const id = this.currentBookingId++;
-    const booking: Booking = { ...insertBooking, id, date: new Date(), status: "pending" };
-    this.bookings.set(id, booking);
-    return booking;
+  async createBooking(userId: number, data: any): Promise<Booking> {
+    const result = await db.insert(bookings).values({ userId, ...data }).returning();
+    return result[0];
+  }
+
+  async getBookingsByUser(userId: number): Promise<Booking[]> {
+    return db.select().from(bookings).where(eq(bookings.userId, userId));
+  }
+
+  async getAllBookings(): Promise<Booking[]> {
+    return db.select().from(bookings);
+  }
+
+  async updateBookingStatus(id: number, testStatus: string, paymentStatus?: string): Promise<Booking | undefined> {
+    const updates: any = { testStatus };
+    if (paymentStatus) updates.paymentStatus = paymentStatus;
+    const result = await db.update(bookings).set(updates).where(eq(bookings.id, id)).returning();
+    return result[0];
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

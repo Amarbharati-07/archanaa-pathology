@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertBookingSchema, type InsertBooking } from "@shared/schema";
+import { createBookingSchema } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { z } from "zod";
 
 // Extend schema for frontend validation nuances if needed
-const formSchema = insertBookingSchema.extend({
+const formSchema = createBookingSchema.extend({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
 });
@@ -23,7 +23,7 @@ export default function Checkout() {
   const { mutate, isPending, isSuccess } = useCreateBooking();
   const [_, setLocation] = useLocation();
 
-  const form = useForm<InsertBooking>({
+  const form = useForm<any>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -35,7 +35,7 @@ export default function Checkout() {
     },
   });
 
-  function onSubmit(values: InsertBooking) {
+  function onSubmit(values: any) {
     // Ensure current items/total are used
     const bookingData = {
       ...values,

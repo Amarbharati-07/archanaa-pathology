@@ -8,37 +8,34 @@ import { Label } from "@/components/ui/label";
 import { ShieldCheck, User, Lock, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { adminLogin } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Static credentials as requested
-    if (username === "admin" && password === "admin123") {
-      setTimeout(() => {
-        localStorage.setItem("admin_auth", "true");
-        toast({
-          title: "Login Successful",
-          description: "Welcome to the admin dashboard.",
-        });
-        setLocation("/admin");
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        setIsLoading(false);
-        toast({
-          title: "Login Failed",
-          description: "Invalid admin credentials.",
-          variant: "destructive",
-        });
-      }, 800);
+    try {
+      await adminLogin(email, password);
+      toast({
+        title: "Login Successful",
+        description: "Welcome to the admin dashboard.",
+      });
+      setLocation("/admin");
+    } catch (err: any) {
+      toast({
+        title: "Login Failed",
+        description: err.message || "Invalid admin credentials.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -72,15 +69,16 @@ export default function AdminLogin() {
             <CardContent className="p-8 pt-4">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
-                      id="username"
-                      placeholder="admin"
+                      id="email"
+                      type="email"
+                      placeholder="admin@example.com"
                       className="pl-10 h-12 rounded-xl bg-slate-50 border-slate-200"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>

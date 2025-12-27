@@ -5,17 +5,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { Microscope } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const { userLogin, loading } = useAuth();
   const [_, setLocation] = useLocation();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email);
-    setLocation("/");
+    try {
+      await userLogin(email, password);
+      toast({ title: "Login successful!", description: "Welcome back" });
+      setLocation("/");
+    } catch (err: any) {
+      toast({ title: "Login failed", description: err.message, variant: "destructive" });
+    }
   };
 
   return (
@@ -45,7 +52,7 @@ export default function Login() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <Label htmlFor="password">Password</Label>
-              <Link href="/forgot-password" title="Click to reset your password" className="text-xs text-blue-600 font-medium hover:underline">Forgot password?</Link>
+              <Link href="/forgot-password" className="text-xs text-blue-600 font-medium hover:underline">Forgot password?</Link>
             </div>
             <Input 
               id="password" 
@@ -57,7 +64,9 @@ export default function Login() {
             />
           </div>
 
-          <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-100">Sign In</Button>
+          <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-100">
+            {loading ? "Signing in..." : "Sign In"}
+          </Button>
         </form>
 
         <div className="text-center text-sm pt-4 border-t border-slate-100">
