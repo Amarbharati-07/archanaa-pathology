@@ -33,172 +33,134 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
-      <div className="w-full max-w-[1000px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-100">
-        {/* Left side - Branding & Info */}
-        <div className="hidden md:flex md:w-2/5 bg-primary text-white flex-col justify-between p-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80')] opacity-10 bg-cover bg-center"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-12">
-              <Microscope className="w-8 h-8 text-white" />
-              <span className="font-display font-bold text-xl tracking-tight">Archana Pathology</span>
-            </div>
-            
-            <h1 className="font-display font-bold text-4xl mb-6 leading-tight">Create Account</h1>
-            <p className="text-lg text-blue-100/80 mb-8">Register to book tests, track your health history, and access reports instantly.</p>
-            
-            <div className="space-y-6">
-              {[
-                "Book 1000+ specialized tests",
-                "Get reports within 24 hours",
-                "Free home sample collection",
-                "Expert doctor consultations"
-              ].map((benefit, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                    <ChevronRight className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm font-medium">{benefit}</span>
-                </div>
-              ))}
-            </div>
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-100 p-8 md:p-12">
+        <div className="text-center mb-10">
+          <div className="bg-slate-900 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Microscope className="w-10 h-10 text-blue-500" />
           </div>
-
-          <div className="relative z-10 mt-12 pt-8 border-t border-white/10">
-            <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-2">Trusted by</p>
-            <p className="text-sm font-medium">10,000+ patients across the city</p>
-          </div>
+          <h1 className="font-display font-bold text-3xl text-slate-900">Create Account</h1>
+          <p className="text-slate-500 mt-2">Fill in all mandatory fields to secure your health reports.</p>
         </div>
 
-        {/* Right side - Form */}
-        <div className="flex-1 p-8 md:p-12 lg:p-16">
-          <div className="max-w-md mx-auto">
-            <div className="mb-10">
-              <h2 className="text-3xl font-display font-bold text-slate-900">Get Started</h2>
-              <p className="text-slate-500 mt-2">Please fill in all mandatory fields marked with *</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-slate-700 font-semibold">Full Name *</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                  <Input 
-                    id="fullName" 
-                    placeholder="Enter your full name" 
-                    className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
-                    required 
-                    value={formData.fullName}
-                    onChange={(e) => handleChange("fullName", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-semibold">Email *</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="your@email.com" 
-                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
-                      required 
-                      value={formData.email}
-                      onChange={(e) => handleChange("email", e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-slate-700 font-semibold">Phone Number *</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                    <Input 
-                      id="phone" 
-                      placeholder="+91 XXXXX XXXXX" 
-                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
-                      required 
-                      value={formData.phone}
-                      onChange={(e) => handleChange("phone", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700 font-semibold">Password *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      placeholder="Minimum 6 characters" 
-                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
-                      required 
-                      value={formData.password}
-                      onChange={(e) => handleChange("password", e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-slate-700 font-semibold">Confirm Password *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                    <Input 
-                      id="confirmPassword" 
-                      type="password" 
-                      placeholder="Re-enter your password" 
-                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
-                      required 
-                      value={formData.confirmPassword}
-                      onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label className="text-slate-700 font-semibold">Gender *</Label>
-                  <Select onValueChange={(v) => handleChange("gender", v)} required>
-                    <SelectTrigger className="h-12 bg-slate-50 border-slate-200">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dob" className="text-slate-700 font-semibold">Date of Birth *</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-5 w-5 text-slate-400 z-10" />
-                    <Input 
-                      id="dob" 
-                      type="date" 
-                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
-                      required 
-                      value={formData.dob}
-                      onChange={(e) => handleChange("dob", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] mt-4">
-                Create Account
-              </Button>
-            </form>
-
-            <div className="text-center mt-8 pt-6 border-t border-slate-100">
-              <span className="text-slate-500">Already have an account? </span>
-              <Link href="/login" className="text-blue-600 font-bold hover:underline">Log in here</Link>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="fullName" className="text-slate-700 font-semibold">Full Name *</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
+              <Input 
+                id="fullName" 
+                placeholder="Enter your full name" 
+                className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                required 
+                value={formData.fullName}
+                onChange={(e) => handleChange("fullName", e.target.value)}
+              />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-700 font-semibold">Email *</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="your@email.com" 
+                  className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                  required 
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-slate-700 font-semibold">Phone Number *</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
+                <Input 
+                  id="phone" 
+                  placeholder="+91 XXXXX XXXXX" 
+                  className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                  required 
+                  value={formData.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-slate-700 font-semibold">Password *</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  placeholder="Minimum 6 characters" 
+                  className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                  required 
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-slate-700 font-semibold">Confirm Password *</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
+                <Input 
+                  id="confirmPassword" 
+                  type="password" 
+                  placeholder="Re-enter password" 
+                  className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                  required 
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-slate-700 font-semibold">Gender *</Label>
+              <Select onValueChange={(v) => handleChange("gender", v)} required>
+                <SelectTrigger className="h-12 bg-slate-50 border-slate-200">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dob" className="text-slate-700 font-semibold">Date of Birth *</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3.5 h-5 w-5 text-slate-400 z-10" />
+                <Input 
+                  id="dob" 
+                  type="date" 
+                  className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                  required 
+                  value={formData.dob}
+                  onChange={(e) => handleChange("dob", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-[0.98] mt-4">
+            Create Account
+          </Button>
+        </form>
+
+        <div className="text-center mt-8 pt-6 border-t border-slate-100">
+          <span className="text-slate-500">Already have an account? </span>
+          <Link href="/login" className="text-blue-600 font-bold hover:underline">Log in here</Link>
         </div>
       </div>
     </div>
