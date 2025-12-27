@@ -72,10 +72,60 @@ export class MemStorage implements IStorage {
 
     // Seed Packages
     const packageData = [
-      { id: 1, name: "Basic Health Checkup", description: "Essential tests for a quick health overview.", price: 1500, category: "General", includes: ["CBC", "Urine Routine", "Blood Sugar Fasting"], isFeatured: false },
-      { id: 2, name: "Advanced Full Body Checkup", description: "Comprehensive health assessment covering all vital organs.", price: 4500, category: "Comprehensive", includes: ["CBC", "Lipid Profile", "Liver Function", "Kidney Function", "Thyroid", "HbA1c"], isFeatured: true },
-      { id: 3, name: "Senior Citizen Package", description: "Tailored health monitoring for seniors.", price: 3500, category: "Senior Care", includes: ["CBC", "Bone Profile", "Diabetes Screen", "Lipid Profile"], isFeatured: true },
-      { id: 4, name: "Women's Wellness", description: "Specialized tests for women's health.", price: 2800, category: "Women", includes: ["CBC", "Thyroid", "Iron Studies", "Vitamin D", "B12"], isFeatured: true },
+      {
+        id: 1,
+        name: "Men's Basic Health Checkup",
+        description: "Essential health screening package for men covering basic parameters for overall health assessment.",
+        price: 1080,
+        category: "Men",
+        includes: ["Complete Blood Count (CBC)", "Blood Sugar Fasting", "Liver Function Test (LFT)", "Kidney Function Test (KFT)", "Lipid Profile", "Thyroid Profile"],
+        isFeatured: true
+      },
+      {
+        id: 2,
+        name: "Women's Wellness Package",
+        description: "Comprehensive health screening designed for women's specific physiological needs.",
+        price: 1499,
+        category: "Women",
+        includes: ["Complete Blood Count (CBC)", "Iron Studies", "Vitamin D & B12", "Thyroid Profile", "Calcium"],
+        isFeatured: true
+      },
+      {
+        id: 3,
+        name: "Young Adult Fitness",
+        description: "Designed for young adults to monitor energy levels and general health markers.",
+        price: 899,
+        category: "Young/General",
+        includes: ["CBC", "Lipid Profile", "Blood Sugar", "Urine Analysis"],
+        isFeatured: false
+      },
+      {
+        id: 4,
+        name: "Senior Citizen Care (Male)",
+        description: "Advanced health monitoring for senior men focusing on age-related health concerns.",
+        price: 2499,
+        category: "Senior Citizen",
+        includes: ["CBC", "Cardiac Risk Markers", "PSA (Prostate)", "Bone Health", "Vitamin D"],
+        isFeatured: false
+      },
+      {
+        id: 5,
+        name: "Senior Citizen Care (Female)",
+        description: "Advanced health monitoring for senior women focusing on bone health and hormone balance.",
+        price: 2499,
+        category: "Senior Citizen",
+        includes: ["CBC", "Bone Density Markers", "Thyroid Profile", "Vitamin D & B12", "Cardiac Profile"],
+        isFeatured: false
+      },
+      {
+        id: 6,
+        name: "Master Health Checkup",
+        description: "Our most comprehensive screening for a total health overview.",
+        price: 3999,
+        category: "Young/General",
+        includes: ["70+ Essential Tests", "Full Body Coverage", "Expert Consult Included"],
+        isFeatured: false
+      }
     ];
     packageData.forEach(p => this.packages.set(p.id, p));
 

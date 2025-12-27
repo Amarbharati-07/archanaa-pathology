@@ -2,12 +2,18 @@ import { usePackages } from "@/hooks/use-packages";
 import { PackageCard } from "@/components/PackageCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HeartPulse } from "lucide-react";
+import { HeartPulse, User, Users, Heart, Sparkles, UserCheck } from "lucide-react";
 
 export default function Packages() {
   const { data: packages, isLoading } = usePackages();
 
-  const categories = ["All", "General Wellness", "Women Health", "Senior Citizen", "Diabetes"];
+  const categories = [
+    { id: "All", label: "All Packages", icon: Sparkles },
+    { id: "Men", label: "Men", icon: User },
+    { id: "Women", label: "Women", icon: Heart },
+    { id: "Young/General", label: "Young/General", icon: Users },
+    { id: "Senior Citizen", label: "Senior Citizen", icon: UserCheck },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
@@ -25,22 +31,23 @@ export default function Packages() {
 
       <div className="container mx-auto px-4 py-12">
         <Tabs defaultValue="All" className="w-full">
-          <div className="flex justify-center mb-12 overflow-x-auto pb-4">
-            <TabsList className="h-auto p-1 bg-white border shadow-sm rounded-full">
+          <div className="flex justify-center mb-12">
+            <TabsList className="h-auto p-1 bg-slate-100/50 border shadow-sm rounded-xl overflow-x-auto flex flex-nowrap max-w-full">
               {categories.map((cat) => (
                 <TabsTrigger 
-                  key={cat} 
-                  value={cat}
-                  className="rounded-full px-6 py-3 text-base data-[state=active]:bg-primary data-[state=active]:text-white"
+                  key={cat.id} 
+                  value={cat.id}
+                  className="rounded-lg px-4 py-2.5 text-sm font-bold flex items-center gap-2 transition-all data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-slate-500 whitespace-nowrap"
                 >
-                  {cat}
+                  <cat.icon className="w-4 h-4" />
+                  {cat.label}
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
 
           {categories.map((cat) => (
-            <TabsContent key={cat} value={cat}>
+            <TabsContent key={cat.id} value={cat.id}>
               {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {[1, 2, 3].map((i) => (
@@ -55,7 +62,7 @@ export default function Packages() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {packages
-                    ?.filter(p => cat === "All" || p.category.includes(cat) || (cat === "General Wellness" && !p.category)) // loose matching for demo
+                    ?.filter(p => cat.id === "All" || p.category === cat.id)
                     .map((pkg) => (
                       <PackageCard key={pkg.id} pkg={pkg} />
                     ))}
