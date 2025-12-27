@@ -33,7 +33,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-8">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-8">
         <div className="text-center mb-6">
           <div className="bg-slate-900 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
             <Microscope className="w-8 h-8 text-blue-500" />
@@ -42,15 +42,15 @@ export default function Register() {
           <p className="text-sm text-slate-500 mt-1">Fill in mandatory fields for your medical reports.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="fullName" className="text-sm text-slate-700 font-semibold">Full Name *</Label>
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div className="space-y-1">
+            <Label htmlFor="fullName" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Full Name *</Label>
             <div className="relative">
               <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input 
                 id="fullName" 
                 placeholder="Full name" 
-                className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm" 
+                className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                 required 
                 value={formData.fullName}
                 onChange={(e) => handleChange("fullName", e.target.value)}
@@ -59,29 +59,29 @@ export default function Register() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm text-slate-700 font-semibold">Email *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="email" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Email *</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
                   id="email" 
                   type="email" 
                   placeholder="Email" 
-                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm" 
+                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-sm text-slate-700 font-semibold">Phone *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="phone" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Phone *</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
                   id="phone" 
                   placeholder="Phone" 
-                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm" 
+                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
@@ -91,30 +91,30 @@ export default function Register() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm text-slate-700 font-semibold">Password *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="password" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Password *</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
                   id="password" 
                   type="password" 
                   placeholder="Password" 
-                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm" 
+                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
                   value={formData.password}
                   onChange={(e) => handleChange("password", e.target.value)}
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword" className="text-sm text-slate-700 font-semibold">Confirm *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="confirmPassword" className="text-xs text-slate-700 font-bold uppercase tracking-wider">Confirm *</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
                   id="confirmPassword" 
                   type="password" 
                   placeholder="Confirm" 
-                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm" 
+                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
                   value={formData.confirmPassword}
                   onChange={(e) => handleChange("confirmPassword", e.target.value)}
@@ -124,10 +124,10 @@ export default function Register() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-sm text-slate-700 font-semibold">Gender *</Label>
+            <div className="space-y-1">
+              <Label className="text-xs text-slate-700 font-bold uppercase tracking-wider">Gender *</Label>
               <Select onValueChange={(v) => handleChange("gender", v)} required>
-                <SelectTrigger className="h-10 bg-slate-50 border-slate-200 text-sm">
+                <SelectTrigger className="h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
@@ -137,14 +137,14 @@ export default function Register() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dob" className="text-sm text-slate-700 font-semibold">DOB *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="dob" className="text-xs text-slate-700 font-bold uppercase tracking-wider">DOB *</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 z-10" />
                 <Input 
                   id="dob" 
                   type="date" 
-                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm" 
+                  className="pl-9 h-10 bg-slate-50 border-slate-200 text-sm focus:bg-white transition-all" 
                   required 
                   value={formData.dob}
                   onChange={(e) => handleChange("dob", e.target.value)}
@@ -153,7 +153,7 @@ export default function Register() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-50 mt-2">
+          <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-50 mt-2 active:scale-[0.98] transition-all">
             Create Account
           </Button>
         </form>
