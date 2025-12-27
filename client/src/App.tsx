@@ -8,7 +8,7 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import NotFound from "@/pages/not-found";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -43,12 +43,16 @@ function AppLoader() {
             }}
             className="absolute inset-0 bg-blue-100 rounded-full blur-2xl"
           />
-          <div className="relative bg-white p-6 rounded-3xl shadow-2xl shadow-blue-100 border border-blue-50">
-            <Activity className="w-16 h-16 text-blue-600" />
+          <div className="relative bg-white p-2 rounded-3xl shadow-2xl shadow-blue-100 border border-blue-50 overflow-hidden">
+            <img 
+              src={logoImg} 
+              alt="Archana Pathology Lab Logo" 
+              className="w-24 h-24 object-contain"
+            />
           </div>
         </div>
         
-        <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Archana Pathology Lab</h2>
+        <h2 className="text-3xl font-display font-bold text-slate-900 mb-2 tracking-tight">Archana Pathology Lab</h2>
         <p className="text-slate-500 font-medium mb-8">Initializing secure health portal...</p>
         
         <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden relative">
