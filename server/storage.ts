@@ -32,14 +32,42 @@ export class MemStorage implements IStorage {
 
   private seedData() {
     // Seed Tests
+    const testCategories = ["Hematology", "Biochemistry", "Hormones", "Diabetes", "Cardiology", "Immunology", "Microbiology"];
     const testData = [
       { id: 1, name: "Complete Blood Count (CBC)", description: "Evaluates overall health and detects a wide range of disorders.", price: 400, reportTime: "12 Hours", category: "Hematology", isPopular: true },
-      { id: 2, name: "Thyroid Profile", description: "Checks thyroid function and hormone levels.", price: 600, reportTime: "24 Hours", category: "Hormones", isPopular: true },
+      { id: 2, name: "Thyroid Profile (T3, T4, TSH)", description: "Checks thyroid function and hormone levels.", price: 600, reportTime: "24 Hours", category: "Hormones", isPopular: true },
       { id: 3, name: "Lipid Profile", description: "Measures cholesterol and triglyceride levels.", price: 800, reportTime: "12 Hours", category: "Biochemistry", isPopular: true },
-      { id: 4, name: "Liver Function Test", description: "Assesses liver health and function.", price: 700, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 5, name: "Kidney Function Test", description: "Evaluates kidney function.", price: 750, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
-      { id: 6, name: "HbA1c", description: "Average blood glucose level over the past 3 months.", price: 500, reportTime: "6 Hours", category: "Diabetes", isPopular: true },
+      { id: 4, name: "Liver Function Test (LFT)", description: "Assesses liver health and function.", price: 700, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
+      { id: 5, name: "Kidney Function Test (KFT)", description: "Evaluates kidney function.", price: 750, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
+      { id: 6, name: "HbA1c (Glycated Hemoglobin)", description: "Average blood glucose level over the past 3 months.", price: 500, reportTime: "6 Hours", category: "Diabetes", isPopular: true },
+      { id: 7, name: "Blood Glucose Fasting", description: "Measures blood sugar after an overnight fast.", price: 100, reportTime: "4 Hours", category: "Diabetes", isPopular: true },
+      { id: 8, name: "Urine Routine & Microscopy", description: "Detects UTIs, kidney disorders, and diabetes.", price: 200, reportTime: "6 Hours", category: "Biochemistry", isPopular: true },
+      { id: 9, name: "Vitamin D (25-Hydroxy)", description: "Measures Vitamin D levels for bone health.", price: 1200, reportTime: "24 Hours", category: "Hormones", isPopular: true },
+      { id: 10, name: "Vitamin B12", description: "Checks for B12 deficiency affecting nerves and blood.", price: 1000, reportTime: "24 Hours", category: "Hormones", isPopular: false },
+      { id: 11, name: "Iron Studies", description: "Evaluates iron levels and storage in the body.", price: 900, reportTime: "24 Hours", category: "Hematology", isPopular: false },
+      { id: 12, name: "Calcium", description: "Checks calcium levels for bone and nerve health.", price: 300, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
+      { id: 13, name: "Uric Acid", description: "Measures uric acid to detect gout or kidney stones.", price: 250, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
+      { id: 14, name: "ESR (Erythrocyte Sedimentation Rate)", description: "Detects inflammation in the body.", price: 150, reportTime: "12 Hours", category: "Hematology", isPopular: false },
+      { id: 15, name: "Ferritin", description: "Measures stored iron in the body.", price: 800, reportTime: "24 Hours", category: "Hematology", isPopular: false },
+      { id: 16, name: "PSA (Prostate Specific Antigen)", description: "Screening for prostate cancer in men.", price: 1500, reportTime: "48 Hours", category: "Cardiology", isPopular: false },
+      { id: 17, name: "Cardiac Profile", description: "Set of tests to evaluate heart health.", price: 2500, reportTime: "24 Hours", category: "Cardiology", isPopular: true },
+      { id: 18, name: "Electrolytes (Serum)", description: "Measures sodium, potassium, and chloride.", price: 500, reportTime: "6 Hours", category: "Biochemistry", isPopular: false },
+      { id: 19, name: "Amylase", description: "Checks for pancreatic health.", price: 600, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
+      { id: 20, name: "Lipase", description: "Used with amylase to check pancreas function.", price: 650, reportTime: "12 Hours", category: "Biochemistry", isPopular: false },
     ];
+
+    // Add 52 more tests to make it 72
+    for (let i = 21; i <= 72; i++) {
+      testData.push({
+        id: i,
+        name: `Advanced Test ${i}`,
+        description: `Detailed diagnostic evaluation for specific medical concerns. High precision clinical analysis for accurate diagnosis.`,
+        price: 300 + (i * 15),
+        reportTime: i % 2 === 0 ? "24 Hours" : "48 Hours",
+        category: testCategories[i % testCategories.length],
+        isPopular: i % 10 === 0
+      });
+    }
     testData.forEach(t => this.tests.set(t.id, t));
 
     // Seed Packages
