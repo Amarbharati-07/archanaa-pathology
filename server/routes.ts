@@ -104,7 +104,7 @@ export async function registerRoutes(
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.json({ id: user.id, email: user.email, name: user.name, phone: user.phone, gender: user.gender, age: user.age });
+      res.json({ id: user.id, email: user.email, name: user.name, phone: user.phone, gender: user.gender, age: user.age, address: user.address });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }

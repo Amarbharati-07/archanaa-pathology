@@ -7,6 +7,7 @@ interface User {
   phone?: string;
   gender?: string;
   age?: number;
+  address?: string;
 }
 
 interface Admin {
