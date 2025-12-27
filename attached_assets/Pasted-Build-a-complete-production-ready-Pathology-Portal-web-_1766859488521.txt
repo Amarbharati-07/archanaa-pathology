@@ -1,0 +1,34 @@
+Build a complete production-ready “Pathology Portal” web application with a secure Admin panel and User panel using MERN Stack (MongoDB, Express, React, Node.js). Do not use ANY dummy data. Use MongoDB database for all records. Implement secure JWT authentication, bcrypt password hashing, and role-based access control for ADMIN and USER.
+
+User Module Requirements:
+- User can register with name, email, password, phone, gender, age
+- Email must be unique, validate password, backend validation required
+- User login with JWT token and session handling
+- After login, user dashboard should show profile + previous test bookings + status
+- User can browse available pathology TESTS and HEALTH PACKAGES (stored in MongoDB by Admin)
+- User can book a test/package with date, time, payment status (pending/paid), test status (Booked, In Progress, Completed)
+- Booking should be saved in MongoDB and visible to both user and admin
+- User should NOT become admin automatically
+- No auto creation of dummy users or dummy bookings
+
+Admin Module Requirements:
+- Separate Admin login page (admin/login)
+- Admin dashboard must show total users, total bookings, completed tests, pending tests
+- Admin can view ALL users and their booking activities
+- Admin can view bookings table with user name, test name, package name, date, status
+- Admin can update test status (Booked → In Progress → Completed)
+- Admin can create, edit, delete pathology Tests and Health Packages
+- Admin must NOT be created automatically, create admin manually in DB or via seed
+- Role based protection → Admin routes locked for admin only
+
+Technical Requirements:
+- Backend: Node.js, Express, MongoDB, Mongoose
+- Frontend: React + protected routes
+- Use JWT auth middleware, store token safely
+- Proper Error handling
+- No hardcoded dummy records
+- Clean UI with separate navigation for User and Admin
+- Fully functional system where Admin truly manages data and User truly interacts with real data
+- Deploy friendly structure
+
+Make sure everything works correctly end-to-end: registration → login → booking → admin control → dashboard display without dummy content.
