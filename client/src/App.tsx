@@ -79,14 +79,15 @@ function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const isAuthPage = location === "/login" || location === "/register" || location === "/forgot-password" || location === "/admin/login";
   const isAdminPage = location.startsWith("/admin");
+  const isDashboardPage = location === "/dashboard" || location === "/user/dashboard";
 
   return (
     <div className="flex flex-col min-h-screen font-sans">
-      {!isAuthPage && !isAdminPage && <Header />}
+      {!isAuthPage && !isAdminPage && !isDashboardPage && <Header />}
       <main className="flex-1">
         {children}
       </main>
-      {!isAuthPage && !isAdminPage && <Footer />}
+      {!isAuthPage && !isAdminPage && !isDashboardPage && <Footer />}
     </div>
   );
 }
