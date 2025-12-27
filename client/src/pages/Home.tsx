@@ -7,6 +7,7 @@ import { usePackages } from "@/hooks/use-packages";
 import { useReviews } from "@/hooks/use-reviews";
 import { TestCard } from "@/components/TestCard";
 import { PackageCard } from "@/components/PackageCard";
+import { PrescriptionUpload } from "@/components/PrescriptionUpload";
 import { useState, useEffect } from "react";
 import {
   Carousel,
@@ -108,12 +109,12 @@ export default function Home() {
                   Book a Test
                 </Button>
               </Link>
-              <Link href="/contact">
+              <PrescriptionUpload>
                 <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-xl border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
                   Upload Prescription
                   <Upload className="ml-2 h-5 w-5" />
                 </Button>
-              </Link>
+              </PrescriptionUpload>
             </div>
           </motion.div>
         </div>
