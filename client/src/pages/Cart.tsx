@@ -174,7 +174,7 @@ export default function Cart() {
                   )}
                 </Button>
                 
-                {!isAuthenticated && (
+                {!isAuthenticated ? (
                   <div className="text-center mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
                     <p className="text-xs text-slate-500 font-medium leading-relaxed">
                       Please login to book tests and access your reports.
