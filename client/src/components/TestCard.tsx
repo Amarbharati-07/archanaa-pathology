@@ -2,9 +2,28 @@ import { Test } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Clock, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 export function TestCard({ test }: { test: Test }) {
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const handleBook = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login or register to book tests and packages. All fields are mandatory for registration.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+      return;
+    }
+    addItem({ id: test.id, type: "test", name: test.name, price: test.price });
+  };
 
   const getCategoryImage = (category: string) => {
     switch (category.toLowerCase()) {
@@ -62,7 +81,7 @@ export function TestCard({ test }: { test: Test }) {
         </div>
         
         <Button 
-          onClick={() => addItem({ id: test.id, type: "test", name: test.name, price: test.price })}
+          onClick={handleBook}
           className="w-full bg-[#4488dd] hover:bg-[#3377cc] text-white rounded-lg h-11 font-bold flex items-center justify-center gap-2 transition-colors"
         >
           <ShoppingCart className="w-4 h-4" />

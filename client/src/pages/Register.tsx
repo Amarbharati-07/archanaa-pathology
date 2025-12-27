@@ -3,75 +3,201 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
-import { Microscope } from "lucide-react";
+import { Microscope, User, Mail, Phone, Lock, Calendar, ChevronRight } from "lucide-react";
 
 export default function Register() {
-  const [email, setEmail] = useState("");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    gender: "",
+    dob: ""
+  });
   const { login } = useAuth();
   const [_, setLocation] = useLocation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login(email);
+    // In a real app, we would validate all fields here
+    login(formData.email);
     setLocation("/");
   };
 
-  return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
-      {/* Left side - Branding */}
-      <div className="hidden md:flex bg-primary text-white flex-col justify-center p-12 relative overflow-hidden">
-         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80')] opacity-20 bg-cover bg-center"></div>
-         <div className="relative z-10">
-            <Microscope className="w-16 h-16 text-white mb-6" />
-            <h1 className="font-display font-bold text-5xl mb-6">Join Us Today</h1>
-            <p className="text-xl text-blue-100">Create an account to track your health journey with Archana Pathology Lab.</p>
-         </div>
-      </div>
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-      {/* Right side - Form */}
-      <div className="flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center md:text-left">
-            <h2 className="font-display font-bold text-3xl">Create Account</h2>
-            <p className="text-muted-foreground mt-2">Enter your details to register</p>
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
+      <div className="w-full max-w-[1000px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-100">
+        {/* Left side - Branding & Info */}
+        <div className="hidden md:flex md:w-2/5 bg-primary text-white flex-col justify-between p-12 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80')] opacity-10 bg-cover bg-center"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-12">
+              <Microscope className="w-8 h-8 text-white" />
+              <span className="font-display font-bold text-xl tracking-tight">Archana Pathology</span>
+            </div>
+            
+            <h1 className="font-display font-bold text-4xl mb-6 leading-tight">Create Account</h1>
+            <p className="text-lg text-blue-100/80 mb-8">Register to book tests, track your health history, and access reports instantly.</p>
+            
+            <div className="space-y-6">
+              {[
+                "Book 1000+ specialized tests",
+                "Get reports within 24 hours",
+                "Free home sample collection",
+                "Expert doctor consultations"
+              ].map((benefit, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                    <ChevronRight className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">{benefit}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                 <Label htmlFor="fname">First Name</Label>
-                 <Input id="fname" placeholder="John" required />
-               </div>
-               <div className="space-y-2">
-                 <Label htmlFor="lname">Last Name</Label>
-                 <Input id="lname" placeholder="Doe" required />
-               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="name@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
+          <div className="relative z-10 mt-12 pt-8 border-t border-white/10">
+            <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-2">Trusted by</p>
+            <p className="text-sm font-medium">10,000+ patients across the city</p>
+          </div>
+        </div>
+
+        {/* Right side - Form */}
+        <div className="flex-1 p-8 md:p-12 lg:p-16">
+          <div className="max-w-md mx-auto">
+            <div className="mb-10">
+              <h2 className="text-3xl font-display font-bold text-slate-900">Get Started</h2>
+              <p className="text-slate-500 mt-2">Please fill in all mandatory fields marked with *</p>
             </div>
 
-            <Button type="submit" className="w-full h-11 font-bold shadow-lg">Create Account</Button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-slate-700 font-semibold">Full Name *</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                  <Input 
+                    id="fullName" 
+                    placeholder="Enter your full name" 
+                    className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                    required 
+                    value={formData.fullName}
+                    onChange={(e) => handleChange("fullName", e.target.value)}
+                  />
+                </div>
+              </div>
 
-          <div className="text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <Link href="/login" className="text-primary font-bold hover:underline">Sign in</Link>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-700 font-semibold">Email *</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="your@email.com" 
+                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                      required 
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-slate-700 font-semibold">Phone Number *</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    <Input 
+                      id="phone" 
+                      placeholder="+91 XXXXX XXXXX" 
+                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                      required 
+                      value={formData.phone}
+                      onChange={(e) => handleChange("phone", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-slate-700 font-semibold">Password *</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    <Input 
+                      id="password" 
+                      type="password" 
+                      placeholder="Minimum 6 characters" 
+                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                      required 
+                      value={formData.password}
+                      onChange={(e) => handleChange("password", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-slate-700 font-semibold">Confirm Password *</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    <Input 
+                      id="confirmPassword" 
+                      type="password" 
+                      placeholder="Re-enter your password" 
+                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                      required 
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-slate-700 font-semibold">Gender *</Label>
+                  <Select onValueChange={(v) => handleChange("gender", v)} required>
+                    <SelectTrigger className="h-12 bg-slate-50 border-slate-200">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dob" className="text-slate-700 font-semibold">Date of Birth *</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-3 h-5 w-5 text-slate-400 z-10" />
+                    <Input 
+                      id="dob" 
+                      type="date" 
+                      className="pl-10 h-12 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                      required 
+                      value={formData.dob}
+                      onChange={(e) => handleChange("dob", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] mt-4">
+                Create Account
+              </Button>
+            </form>
+
+            <div className="text-center mt-8 pt-6 border-t border-slate-100">
+              <span className="text-slate-500">Already have an account? </span>
+              <Link href="/login" className="text-blue-600 font-bold hover:underline">Log in here</Link>
+            </div>
           </div>
         </div>
       </div>

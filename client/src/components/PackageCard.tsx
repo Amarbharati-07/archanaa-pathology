@@ -2,6 +2,9 @@ import { Package } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Clock, Check, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -14,6 +17,22 @@ import {
 
 export function PackageCard({ pkg }: { pkg: Package }) {
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const handleBook = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login or register to book tests and packages. All fields are mandatory for registration.",
+        variant: "destructive",
+      });
+      setLocation("/login");
+      return;
+    }
+    addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price });
+  };
 
   return (
     <div className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full overflow-hidden">
@@ -129,7 +148,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
                     </Button>
                   </DialogClose>
                   <Button 
-                    onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}
+                    onClick={handleBook}
                     className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-blue-200"
                   >
                     <ShoppingCart className="w-4 h-4" />
@@ -141,7 +160,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
           </Dialog>
           
           <Button 
-            onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}
+            onClick={handleBook}
             className="bg-[#4488dd] hover:bg-[#3377cc] text-white rounded-lg h-11 font-bold flex items-center justify-center gap-2 shadow-sm"
           >
             <ShoppingCart className="w-4 h-4" />
