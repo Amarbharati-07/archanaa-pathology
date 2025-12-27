@@ -50,6 +50,7 @@ export default function AdminDashboard() {
     { title: "Total Reports", value: "0", icon: FileText, color: "bg-emerald-500", trend: "+0%" },
     { title: "Pending Bookings", value: "0", icon: CalendarCheck, color: "bg-amber-500", trend: "Stable" },
     { title: "Available Tests", value: "78", icon: FlaskConical, color: "bg-purple-500", trend: "Catalog" },
+    { title: "Health Packages", value: "6", icon: Sparkles, color: "bg-rose-500", trend: "Active" },
   ];
 
   const sidebarItems = [
@@ -149,7 +150,7 @@ export default function AdminDashboard() {
             {activeTab === "dashboard" ? (
               <>
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                   {stats.map((stat, idx) => (
                     <Card key={idx} className="border-none shadow-sm shadow-slate-200/50 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
                       <CardContent className="p-6">
