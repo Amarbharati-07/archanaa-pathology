@@ -87,9 +87,6 @@ export function PackageCard({ pkg }: { pkg: Package }) {
                       </div>
                     </div>
                   </DialogHeader>
-                  <DialogClose className="rounded-full w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">
-                    <X className="w-5 h-5" />
-                  </DialogClose>
                 </div>
 
                 <p className="text-slate-600 mb-8 leading-relaxed">
