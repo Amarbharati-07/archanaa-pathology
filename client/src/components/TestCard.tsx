@@ -6,12 +6,31 @@ import { useCart } from "@/context/CartContext";
 export function TestCard({ test }: { test: Test }) {
   const { addItem } = useCart();
 
+  const getCategoryImage = (category: string) => {
+    switch (category.toLowerCase()) {
+      case "hematology":
+        return "https://images.unsplash.com/photo-1631815587646-b85a1bb027e1?auto=format&fit=crop&q=80&w=800"; // Blood sample
+      case "biochemistry":
+        return "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800"; // Lab beaker
+      case "hormones":
+        return "https://images.unsplash.com/photo-1624391151221-51206584c311?auto=format&fit=crop&q=80&w=800"; // Medical testing
+      case "diabetes":
+        return "https://images.unsplash.com/photo-1508847154043-be13a0a27474?auto=format&fit=crop&q=80&w=800"; // Glucose meter
+      case "cardiology":
+        return "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=800"; // Heart health
+      case "immunology":
+        return "https://images.unsplash.com/photo-1581595221445-262de1ef92c1?auto=format&fit=crop&q=80&w=800"; // Microscope
+      default:
+        return "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800"; // General medical
+    }
+  };
+
   return (
     <div className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full overflow-hidden">
       {/* Image Header */}
       <div className="relative h-48 overflow-hidden bg-slate-100">
         <img 
-          src={`https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800`}
+          src={getCategoryImage(test.category)}
           alt={test.name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
