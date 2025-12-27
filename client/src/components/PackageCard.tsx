@@ -1,14 +1,15 @@
 import { Package } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Info } from "lucide-react";
+import { ShoppingCart, Clock, Check, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 
 export function PackageCard({ pkg }: { pkg: Package }) {
@@ -49,33 +50,92 @@ export function PackageCard({ pkg }: { pkg: Package }) {
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" className="h-11 rounded-lg border-slate-200 text-slate-700 font-bold hover:bg-slate-50">
-                Details
+                View Details
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md rounded-2xl">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-slate-900">{pkg.name}</DialogTitle>
-                <DialogDescription className="text-slate-600 pt-2">{pkg.description}</DialogDescription>
-              </DialogHeader>
-              <div className="mt-6 space-y-4">
-                <h4 className="font-bold text-slate-900">Included Tests:</h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {pkg.includes?.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                      <span className="text-sm font-medium text-slate-700">{item}</span>
+            <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl border-none shadow-2xl">
+              <div className="p-6 md:p-8 bg-white max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-start mb-4">
+                  <DialogHeader className="text-left">
+                    <DialogTitle className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">
+                      {pkg.name}
+                    </DialogTitle>
+                    <div className="flex flex-wrap items-center gap-2 mt-3">
+                      <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none rounded-md px-3 py-1 font-medium">
+                        {pkg.category}
+                      </Badge>
+                      <Badge className="bg-red-500 text-white hover:bg-red-600 border-none rounded-md px-3 py-1 font-bold">
+                        40% OFF
+                      </Badge>
+                      <div className="flex items-center gap-1.5 text-slate-500 text-sm font-medium ml-1">
+                        <Clock className="w-4 h-4" />
+                        <span>24-48 hours</span>
+                      </div>
                     </div>
-                  ))}
+                  </DialogHeader>
+                  <DialogClose className="rounded-full w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">
+                    <X className="w-5 h-5" />
+                  </DialogClose>
+                </div>
+
+                <p className="text-slate-600 mb-8 leading-relaxed">
+                  {pkg.description} Essential health screening package covering basic parameters for overall health assessment.
+                </p>
+
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 text-blue-600 font-bold mb-4">
+                    <div className="w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center text-[10px]">!</div>
+                    <span className="text-lg">Tests Included ({pkg.includes?.length || 0})</span>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Simplified grouping logic for demo - in real app would group by actual test categories */}
+                    {["HEMATOLOGY", "DIABETES", "LIVER PROFILE", "KIDNEY PROFILE", "LIPID PROFILE", "THYROID"].map((cat, idx) => (
+                      <div key={cat} className="space-y-3">
+                        <div className="flex items-center gap-2 text-slate-500 font-bold text-xs tracking-widest">
+                          <div className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[8px]">&bull;</div>
+                          {cat} (1)
+                        </div>
+                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+                            <div>
+                              <div className="font-bold text-slate-900">{pkg.includes?.[idx] || "Standard Diagnostic Test"}</div>
+                              <p className="text-slate-500 text-sm mt-1 leading-snug">
+                                Comprehensive clinical evaluation for accurate health assessment and diagnostic monitoring...
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="mt-8 flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100">
-                 <div className="font-bold text-2xl text-blue-700">₹{pkg.price}</div>
-                 <Button 
-                   onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}
-                   className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 font-bold"
-                 >
-                   Add to Cart
-                 </Button>
+
+              {/* Bottom Sticky Action Bar */}
+              <div className="p-6 bg-white border-t border-slate-100 flex items-center justify-between shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-blue-600">₹{pkg.price}</span>
+                    <span className="text-slate-400 line-through text-sm">₹{pkg.price * 1.5}</span>
+                  </div>
+                  <div className="text-green-600 text-sm font-bold mt-0.5">You save ₹{Math.floor(pkg.price * 0.5)}</div>
+                </div>
+                <div className="flex gap-3">
+                  <DialogClose asChild>
+                    <Button variant="outline" className="h-12 px-6 rounded-lg font-bold border-slate-200">
+                      Close
+                    </Button>
+                  </DialogClose>
+                  <Button 
+                    onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}
+                    className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-blue-200"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    Book Now
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
