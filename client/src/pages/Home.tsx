@@ -19,26 +19,35 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+import video1 from "@assets/generated_videos/high-tech_blood_analysis_machine.mp4";
+import video2 from "@assets/generated_videos/medical_laboratory_scientists_at_work.mp4";
+import video3 from "@assets/generated_videos/medical_professional_collecting_blood_sample.mp4";
+import video4 from "@assets/generated_videos/scientist_looking_through_microscope_lab.mp4";
+
 const HERO_SLIDES = [
   {
+    video: video1,
     image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=2070",
     title: "Your Health,",
     subtitle: "Our Priority",
     description: "Experience world-class diagnostic services with accurate results and state-of-the-art technology."
   },
   {
+    video: video2,
     image: "https://images.unsplash.com/photo-1581595221445-262de1ef92c1?auto=format&fit=crop&q=80&w=2070",
     title: "Advanced",
     subtitle: "Diagnostics",
     description: "Precision in every report. Our laboratory is equipped with the latest medical technology."
   },
   {
+    video: video3,
     image: "https://images.unsplash.com/photo-1531053326607-9d349096d887?auto=format&fit=crop&q=80&w=2070",
     title: "Home",
     subtitle: "Collection",
     description: "Safe and hygienic sample collection from the comfort of your home at no extra cost."
   },
   {
+    video: video4,
     image: "https://images.unsplash.com/photo-1631815587646-b85a1bb027e1?auto=format&fit=crop&q=80&w=2070",
     title: "Reliable",
     subtitle: "Care",
@@ -76,11 +85,16 @@ export default function Home() {
             transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
           >
-            <img 
-              src={HERO_SLIDES[currentSlide].image} 
-              alt="Medical Lab" 
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={HERO_SLIDES[currentSlide].image}
               className="w-full h-full object-cover"
-            />
+            >
+              <source src={HERO_SLIDES[currentSlide].video} type="video/mp4" />
+            </video>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/60 to-transparent"></div>
           </motion.div>
         </AnimatePresence>
