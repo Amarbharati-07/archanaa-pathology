@@ -38,7 +38,7 @@ export default function AdminDashboard() {
     }
 
     loadData();
-  }, [isAdminAuthenticated]);
+  }, [isAdminAuthenticated, activeTab]);
 
   const loadData = async () => {
     if (!adminToken) return;
@@ -48,21 +48,33 @@ export default function AdminDashboard() {
 
       const statsRes = await fetch("/api/admin/stats", { headers });
       if (statsRes.ok) setStats(await statsRes.json());
+      else console.error("Stats load failed:", statsRes.status);
 
       if (activeTab === "users" || activeTab === "dashboard") {
         const usersRes = await fetch("/api/admin/users", { headers });
-        if (usersRes.ok) setUsers(await usersRes.json());
+        if (usersRes.ok) {
+          const userData = await usersRes.json();
+          setUsers(userData);
+          console.log("Users loaded:", userData);
+        } else {
+          console.error("Users load failed:", usersRes.status);
+        }
       }
 
       if (activeTab === "bookings" || activeTab === "dashboard") {
         const bookingsRes = await fetch("/api/admin/bookings", { headers });
         if (bookingsRes.ok) setBookings(await bookingsRes.json());
+        else console.error("Bookings load failed:", bookingsRes.status);
       }
 
       if (activeTab === "tests" || activeTab === "dashboard") {
         const testsRes = await fetch("/api/tests", { headers });
         if (testsRes.ok) setTests(await testsRes.json());
+        else console.error("Tests load failed:", testsRes.status);
       }
+    } catch (error) {
+      console.error("Data load error:", error);
+      toast({ title: "Error loading data", description: String(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
