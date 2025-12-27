@@ -90,8 +90,10 @@ export default function Home() {
               muted
               loop
               playsInline
+              preload="auto"
               poster={HERO_SLIDES[currentSlide].image}
               className="w-full h-full object-cover"
+              style={{ filter: "brightness(0.8)" }}
             >
               <source src={HERO_SLIDES[currentSlide].video} type="video/mp4" />
             </video>
