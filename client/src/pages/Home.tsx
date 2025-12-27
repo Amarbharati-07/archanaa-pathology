@@ -33,7 +33,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           {/* Medical Laboratory Background */}
           <img 
-            src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=2070" 
+            src="https://images.unsplash.com/photo-1538333308182-2f92b850c54e?auto=format&fit=crop&q=80&w=2070" 
             alt="Modern Medical Laboratory" 
             className="w-full h-full object-cover"
           />

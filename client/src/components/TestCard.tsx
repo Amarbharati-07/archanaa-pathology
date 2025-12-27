@@ -9,9 +9,9 @@ export function TestCard({ test }: { test: Test }) {
   return (
     <div className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full overflow-hidden">
       {/* Image Header */}
-      <div className="relative h-40 overflow-hidden">
+      <div className="relative h-48 overflow-hidden">
         <img 
-          src={`https://images.unsplash.com/photo-1581594658553-46ad0ea1fa21?auto=format&fit=crop&q=80&w=800`}
+          src={`https://images.unsplash.com/photo-1579154341098-e4e15869f651?auto=format&fit=crop&q=80&w=800`}
           alt={test.name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
