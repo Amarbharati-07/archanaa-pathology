@@ -21,6 +21,8 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Contact from "@/pages/Contact";
+import AdminLogin from "@/pages/AdminLogin";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 function AppLoader() {
   return (
@@ -74,15 +76,16 @@ function AppLoader() {
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const isAuthPage = location === "/login" || location === "/register" || location === "/forgot-password";
+  const isAuthPage = location === "/login" || location === "/register" || location === "/forgot-password" || location === "/admin/login";
+  const isAdminPage = location.startsWith("/admin");
 
   return (
     <div className="flex flex-col min-h-screen font-sans">
-      {!isAuthPage && <Header />}
+      {!isAuthPage && !isAdminPage && <Header />}
       <main className="flex-1">
         {children}
       </main>
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !isAdminPage && <Footer />}
     </div>
   );
 }
@@ -102,6 +105,8 @@ function Router() {
         <Route path="/contact" component={Contact} />
         {/* Placeholder for About - reuse Contact or Home for now since content wasn't specified */}
         <Route path="/about" component={Contact} /> 
+        <Route path="/admin/login" component={AdminLogin} />
+        <Route path="/admin" component={AdminDashboard} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
