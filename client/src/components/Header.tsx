@@ -82,10 +82,7 @@ export function Header() {
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" className="font-semibold">Login</Button>
-              </Link>
-              <Link href="/register">
-                <Button className="font-bold shadow-md hover:shadow-lg transition-all">Register</Button>
+                <Button className="font-bold shadow-md hover:shadow-lg transition-all px-6">Login</Button>
               </Link>
             </div>
           )}
@@ -123,10 +120,7 @@ export function Header() {
              {!user && (
                <div className="flex gap-2">
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="outline" size="sm">Login</Button>
-                  </Link>
-                  <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button size="sm">Register</Button>
+                    <Button className="font-bold w-full" size="sm">Login</Button>
                   </Link>
                </div>
              )}
