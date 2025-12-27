@@ -211,7 +211,7 @@ export default function AdminDashboard() {
                       <CardContent className="p-5">
                         <div className="flex gap-4 mb-4">
                           <div className="w-16 h-16 rounded-xl bg-slate-100 overflow-hidden shrink-0">
-                            <img src={`https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=100`} className="w-full h-full object-cover" />
+                            <img src={test.image || `https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=100`} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-slate-900 truncate">{test.name}</h4>
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
                     <CardContent className="p-0">
                       <div className="flex flex-col md:flex-row items-center gap-6 p-6">
                         <div className="w-24 h-16 rounded-xl bg-slate-100 overflow-hidden shrink-0">
-                          <img src={`https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=200`} className="w-full h-full object-cover" />
+                          <img src={pkg.image || `https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=200`} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -446,6 +446,13 @@ export default function AdminDashboard() {
                 <Input defaultValue={editingTest?.reportTime} placeholder="e.g. 12 Hours" className="rounded-xl bg-slate-50 border-slate-200 h-11" />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700">Image URL</Label>
+              <div className="relative">
+                <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input defaultValue={editingTest?.image} placeholder="https://images.unsplash.com/..." className="pl-10 rounded-xl bg-slate-50 border-slate-200 h-11" />
+              </div>
+            </div>
             <div className="flex items-center space-x-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
               <Checkbox id="popular" defaultChecked={editingTest?.isPopular} />
               <label htmlFor="popular" className="text-sm font-bold text-slate-700 cursor-pointer">Mark as Popular Test</label>
@@ -494,6 +501,13 @@ export default function AdminDashboard() {
               <div className="space-y-2">
                 <Label className="font-bold text-slate-700">Discount Label</Label>
                 <Input placeholder="e.g. 40% OFF" className="rounded-xl bg-slate-50 border-slate-200 h-11" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-700">Image URL</Label>
+              <div className="relative">
+                <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input defaultValue={editingPkg?.image} placeholder="https://images.unsplash.com/..." className="pl-10 rounded-xl bg-slate-50 border-slate-200 h-11" />
               </div>
             </div>
             <div className="space-y-3">

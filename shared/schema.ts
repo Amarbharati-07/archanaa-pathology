@@ -12,6 +12,7 @@ export const tests = pgTable("tests", {
   reportTime: text("report_time").notNull(),
   category: text("category").notNull(),
   isPopular: boolean("is_popular").default(false),
+  image: text("image"),
 });
 
 export const packages = pgTable("packages", {
@@ -22,6 +23,7 @@ export const packages = pgTable("packages", {
   includes: text("includes").array(),
   category: text("category").notNull(),
   isFeatured: boolean("is_featured").default(false),
+  image: text("image"),
 });
 
 export const reviews = pgTable("reviews", {
