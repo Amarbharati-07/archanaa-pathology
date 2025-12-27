@@ -1,161 +1,159 @@
-# Pathology Portal - Production Ready
+# Pathology Portal - MongoDB Version (In Progress)
 
-## Overview
-Complete production-ready pathology lab management system with separate User and Admin panels. Full JWT authentication, role-based access control, and complete CRUD operations for tests, packages, and bookings.
+## Current Status
+**Migrating from PostgreSQL to MongoDB with comprehensive user dashboards and admin panel**
 
-## Tech Stack
-- **Frontend**: React with Vite, TailwindCSS, Radix UI, Wouter routing
-- **Backend**: Express.js with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
-- **Auth**: JWT tokens with bcrypt password hashing
+## Project Requirements
+
+### User Module Requirements
+1. **Registration & Login**
+   - Email, password, phone, gender, age (no dummy auto-creation)
+   - Password hashing with bcrypt
+   - Unique email validation
+   - Only real MongoDB data - no mock users
+
+2. **User Dashboard - Complete Profile**
+   - Unique User ID
+   - Full Name, Email, Phone Number
+   - Gender, Address
+   - Account creation date
+
+3. **Current Bookings**
+   - Test name & Package name
+   - Appointment date & time slot
+   - Price (individual & total)
+   - Status: Booked / In Progress / Completed
+
+4. **Booking History**
+   - All past bookings with dates
+   - Test details for each booking
+   - Status tracking
+   - Searchable/filterable
+
+5. **Payment History**
+   - Amount paid
+   - Payment status (Pending/Completed)
+   - Transaction ID
+   - Payment date
+   - Downloadable receipts
+
+6. **Reports Section**
+   - Test name for each report
+   - Result summary
+   - Doctor remarks
+   - Upload date
+   - **Downloadable PDF reports** (uploaded by admin)
+   - Real-time update when admin uploads
+
+### Admin Module Requirements
+1. **Secure Admin Login**
+   - Separate from user login
+   - JWT authentication
+   - Email & password validation
+
+2. **Admin Dashboard**
+   - View all registered users
+   - See all user bookings with details
+   - User name, test/package booked, date, price, status
+   - Booking list with filters
+
+3. **Booking Management**
+   - Update booking status: Booked → In Progress → Completed
+   - Real-time status changes visible to user
+
+4. **Report Management**
+   - Upload pathology reports as PDF for specific user & test
+   - Report immediately appears in that user's dashboard
+   - Add test name, result summary, doctor remarks
+   - Store with upload date
+
+5. **Payment Management**
+   - View all payments from all users
+   - Payment status tracking
+   - Analytics & reports
+   - Transaction history
+
+6. **Security**
+   - Strict JWT authentication for all admin routes
+   - Role-based access control
+   - Admin-only protected endpoints
+
+### Technical Stack
+- **Database**: MongoDB (Mongoose)
+- **Backend**: Express.js, TypeScript
+- **Frontend**: React, Vite, TailwindCSS
+- **Auth**: JWT tokens + bcrypt
+- **File Handling**: Multer for PDF uploads
 - **Validation**: Zod schemas
 
-## Project Structure
-```
-client/          - React frontend
-  src/
-    pages/       - Auth pages, dashboards, checkout
-    components/  - UI components and forms
-    context/     - Auth state management
-    hooks/       - Data fetching hooks
-server/          - Express backend
-  index.ts       - Server entry point
-  routes.ts      - All API endpoints
-  auth.ts        - JWT and password utilities
-  storage.ts     - Database operations
-  db.ts          - Database connection
-shared/          - Shared code
-  schema.ts      - Database schema and validation schemas
-```
+### Database Models (MongoDB Collections)
+- **users** - Email, password, phone, gender, age, address, createdAt
+- **admins** - Email, password, name, createdAt
+- **tests** - Name, description, price, reportTime, category, isPopular
+- **packages** - Name, description, price, includes[], category, isFeatured
+- **bookings** - userId, testId/packageId, appointmentDate, timeSlot, price, status, createdAt
+- **payments** - userId, bookingId, amount, status, transactionId, date
+- **reports** - userId, testId, bookingId, resultSummary, doctorRemarks, pdfPath, uploadDate
 
-## Database Schema
-- **users** - User accounts with registration info (name, email, phone, gender, age)
-- **admins** - Admin accounts for lab management
-- **tests** - Available pathology tests
-- **packages** - Health packages combining multiple tests
-- **reviews** - Customer testimonials
-- **bookings** - User test bookings with status tracking
+### API Endpoints (MongoDB)
 
-## Features Implemented
+#### Auth
+- `POST /api/auth/register` - User registration (MongoDB save)
+- `POST /api/auth/login` - User login (JWT token)
+- `POST /api/admin/login` - Admin login (separate JWT)
 
-### User Module
-- ✅ Registration (email validation, unique constraint)
-- ✅ Login with JWT token
-- ✅ User profile/dashboard
-- ✅ Browse tests and packages
-- ✅ Book tests/packages with date and time
-- ✅ View booking history and status
-- ✅ Payment status tracking (pending/paid)
-- ✅ Test status tracking (booked/in_progress/completed)
+#### User Routes (Protected JWT)
+- `GET /api/user/profile` - Full profile data
+- `GET /api/user/bookings` - Current & past bookings
+- `GET /api/user/payments` - Payment history
+- `GET /api/user/reports` - Available reports with PDF links
 
-### Admin Module
-- ✅ Admin login (separate from user login)
-- ✅ Dashboard with stats (total users, bookings, completed/pending tests)
-- ✅ View all users and their profiles
-- ✅ View all bookings with details
-- ✅ Update booking status and payment status
-- ✅ Create new tests
-- ✅ Edit/delete tests
-- ✅ Manage health packages
-
-### Security Features
-- ✅ Role-based access control (user vs admin)
-- ✅ JWT authentication middleware
-- ✅ bcrypt password hashing
-- ✅ Protected routes on backend
-- ✅ Token stored securely in localStorage (frontend)
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/admin/login` - Admin login
-
-### User Routes (Protected)
-- `GET /api/user/profile` - Get user profile
-- `GET /api/user/bookings` - Get user's bookings
-- `POST /api/bookings` - Create new booking
-
-### Admin Routes (Protected)
-- `GET /api/admin/stats` - Dashboard statistics
+#### Admin Routes (Protected + Admin JWT)
 - `GET /api/admin/users` - All users
-- `GET /api/admin/bookings` - All bookings
+- `GET /api/admin/bookings` - All bookings with user details
 - `PATCH /api/admin/bookings/:id` - Update booking status
-- `POST /api/admin/tests` - Create test
-- `PUT /api/admin/tests/:id` - Edit test
-- `DELETE /api/admin/tests/:id` - Delete test
-- `POST /api/admin/packages` - Create package
-- `PUT /api/admin/packages/:id` - Edit package
-- `DELETE /api/admin/packages/:id` - Delete package
+- `POST /api/admin/reports/upload` - Upload report (multipart form)
+- `GET /api/admin/payments` - Payment list & analytics
+- `GET /api/reports/:reportId/download` - Download PDF
 
-### Public Routes
-- `GET /api/tests` - List all tests
-- `GET /api/tests/:id` - Get specific test
-- `GET /api/packages` - List all packages
-- `GET /api/packages/:id` - Get specific package
-- `GET /api/reviews` - List reviews
+### UI Requirements
+- Clean, professional design (TailwindCSS)
+- Responsive mobile-friendly
+- No dummy data visible
+- Real-time updates for admin actions
+- Smooth loading states
+- Error handling & validation messages
 
-## Frontend Pages
-- `/` - Home page with featured tests/packages
-- `/tests` - Browse all available tests
-- `/packages` - Browse health packages
-- `/login` - User login
-- `/register` - User registration with validation
-- `/user/dashboard` - User profile and booking history
-- `/admin/login` - Admin login
-- `/admin` - Admin dashboard with management panels
+### File Handling
+- Store PDF reports in `/server/uploads/reports/`
+- Secure file serving with JWT validation
+- Delete old reports when replaced
+- Max file size: 10MB
 
-## How to Test
+### Data Integrity
+- NO auto-generated dummy data
+- NO hardcoded test users
+- NO mock bookings or payments
+- ONLY MongoDB real data
+- All operations persist to database
 
-### User Flow
-1. Register: `/register` → Fill form → Redirects to home
-2. Login: `/login` → Enter credentials → Access dashboard
-3. Browse: `/tests` or `/packages` → Add to cart
-4. Book: `/checkout` → Enter details → Confirm booking
-5. Dashboard: `/user/dashboard` → View booking history
+## Implementation Status
+- ✅ MongoDB driver installed (mongoose)
+- ✅ File upload handler installed (multer)
+- ⏳ Database migration in progress
+- ⏳ Mongoose models to be created
+- ⏳ API endpoints to be refactored
+- ⏳ User dashboard to be rebuilt
+- ⏳ Admin panel to be rebuilt
+- ⏳ Report upload system to be implemented
+- ⏳ Payment tracking to be implemented
 
-### Admin Flow
-1. Login: `/admin/login` → Enter admin credentials
-2. Dashboard: `/admin` → View stats and user list
-3. Manage: Switch tabs to manage bookings, tests, packages
-
-## Environment Variables
-- `DATABASE_URL` - PostgreSQL connection (auto-configured)
-- `JWT_SECRET` - Token signing key (default provided)
-- `ADMIN_JWT_SECRET` - Admin token signing key (default provided)
-
-## Scripts
-- `npm run dev` - Start development server on port 5000
-- `npm run build` - Build for production
-- `npm run start` - Run production build
-- `npm run db:push` - Apply database schema changes
-
-## Production Ready Features
-✅ No dummy data - All data stored in PostgreSQL
-✅ Real authentication with JWT and bcrypt
-✅ Proper error handling and validation
-✅ Clean separation of user and admin flows
-✅ Secure password hashing
-✅ Role-based access control
-✅ Complete CRUD operations for admin
-✅ Real-time booking status management
-✅ Database migrations via Drizzle ORM
-✅ TypeScript for type safety
-
-## Next Steps for Deployment
-1. Set production environment variables
-2. Build frontend: `npm run build`
-3. Deploy to production: `npm run start`
-4. Configure domain and SSL
-5. Set up backup strategy for PostgreSQL
-
-## Known Limitations
-- Payment processing not integrated (use placeholder status)
-- Email notifications not implemented
-- SMS notifications not implemented
-- Prescription upload feature pending
-
----
-**Last Updated**: December 27, 2025
-**Status**: Production Ready - All core features implemented and functional
+## Next Steps
+1. Create MongoDB connection setup
+2. Define Mongoose schemas for all collections
+3. Rewrite server routes for MongoDB operations
+4. Build complete user dashboard UI
+5. Build complete admin panel UI
+6. Implement report upload & download
+7. Implement payment tracking
+8. Test end-to-end flow
