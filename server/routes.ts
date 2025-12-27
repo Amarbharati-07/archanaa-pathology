@@ -34,7 +34,7 @@ export async function registerRoutes(
       const user = await storage.createUser({ ...data, password: hashedPassword });
       
       const token = generateUserToken(user.id, user.email);
-      res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name } });
+      res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, phone: user.phone, gender: user.gender, age: user.age, address: user.address } });
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
@@ -59,7 +59,7 @@ export async function registerRoutes(
       }
 
       const token = generateUserToken(user.id, user.email);
-      res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
+      res.json({ token, user: { id: user.id, email: user.email, name: user.name, phone: user.phone, gender: user.gender, age: user.age, address: user.address } });
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
