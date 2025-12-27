@@ -76,6 +76,9 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <Link href="/dashboard">
+                  <DropdownMenuItem>My Dashboard</DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

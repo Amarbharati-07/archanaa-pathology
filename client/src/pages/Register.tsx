@@ -40,7 +40,7 @@ export default function Register() {
         age: parseInt(formData.age),
       });
       toast({ title: "Registration successful!", description: "Welcome!" });
-      setLocation("/");
+      setLocation("/dashboard");
     } catch (err: any) {
       toast({ title: "Registration failed", description: err.message, variant: "destructive" });
     }
