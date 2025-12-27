@@ -1,6 +1,6 @@
 import { Package } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Check, Info } from "lucide-react";
+import { ShoppingCart, Info } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import {
   Dialog,
@@ -15,66 +15,65 @@ export function PackageCard({ pkg }: { pkg: Package }) {
   const { addItem } = useCart();
 
   return (
-    <div className="relative group bg-white rounded-2xl border hover:border-primary/50 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden">
-      {pkg.isFeatured && (
-        <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-10">
-          Featured
-        </div>
-      )}
-      
+    <div className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full overflow-hidden">
+      {/* Image Header */}
+      <div className="relative h-48 overflow-hidden">
+        <img 
+          src={`https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800`}
+          alt={pkg.name}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        {pkg.isFeatured && (
+          <div className="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider z-10">
+            Best Value
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+      </div>
+
       <div className="p-6 flex-1 flex flex-col">
-        <h3 className="font-display font-bold text-xl mb-2 text-center text-foreground">{pkg.name}</h3>
-        <p className="text-muted-foreground text-center text-sm mb-6">{pkg.description}</p>
+        <h3 className="font-bold text-2xl mb-3 text-slate-900">
+          {pkg.name}
+        </h3>
         
-        <div className="bg-primary/5 rounded-2xl p-4 mb-6 text-center">
-          <span className="text-sm text-muted-foreground">Package Price</span>
-          <div className="font-display font-bold text-3xl text-primary">₹{pkg.price}</div>
+        <p className="text-slate-600 text-sm mb-6 flex-1">
+          {pkg.description}
+        </p>
+        
+        <div className="flex items-center gap-2 mb-6">
+          <span className="text-blue-600 text-xl font-bold">₹{pkg.price}</span>
+          <span className="text-slate-400 text-sm line-through">₹{pkg.price * 1.5}</span>
         </div>
         
-        <div className="space-y-3 mb-8 flex-1">
-          <p className="text-sm font-semibold text-foreground">Includes {pkg.includes?.length} tests:</p>
-          {pkg.includes?.slice(0, 3).map((item, i) => (
-            <div key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-              <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-              <span className="line-clamp-1">{item}</span>
-            </div>
-          ))}
-          {(pkg.includes?.length || 0) > 3 && (
-            <p className="text-xs text-muted-foreground pl-6 italic">
-              +{((pkg.includes?.length || 0) - 3)} more tests
-            </p>
-          )}
-        </div>
-        
-        <div className="grid grid-cols-2 gap-3 mt-auto">
+        <div className="grid grid-cols-2 gap-3">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="w-full">
-                <Info className="w-4 h-4 mr-2" /> Details
+              <Button variant="outline" className="h-11 rounded-lg border-slate-200 text-slate-700 font-bold hover:bg-slate-50">
+                Details
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-md rounded-2xl">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-display text-primary">{pkg.name}</DialogTitle>
-                <DialogDescription>{pkg.description}</DialogDescription>
+                <DialogTitle className="text-2xl font-bold text-slate-900">{pkg.name}</DialogTitle>
+                <DialogDescription className="text-slate-600 pt-2">{pkg.description}</DialogDescription>
               </DialogHeader>
-              <div className="mt-4">
-                <h4 className="font-semibold mb-3">Included Tests:</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="mt-6 space-y-4">
+                <h4 className="font-bold text-slate-900">Included Tests:</h4>
+                <div className="grid grid-cols-1 gap-2">
                   {pkg.includes?.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-secondary/30">
-                      <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                      <span className="text-sm">{item}</span>
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      <span className="text-sm font-medium text-slate-700">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="mt-6 flex justify-between items-center bg-primary/5 p-4 rounded-xl">
-                 <div>
-                   <span className="text-sm text-muted-foreground">Total Price</span>
-                   <div className="font-bold text-2xl text-primary">₹{pkg.price}</div>
-                 </div>
-                 <Button onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}>
+              <div className="mt-8 flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100">
+                 <div className="font-bold text-2xl text-blue-700">₹{pkg.price}</div>
+                 <Button 
+                   onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}
+                   className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 font-bold"
+                 >
                    Add to Cart
                  </Button>
               </div>
@@ -83,8 +82,9 @@ export function PackageCard({ pkg }: { pkg: Package }) {
           
           <Button 
             onClick={() => addItem({ id: pkg.id, type: "package", name: pkg.name, price: pkg.price })}
-            className="w-full shadow-md"
+            className="bg-[#4488dd] hover:bg-[#3377cc] text-white rounded-lg h-11 font-bold flex items-center justify-center gap-2 shadow-sm"
           >
+            <ShoppingCart className="w-4 h-4" />
             Book Now
           </Button>
         </div>
