@@ -1,4 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -6,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import NotFound from "@/pages/not-found";
+import { motion, AnimatePresence } from "framer-motion";
+import { Activity } from "lucide-react";
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -18,6 +21,52 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Contact from "@/pages/Contact";
+
+function AppLoader() {
+  return (
+    <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center"
+      >
+        <div className="relative mb-8">
+          <motion.div
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 1, 0.5] 
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 bg-blue-100 rounded-full blur-2xl"
+          />
+          <div className="relative bg-white p-6 rounded-3xl shadow-2xl shadow-blue-100 border border-blue-50">
+            <Activity className="w-16 h-16 text-blue-600" />
+          </div>
+        </div>
+        
+        <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Archana Pathology Lab</h2>
+        <p className="text-slate-500 font-medium mb-8">Initializing secure health portal...</p>
+        
+        <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden relative">
+          <motion.div
+            initial={{ left: "-100%" }}
+            animate={{ left: "100%" }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            className="absolute top-0 bottom-0 w-1/2 bg-gradient-to-r from-transparent via-blue-600 to-transparent"
+          />
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -56,11 +105,23 @@ function Router() {
 }
 
 function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
           <CartProvider>
+            <AnimatePresence>
+              {loading && <AppLoader />}
+            </AnimatePresence>
             <Toaster />
             <Router />
           </CartProvider>
