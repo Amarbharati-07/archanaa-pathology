@@ -1,8 +1,8 @@
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import {
-  users, admins, tests, packages, reviews, bookings,
-  type User, type Admin, type Test, type Package, type Review, type Booking,
+  users, admins, tests, packages, reviews, bookings, payments, reports,
+  type User, type Admin, type Test, type Package, type Review, type Booking, type Payment, type Report,
   type RegisterInput, type LoginInput, type AdminLoginInput,
 } from "@shared/schema";
 
@@ -40,6 +40,14 @@ export interface IStorage {
   getBookingsByUser(userId: number): Promise<Booking[]>;
   getAllBookings(): Promise<Booking[]>;
   updateBookingStatus(id: number, testStatus: string, paymentStatus?: string): Promise<Booking | undefined>;
+
+  // Payments
+  getPaymentsByUser(userId: number): Promise<Payment[]>;
+  createPayment(userId: number, bookingId: number, amount: number, transactionId: string): Promise<Payment>;
+
+  // Reports
+  getReportsByUser(userId: number): Promise<Report[]>;
+  createReport(userId: number, testId: number, bookingId: number, testName: string, resultSummary: string, doctorRemarks: string, reportPath?: string): Promise<Report>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -146,6 +154,24 @@ export class DatabaseStorage implements IStorage {
     const updates: any = { testStatus };
     if (paymentStatus) updates.paymentStatus = paymentStatus;
     const result = await db.update(bookings).set(updates).where(eq(bookings.id, id)).returning();
+    return result[0];
+  }
+
+  async getPaymentsByUser(userId: number): Promise<Payment[]> {
+    return db.select().from(payments).where(eq(payments.userId, userId));
+  }
+
+  async createPayment(userId: number, bookingId: number, amount: number, transactionId: string): Promise<Payment> {
+    const result = await db.insert(payments).values({ userId, bookingId, amount, transactionId }).returning();
+    return result[0];
+  }
+
+  async getReportsByUser(userId: number): Promise<Report[]> {
+    return db.select().from(reports).where(eq(reports.userId, userId));
+  }
+
+  async createReport(userId: number, testId: number, bookingId: number, testName: string, resultSummary: string, doctorRemarks: string, reportPath?: string): Promise<Report> {
+    const result = await db.insert(reports).values({ userId, testId, bookingId, testName, resultSummary, doctorRemarks, reportPath }).returning();
     return result[0];
   }
 }

@@ -120,6 +120,26 @@ export async function registerRoutes(
     }
   });
 
+  // Get user's payment history
+  app.get("/api/user/payments", authUserMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const payments = await storage.getPaymentsByUser(req.user!.id);
+      res.json(payments);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Get user's reports
+  app.get("/api/user/reports", authUserMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const reports = await storage.getReportsByUser(req.user!.id);
+      res.json(reports);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // ============ TESTS (PUBLIC) ============
 
   // Get all tests

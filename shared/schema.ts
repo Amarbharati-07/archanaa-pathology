@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   phone: text("phone").notNull(),
   gender: text("gender").notNull(),
   age: integer("age").notNull(),
+  address: text("address").default(""),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -66,6 +67,28 @@ export const bookings = pgTable("bookings", {
   paymentStatus: text("payment_status").default("pending"),
   testStatus: text("test_status").default("booked"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const payments = pgTable("payments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  bookingId: integer("booking_id").notNull(),
+  amount: integer("amount").notNull(),
+  status: text("status").default("pending"),
+  transactionId: text("transaction_id").unique(),
+  date: timestamp("date").defaultNow(),
+});
+
+export const reports = pgTable("reports", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  testId: integer("test_id").notNull(),
+  bookingId: integer("booking_id").notNull(),
+  testName: text("test_name").notNull(),
+  resultSummary: text("result_summary").notNull(),
+  doctorRemarks: text("doctor_remarks").default(""),
+  reportPath: text("report_path"),
+  uploadDate: timestamp("upload_date").defaultNow(),
 });
 
 // === SCHEMAS ===
@@ -125,6 +148,8 @@ export type Test = typeof tests.$inferSelect;
 export type Package = typeof packages.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
+export type Payment = typeof payments.$inferSelect;
+export type Report = typeof reports.$inferSelect;
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
