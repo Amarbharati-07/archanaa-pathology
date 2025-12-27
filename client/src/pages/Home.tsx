@@ -55,17 +55,52 @@ const HERO_SLIDES = [
   }
 ];
 
+const ADVERTISEMENTS = [
+  {
+    title: "Full Body Checkup",
+    subtitle: "Starting at just ₹999",
+    description: "Get 70+ parameters tested including Vitamin D, B12, Thyroid, Liver, and Kidney profiles. Free home sample collection included.",
+    cta: "Book Package Now",
+    expiry: "Offer valid till Dec 31st",
+    gradient: "from-blue-600 to-blue-800"
+  },
+  {
+    title: "Diabetic Care Package",
+    subtitle: "Flat 40% OFF",
+    description: "Comprehensive screening for diabetes management. Includes HbA1c, Fasting Blood Sugar, and Lipid Profile.",
+    cta: "Check Diabetes Offer",
+    expiry: "Limited time only",
+    gradient: "from-emerald-600 to-teal-800"
+  },
+  {
+    title: "Senior Citizen Special",
+    subtitle: "Free Doctor Consultation",
+    description: "Specialized health screening for seniors with a complimentary tele-consultation with our expert physicians.",
+    cta: "View Senior Packages",
+    expiry: "Exclusive Offer",
+    gradient: "from-purple-600 to-indigo-800"
+  }
+];
+
 export default function Home() {
   const { data: tests } = useTests();
   const { data: packages } = usePackages();
   const { data: reviews } = useReviews();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentAd, setCurrentAd] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 5000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const adTimer = setInterval(() => {
+      setCurrentAd((prev) => (prev + 1) % ADVERTISEMENTS.length);
+    }, 4000);
+    return () => clearInterval(adTimer);
   }, []);
 
   const featuredPackages = packages?.filter(p => p.isFeatured) || [];
@@ -245,73 +280,88 @@ export default function Home() {
       {/* Promotional Advertisement Section */}
       <section className="py-12 bg-white overflow-hidden">
         <div className="container mx-auto px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative rounded-[2rem] bg-gradient-to-br from-blue-600 to-blue-800 p-8 md:p-16 overflow-hidden shadow-2xl"
-          >
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-              <div className="text-white">
-                <span className="inline-block px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm text-sm font-bold mb-6 border border-white/20 uppercase tracking-widest">
-                  Limited Time Offer
-                </span>
-                <h2 className="text-4xl md:text-5xl font-display font-black mb-6 leading-tight">
-                  Full Body Checkup <br/>
-                  <span className="text-blue-200">Starting at just ₹999</span>
-                </h2>
-                <p className="text-lg text-blue-100 mb-8 leading-relaxed">
-                  Get 70+ parameters tested including Vitamin D, B12, Thyroid, Liver, and Kidney profiles. Free home sample collection included.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <Link href="/packages">
-                    <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 h-14 rounded-xl shadow-lg">
-                      Book Package Now
-                    </Button>
-                  </Link>
-                  <div className="flex items-center gap-2 text-white/90">
-                    <Clock className="w-5 h-5 text-blue-300" />
-                    <span className="font-medium">Offer valid till Dec 31st</span>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={currentAd}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.5 }}
+              className={`relative rounded-[2rem] bg-gradient-to-br ${ADVERTISEMENTS[currentAd].gradient} p-8 md:p-16 overflow-hidden shadow-2xl`}
+            >
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                <div className="text-white">
+                  <span className="inline-block px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm text-sm font-bold mb-6 border border-white/20 uppercase tracking-widest">
+                    Exclusive Deal
+                  </span>
+                  <h2 className="text-4xl md:text-5xl font-display font-black mb-6 leading-tight">
+                    {ADVERTISEMENTS[currentAd].title} <br/>
+                    <span className="text-blue-100/80 italic text-3xl md:text-4xl">{ADVERTISEMENTS[currentAd].subtitle}</span>
+                  </h2>
+                  <p className="text-lg text-blue-50 mb-8 leading-relaxed">
+                    {ADVERTISEMENTS[currentAd].description}
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <Link href="/packages">
+                      <Button size="lg" className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-8 h-14 rounded-xl shadow-lg">
+                        {ADVERTISEMENTS[currentAd].cta}
+                      </Button>
+                    </Link>
+                    <div className="flex items-center gap-2 text-white/90">
+                      <Clock className="w-5 h-5 opacity-70" />
+                      <span className="font-medium">{ADVERTISEMENTS[currentAd].expiry}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="relative hidden lg:block">
-                <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl">
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
-                      <ShieldCheck className="w-6 h-6 text-blue-600" />
+                <div className="relative hidden lg:block">
+                  <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl">
+                    <div className="flex justify-between items-center mb-6">
+                      <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                        <ShieldCheck className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full border border-white/20 uppercase">
+                        Lab Verified
+                      </div>
                     </div>
-                    <div className="px-3 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded-full border border-green-500/30 uppercase">
-                      NABL Accredited
-                    </div>
+                    <h4 className="text-white font-bold text-xl mb-4">Why choose this?</h4>
+                    <ul className="space-y-4">
+                      {[
+                        "Expert medical consultation included",
+                        "Accurate digital results in 24h",
+                        "Safe home sample collection",
+                        "ISO certified lab testing"
+                      ].map((item, i) => (
+                        <li key={i} className="flex items-start gap-3 text-white/90">
+                          <div className="mt-1 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                            <Activity className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="text-sm font-medium">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <h4 className="text-white font-bold text-xl mb-4">Why our health checkup?</h4>
-                  <ul className="space-y-4">
-                    {[
-                      "Accurate Digital Reports in 24 hours",
-                      "NABL Certified Advanced Laboratory",
-                      "Experienced Phlebotomists for Home Visit",
-                      "In-depth analysis by expert doctors"
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-blue-100">
-                        <div className="mt-1 w-5 h-5 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0">
-                          <Activity className="w-3 h-3 text-blue-300" />
-                        </div>
-                        <span className="text-sm font-medium">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
-                {/* Visual accent */}
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-400 rounded-3xl rotate-12 -z-10 shadow-xl opacity-50"></div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </AnimatePresence>
+          
+          {/* Ad Indicators */}
+          <div className="flex justify-center gap-2 mt-6">
+            {ADVERTISEMENTS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentAd(i)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  currentAd === i ? "bg-blue-600 w-6" : "bg-blue-200"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
