@@ -44,7 +44,7 @@ export function TestCard({ test }: { test: Test }) {
       {/* Image Header */}
       <div className="relative h-48 overflow-hidden bg-slate-100">
         <img 
-          src={getCategoryImage(test.category)}
+          src={test.image || getCategoryImage(test.category)}
           alt={test.name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {

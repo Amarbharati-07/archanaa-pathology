@@ -25,7 +25,8 @@ import {
   ChevronRight,
   Filter,
   MoreVertical,
-  Upload
+  Upload,
+  ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -336,6 +337,14 @@ export default function AdminDashboard() {
         </div>
         
         <nav className="flex-1 px-4 space-y-0.5">
+          <Link href="/">
+            <button
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Main Website
+            </button>
+          </Link>
           {sidebarItems.map((item) => (
             <button
               key={item.id}

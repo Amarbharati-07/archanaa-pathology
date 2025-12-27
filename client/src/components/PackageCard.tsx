@@ -34,7 +34,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
       {/* Image Header */}
       <div className="relative h-48 overflow-hidden">
         <img 
-          src={`https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800`}
+          src={pkg.image || `https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800`}
           alt={pkg.name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
