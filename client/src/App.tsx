@@ -121,7 +121,7 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 5000);
+    }, 1000); // Reduced loading time for better UX
     return () => clearTimeout(timer);
   }, []);
 
