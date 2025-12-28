@@ -548,28 +548,30 @@ const SEED_REVIEWS = [
 
 export async function seedDatabase() {
   try {
-    console.log("[seed] Clearing existing data and seeding database...");
-
-    // Clear existing data
-    await db.delete(tests);
-    await db.delete(packages);
-    await db.delete(reviews);
-
     console.log("[seed] Starting database seeding...");
 
-    // Insert tests
-    await db.insert(tests).values(SEED_TESTS);
-    console.log(`[seed] ✓ Inserted ${SEED_TESTS.length} tests`);
+    // Only seed if tables are empty (don't clear existing data)
+    const existingTests = await db.select().from(tests).limit(1);
+    
+    if (existingTests.length === 0) {
+      console.log("[seed] Seeding tests, packages, and reviews...");
+      
+      // Insert tests
+      await db.insert(tests).values(SEED_TESTS);
+      console.log(`[seed] ✓ Inserted ${SEED_TESTS.length} tests`);
 
-    // Insert packages
-    await db.insert(packages).values(SEED_PACKAGES);
-    console.log(`[seed] ✓ Inserted ${SEED_PACKAGES.length} packages`);
+      // Insert packages
+      await db.insert(packages).values(SEED_PACKAGES);
+      console.log(`[seed] ✓ Inserted ${SEED_PACKAGES.length} packages`);
 
-    // Insert reviews
-    await db.insert(reviews).values(SEED_REVIEWS);
-    console.log(`[seed] ✓ Inserted ${SEED_REVIEWS.length} reviews`);
+      // Insert reviews
+      await db.insert(reviews).values(SEED_REVIEWS);
+      console.log(`[seed] ✓ Inserted ${SEED_REVIEWS.length} reviews`);
+    } else {
+      console.log("[seed] Database already seeded, skipping...");
+    }
 
-    console.log("[seed] ✓ Database seeding completed successfully!");
+    console.log("[seed] ✓ Database ready!");
   } catch (error) {
     console.error("[seed] Error seeding database:", error);
     throw error;

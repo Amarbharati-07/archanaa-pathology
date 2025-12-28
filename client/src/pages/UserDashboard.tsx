@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Booking {
   id: number;
@@ -72,11 +73,11 @@ export default function UserDashboard() {
     setLoading(true);
     try {
       const [bookingsRes, paymentsRes] = await Promise.all([
-        fetch("/api/user/bookings"),
-        fetch("/api/user/payments"),
+        apiRequest("GET", "/api/user/bookings"),
+        apiRequest("GET", "/api/user/payments"),
       ]);
-      if (bookingsRes.ok) setBookings(await bookingsRes.json());
-      if (paymentsRes.ok) setPayments(await paymentsRes.json());
+      setBookings(await bookingsRes.json());
+      setPayments(await paymentsRes.json());
     } catch (err: any) {
       console.error("Error loading dashboard:", err);
       toast({ title: "Error loading dashboard", variant: "destructive" });
