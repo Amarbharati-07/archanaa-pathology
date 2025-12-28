@@ -1,0 +1,42 @@
+Fix my existing Pathology Portal so that the Confirm Booking button works properly and implement a full booking + payment + admin verification system with PostgreSQL (NO MongoDB).
+
+When user clicks “Confirm Booking”:
+• Payment screen must open
+• Show multiple payment options: UPI QR Scan, UPI ID, UPI Apps, Debit/Credit Card
+• After user completes payment, store payment status as “Pending Verification” in database
+• Booking must be created for that patient with patient id, test name, price, address, booking mode, date and time
+
+Booking System Requirements:
+• Two booking modes: Home Sample Collection OR Lab Visit
+• If Home Collection selected → check distance logic:
+  - If user location within 5 KM → allowed without extra charges
+  - If user distance up to 40 KM → allowed with extra charges (show updated price)
+  - If beyond 40 KM → show “Home collection unavailable” and suggest Lab Visit
+• Store location and mode
+• Admin can see this information
+
+Admin Panel Requirements:
+• Admin must see every new booking in booking section with:
+  patient id, patient name, test name, amount, booking date, address, mode, distance, payment status
+• Admin must verify payment manually
+• Admin marks payment status as “Verified” or “Rejected”
+• Only after payment verification admin can generate test report
+• Admin uploads report file + remarks + result + date
+• Report must appear in both Admin dashboard and User dashboard
+• If payment NOT verified → user should NOT be able to download report
+• Show status badges: Payment Pending, Payment Verified, Report Pending, Report Generated
+
+User Dashboard:
+• After login user should see:
+  profile, booking details, booking history, payment history, report status
+• For every booking show:
+  booking id, test name, price, booking mode, address, booking date, payment status, report status
+• If payment not verified → show “Waiting for Admin Approval”
+• If report generated → show download button, otherwise show status badge
+
+Important:
+• Do NOT rebuild project
+• Remove any dummy logic
+• Fetch all data from PostgreSQL
+• Confirm Booking button must fully work end-to-end
+• Clean and professional UI
