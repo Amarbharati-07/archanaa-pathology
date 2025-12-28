@@ -27,6 +27,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminBookings from "@/pages/AdminBookings";
 import AdminPatients from "@/pages/AdminPatients";
 import AdminTests from "@/pages/AdminTests";
+import AdminPackages from "@/pages/AdminPackages";
 import UserDashboard from "@/pages/UserDashboard";
 
 function AppLoader() {
@@ -129,6 +130,7 @@ function Router() {
                 <Route path="/admin" component={AdminDashboard} />
                 <Route path="/admin/patients" component={AdminPatients} />
                 <Route path="/admin/tests" component={AdminTests} />
+                <Route path="/admin/packages" component={AdminPackages} />
                 <Route path="/admin/bookings" component={AdminBookings} />
                 {/* Placeholder for other admin routes */}
                 <Route path="/admin/:rest*" component={AdminDashboard} />
