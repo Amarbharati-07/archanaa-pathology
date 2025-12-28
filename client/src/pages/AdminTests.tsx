@@ -49,8 +49,22 @@ export default function AdminTests() {
     price: "",
     reportTime: "24 hours",
     category: "Hematology",
-    image: ""
+    image: "",
+    testCode: ""
   });
+  const [parameters, setParameters] = useState<any[]>([]);
+  const [newParam, setNewParam] = useState({ name: "", unit: "", normalRange: "" });
+
+  const addParameter = () => {
+    if (newParam.name && newParam.normalRange) {
+      setParameters([...parameters, { ...newParam, id: Date.now() }]);
+      setNewParam({ name: "", unit: "", normalRange: "" });
+    }
+  };
+
+  const removeParameter = (id: number) => {
+    setParameters(parameters.filter(p => p.id !== id));
+  };
 
   const handleCreateTest = async () => {
     try {
@@ -122,6 +136,14 @@ export default function AdminTests() {
               />
             </div>
             <div className="space-y-2">
+              <Label>Test Code *</Label>
+              <Input 
+                placeholder="e.g., CBC" 
+                value={testForm.testCode}
+                onChange={(e) => setTestForm({ ...testForm, testCode: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
               <Label>Category *</Label>
               <Input 
                 placeholder="e.g., Hematology" 
@@ -161,6 +183,59 @@ export default function AdminTests() {
                 value={testForm.image}
                 onChange={(e) => setTestForm({ ...testForm, image: e.target.value })}
               />
+            </div>
+
+            <div className="col-span-2 pt-4 border-t border-slate-100">
+              <Label className="text-sm font-semibold mb-3 block">Test Parameters</Label>
+              <div className="flex gap-2 mb-4">
+                <Input 
+                  placeholder="Name" 
+                  value={newParam.name}
+                  onChange={(e) => setNewParam({ ...newParam, name: e.target.value })}
+                  className="flex-1"
+                />
+                <Input 
+                  placeholder="Unit" 
+                  value={newParam.unit}
+                  onChange={(e) => setNewParam({ ...newParam, unit: e.target.value })}
+                  className="w-24"
+                />
+                <Input 
+                  placeholder="Normal Range" 
+                  value={newParam.normalRange}
+                  onChange={(e) => setNewParam({ ...newParam, normalRange: e.target.value })}
+                  className="flex-1"
+                />
+                <Button 
+                  type="button" 
+                  onClick={addParameter}
+                  className="bg-blue-600 hover:bg-blue-700 shrink-0 px-6"
+                >
+                  Add
+                </Button>
+              </div>
+
+              {parameters.length > 0 && (
+                <div className="space-y-2">
+                  {parameters.map((param) => (
+                    <div key={param.id} className="flex items-center justify-between p-2 bg-slate-50 rounded-md border border-slate-100 group">
+                      <div className="flex gap-4 text-sm">
+                        <span className="font-medium text-slate-700 min-w-[100px]">{param.name}</span>
+                        <span className="text-slate-500 w-16 text-center">{param.unit || "-"}</span>
+                        <span className="text-slate-600 font-mono">{param.normalRange}</span>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => removeParameter(param.id)}
+                        className="h-6 w-6 p-0 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
