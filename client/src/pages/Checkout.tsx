@@ -160,10 +160,13 @@ export default function Checkout() {
 
   const handleCheckout = async () => {
     const firstItem = items[0];
+    // Convert date string to Date object for database
+    const dateObj = new Date(selectedDate + "T00:00:00Z");
+    
     const payload = {
       testId: firstItem.type === 'test' ? firstItem.id : undefined,
       packageId: firstItem.type === 'package' ? firstItem.id : undefined,
-      date: selectedDate,
+      date: dateObj,
       time: selectedTime,
       totalAmount: total,
       bookingMode: collectionType === "lab-visit" ? "lab_visit" : "home_collection",

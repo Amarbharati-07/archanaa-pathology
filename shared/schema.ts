@@ -138,7 +138,7 @@ export const insertPackageSchema = z.object({
 export const createBookingSchema = z.object({
   testId: z.number().optional(),
   packageId: z.number().optional(),
-  date: z.string().min(1, "Date required"),
+  date: z.string().min(1, "Date required").transform(d => new Date(d)),
   time: z.string().min(1, "Time required"),
   totalAmount: z.number().min(1, "Amount must be positive"),
   bookingMode: z.enum(["home_collection", "lab_visit"]).default("lab_visit"),
