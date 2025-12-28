@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createBookingSchema } from "@shared/schema";
@@ -6,19 +6,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useCreateBooking } from "@/hooks/use-bookings";
 import { useLocation } from "wouter";
-import { Loader2, MapPin, Clock, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Loader2, CheckCircle2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const formSchema = createBookingSchema.extend({
   email: z.string().email("Invalid email address"),
@@ -27,25 +21,47 @@ const formSchema = createBookingSchema.extend({
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
+  const { user } = useAuth();
   const { mutate, isPending } = useCreateBooking();
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
+  
   const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+  });
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("");
   const [collectionType, setCollectionType] = useState("lab-visit");
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   const form = useForm<any>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      items: items,
-      totalAmount: total,
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user]);
 
   const timeSlots = [
     "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM",
@@ -60,10 +76,48 @@ export default function Checkout() {
     { id: "wallet", label: "Wallet", description: "Pay using digital wallets", icon: "💰" },
   ];
 
+  // Calendar generation
+  const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getFirstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+  const calendarDays = [];
+  const firstDay = getFirstDayOfMonth(calendarMonth);
+  const daysInMonth = getDaysInMonth(calendarMonth);
+  
+  for (let i = 0; i < firstDay; i++) {
+    calendarDays.push(null);
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    calendarDays.push(i);
+  }
+
+  const handleDateSelect = (day: number) => {
+    const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
+    const formattedDate = date.toISOString().split('T')[0];
+    setSelectedDate(formattedDate);
+    setShowCalendar(false);
+  };
+
+  const formatDateDisplay = (dateStr: string) => {
+    if (!dateStr) return "Pick a date";
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("en-US", { 
+      year: "numeric", 
+      month: "long", 
+      day: "numeric" 
+    });
+  };
+
   const handleNext = async () => {
     if (currentStep === 1) {
       const isValid = await form.trigger(["name", "email", "phone"]);
       if (!isValid) return;
+      // Store form data
+      setFormData({
+        name: form.getValues("name"),
+        email: form.getValues("email"),
+        phone: form.getValues("phone"),
+      });
     }
     if (currentStep === 2) {
       if (!selectedDate || !selectedTime) {
@@ -260,16 +314,73 @@ export default function Checkout() {
                     </div>
 
                     <div className="space-y-6">
+                      {/* Date Selection */}
                       <div>
                         <label className="text-slate-700 font-semibold block mb-3">Select Date</label>
-                        <input 
-                          type="date"
-                          value={selectedDate}
-                          onChange={(e) => setSelectedDate(e.target.value)}
-                          className="w-full h-12 px-4 rounded-lg border-2 border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-600 outline-none transition-all"
-                        />
+                        <div className="relative">
+                          <button
+                            onClick={() => setShowCalendar(!showCalendar)}
+                            className="w-full h-12 px-4 rounded-lg border-2 border-slate-200 bg-white focus:border-blue-600 outline-none transition-all text-left flex items-center gap-2 hover:border-blue-300"
+                          >
+                            📅 {formatDateDisplay(selectedDate)}
+                          </button>
+
+                          {/* Calendar Popup */}
+                          {showCalendar && (
+                            <div className="absolute top-14 left-0 bg-white border-2 border-slate-200 rounded-xl shadow-xl p-4 z-50 w-96">
+                              {/* Month Navigation */}
+                              <div className="flex items-center justify-between mb-6">
+                                <button
+                                  onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))}
+                                  className="p-2 hover:bg-slate-100 rounded-lg"
+                                >
+                                  <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <h3 className="font-bold text-slate-900">
+                                  {calendarMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                                </h3>
+                                <button
+                                  onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))}
+                                  className="p-2 hover:bg-slate-100 rounded-lg"
+                                >
+                                  <ChevronRight className="w-5 h-5" />
+                                </button>
+                              </div>
+
+                              {/* Day Headers */}
+                              <div className="grid grid-cols-7 gap-2 mb-2">
+                                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                                  <div key={day} className="text-center font-semibold text-slate-600 text-sm py-2">
+                                    {day}
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Calendar Days */}
+                              <div className="grid grid-cols-7 gap-2">
+                                {calendarDays.map((day, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => day && handleDateSelect(day)}
+                                    disabled={!day}
+                                    className={`p-2 rounded-lg text-center font-semibold transition-all text-sm ${
+                                      !day
+                                        ? "text-slate-300 cursor-default"
+                                        : selectedDate === new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day).toISOString().split('T')[0]
+                                        ? "bg-blue-600 text-white"
+                                        : "hover:bg-slate-100 text-slate-600"
+                                    }`}
+                                  >
+                                    {day}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
+                      {/* Time Selection */}
                       <div>
                         <label className="text-slate-700 font-semibold block mb-3">Select Time Slot</label>
                         <div className="grid grid-cols-5 gap-3">
@@ -279,7 +390,7 @@ export default function Checkout() {
                               onClick={() => setSelectedTime(time)}
                               className={`p-3 rounded-lg border-2 font-medium transition-all text-sm ${
                                 selectedTime === time
-                                  ? "border-blue-600 bg-blue-50 text-blue-700"
+                                  ? "border-blue-600 bg-blue-600 text-white"
                                   : "border-slate-200 bg-white text-slate-600 hover:border-blue-300"
                               }`}
                             >
@@ -361,18 +472,20 @@ export default function Checkout() {
               <CardContent className="p-6">
                 <h3 className="font-display font-bold text-lg text-slate-900 mb-6">Order Summary</h3>
                 
+                {/* Items List */}
                 <div className="space-y-4 mb-6 pb-6 border-b border-slate-200">
                   {items.map((item, idx) => (
                     <div key={idx} className="flex justify-between items-start">
-                      <div>
+                      <div className="flex-1">
                         <p className="font-semibold text-slate-900 line-clamp-2">{item.name}</p>
                         <p className="text-xs text-slate-500 mt-1">Qty: 1</p>
                       </div>
-                      <p className="font-bold text-slate-900">₹ {item.price}</p>
+                      <p className="font-bold text-slate-900 ml-2">₹ {item.price}</p>
                     </div>
                   ))}
                 </div>
 
+                {/* Pricing */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-slate-600">
                     <span>Subtotal</span>
@@ -388,22 +501,35 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                {/* Info Box */}
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
                   <p className="text-xs text-blue-900">
                     <span className="font-semibold">✓ </span>
                     NABL accredited laboratory with latest equipment
                   </p>
                 </div>
 
-                {/* Step Info */}
-                <div className="mt-6 pt-6 border-t border-slate-200">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Current Step</p>
+                {/* Booking Summary */}
+                <div className="space-y-4 pt-4 border-t border-slate-200">
                   <div className="space-y-2">
-                    {["Your Details", "Schedule Slot", "Payment Method"].map((step, idx) => (
-                      <p key={idx} className={`text-sm ${currentStep === idx + 1 ? "font-bold text-blue-600" : "text-slate-500"}`}>
-                        {idx + 1}. {step}
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Booking Details</p>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-slate-700">
+                        <span className="font-semibold">Patient:</span> {formData.name || "—"}
                       </p>
-                    ))}
+                      <p className="text-slate-700">
+                        <span className="font-semibold">Phone:</span> {formData.phone || "—"}
+                      </p>
+                      <p className="text-slate-700">
+                        <span className="font-semibold">Date:</span> {formatDateDisplay(selectedDate) === "Pick a date" ? "—" : formatDateDisplay(selectedDate)}
+                      </p>
+                      <p className="text-slate-700">
+                        <span className="font-semibold">Time:</span> {selectedTime || "—"}
+                      </p>
+                      <p className="text-slate-700">
+                        <span className="font-semibold">Mode:</span> {collectionType === "lab-visit" ? "Lab Visit" : "Home Collection"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
