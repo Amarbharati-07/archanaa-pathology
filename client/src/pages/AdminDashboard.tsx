@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, BookOpen, CheckCircle2, Clock, Plus, Edit2, Trash2 } from "lucide-react";
+import { LogOut, Users, BookOpen, CheckCircle2, Clock, Plus, Edit2, Trash2, Microscope, FileText, BarChart3, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,238 +121,140 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="border-b bg-white p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <Button onClick={handleLogout2} variant="outline">
-          <LogOut className="w-4 h-4 mr-2" />
-          Logout
-        </Button>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+        <p className="text-slate-500 mt-1">Overview of lab operations</p>
       </div>
 
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Navigation */}
-        <div className="flex gap-4 mb-6 flex-wrap">
-          {["dashboard", "users", "bookings", "tests"].map((tab) => (
-            <Button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                loadData();
-              }}
-              variant={activeTab === tab ? "default" : "outline"}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </Button>
-          ))}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Total Patients</CardTitle>
+                <p className="text-3xl font-bold text-slate-900">{stats.totalUsers || 0}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                <Users className="w-5 h-5 text-blue-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-slate-400">Registered patients</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Total Reports</CardTitle>
+                <p className="text-3xl font-bold text-slate-900">{stats.completedTests || 0}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-indigo-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-slate-400">Generated reports</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Pending Bookings</CardTitle>
+                <p className="text-3xl font-bold text-slate-900">{stats.pendingTests || 0}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-orange-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-slate-400">Awaiting collection</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Available Tests</CardTitle>
+                <p className="text-3xl font-bold text-slate-900">{tests.length || 0}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                <Microscope className="w-5 h-5 text-emerald-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-slate-400">Test catalog</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Today's Reports</CardTitle>
+                <p className="text-3xl font-bold text-slate-900">0</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-violet-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-slate-400">Generated today</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Recent Bookings</CardTitle>
+                <p className="text-3xl font-bold text-slate-900">{bookings.length > 0 ? 1 : 0}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-sky-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-slate-400">Last 7 days</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <h2 className="text-xl font-bold text-slate-900">Quick Actions</h2>
+          <div className="grid gap-4">
+            {[
+              { title: "Create New Report", desc: "Enter test results and generate PDF", icon: FileText, color: "blue" },
+              { title: "Search Patients", desc: "Find patient by ID, name, or phone", icon: Users, color: "indigo" },
+              { title: "View Bookings", desc: "Manage pending sample collections", icon: Calendar, color: "orange" },
+            ].map((action) => (
+              <Button
+                key={action.title}
+                variant="outline"
+                className="h-auto p-4 flex items-center justify-start gap-4 border-slate-200 hover:border-blue-200 hover:bg-blue-50 group transition-all"
+              >
+                <div className={`w-10 h-10 rounded-lg bg-${action.color}-50 flex items-center justify-center group-hover:bg-white transition-colors`}>
+                  <action.icon className={`w-5 h-5 text-${action.color}-600`} />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-slate-900">{action.title}</p>
+                  <p className="text-sm text-slate-500">{action.desc}</p>
+                </div>
+              </Button>
+            ))}
+          </div>
         </div>
 
-        {/* Dashboard Tab */}
-        {activeTab === "dashboard" && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-slate-600 flex items-center gap-2">
-                  <Users className="w-4 h-4" /> Total Users
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{stats.totalUsers}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-slate-600 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4" /> Total Bookings
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{stats.totalBookings}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-slate-600 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Completed
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{stats.completedTests}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-slate-600 flex items-center gap-2">
-                  <Clock className="w-4 h-4" /> Pending
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{stats.pendingTests}</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Users Tab */}
-        {activeTab === "users" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>All Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="text-left p-2">Name</th>
-                      <th className="text-left p-2">Email</th>
-                      <th className="text-left p-2">Phone</th>
-                      <th className="text-left p-2">Age</th>
-                      <th className="text-left p-2">Gender</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user) => (
-                      <tr key={user.id} className="border-b hover:bg-slate-50">
-                        <td className="p-2">{user.name}</td>
-                        <td className="p-2">{user.email}</td>
-                        <td className="p-2">{user.phone}</td>
-                        <td className="p-2">{user.age}</td>
-                        <td className="p-2 capitalize">{user.gender}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
+        <div className="space-y-6">
+          <h2 className="text-xl font-bold text-slate-900">Recent Activity</h2>
+          <Card className="border-none shadow-sm bg-white min-h-[300px] flex flex-col items-center justify-center text-slate-400">
+            <Clock className="w-12 h-12 mb-4 opacity-20" />
+            <p className="text-sm">Activity log will appear here</p>
           </Card>
-        )}
-
-        {/* Bookings Tab */}
-        {activeTab === "bookings" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>All Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="text-left p-2">User</th>
-                      <th className="text-left p-2">Test/Package</th>
-                      <th className="text-left p-2">Date</th>
-                      <th className="text-left p-2">Time</th>
-                      <th className="text-left p-2">Status</th>
-                      <th className="text-left p-2">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookings.map((booking) => (
-                      <tr key={booking.id} className="border-b hover:bg-slate-50">
-                        <td className="p-2">{booking.userName}</td>
-                        <td className="p-2">{booking.testName || booking.packageName}</td>
-                        <td className="p-2">{new Date(booking.date).toLocaleDateString()}</td>
-                        <td className="p-2">{booking.time}</td>
-                        <td className="p-2">
-                          <span className={`px-2 py-1 rounded text-xs font-bold ${booking.testStatus === "completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                            {booking.testStatus}
-                          </span>
-                        </td>
-                        <td className="p-2">₹{booking.totalAmount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Tests Tab */}
-        {activeTab === "tests" && (
-          <div>
-            <Button onClick={() => setIsTestModalOpen(true)} className="mb-4 gap-2">
-              <Plus className="w-4 h-4" />
-              Create Test
-            </Button>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {tests.map((test) => (
-                <Card key={test.id}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{test.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <p className="text-slate-600">{test.description}</p>
-                    <p><strong>Price:</strong> ₹{test.price}</p>
-                    <p><strong>Category:</strong> {test.category}</p>
-                    <p><strong>Report Time:</strong> {test.reportTime}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
-
-      {/* Create Test Modal */}
-      <Dialog open={isTestModalOpen} onOpenChange={setIsTestModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Test</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Test Name</Label>
-              <Input
-                value={testForm.name}
-                onChange={(e) => setTestForm({ ...testForm, name: e.target.value })}
-                placeholder="e.g., Complete Blood Count"
-              />
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={testForm.description}
-                onChange={(e) => setTestForm({ ...testForm, description: e.target.value })}
-                placeholder="Test description"
-              />
-            </div>
-            <div>
-              <Label>Price</Label>
-              <Input
-                type="number"
-                value={testForm.price}
-                onChange={(e) => setTestForm({ ...testForm, price: e.target.value })}
-                placeholder="e.g., 500"
-              />
-            </div>
-            <div>
-              <Label>Report Time</Label>
-              <Input
-                value={testForm.reportTime}
-                onChange={(e) => setTestForm({ ...testForm, reportTime: e.target.value })}
-                placeholder="e.g., 24 Hours"
-              />
-            </div>
-            <div>
-              <Label>Category</Label>
-              <Input
-                value={testForm.category}
-                onChange={(e) => setTestForm({ ...testForm, category: e.target.value })}
-                placeholder="e.g., Hematology"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsTestModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateTest}>Create</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

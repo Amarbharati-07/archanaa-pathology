@@ -25,6 +25,8 @@ import Contact from "@/pages/Contact";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminBookings from "@/pages/AdminBookings";
+import AdminPatients from "@/pages/AdminPatients";
+import AdminTests from "@/pages/AdminTests";
 import UserDashboard from "@/pages/UserDashboard";
 
 function AppLoader() {
@@ -94,7 +96,50 @@ function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { Button } from "@/components/ui/button";
+import { Clock, Users } from "lucide-react";
+
 function Router() {
+  const [location] = useLocation();
+  const isAdminPage = location.startsWith("/admin") && location !== "/admin/login";
+
+  if (isAdminPage) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-slate-50/50">
+          <AdminSidebar />
+          <div className="flex-1 flex flex-col min-w-0">
+            <header className="h-16 border-b bg-white flex items-center justify-between px-6 sticky top-0 z-20">
+              <div className="flex items-center gap-4">
+                <h2 className="text-sm font-medium text-slate-500">Overview of lab operations</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" className="text-slate-500">
+                  <Clock className="w-5 h-5" />
+                </Button>
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-blue-600" />
+                </div>
+              </div>
+            </header>
+            <main className="p-6">
+              <Switch>
+                <Route path="/admin" component={AdminDashboard} />
+                <Route path="/admin/patients" component={AdminPatients} />
+                <Route path="/admin/tests" component={AdminTests} />
+                <Route path="/admin/bookings" component={AdminBookings} />
+                {/* Placeholder for other admin routes */}
+                <Route path="/admin/:rest*" component={AdminDashboard} />
+              </Switch>
+            </main>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
   return (
     <Layout>
       <Switch>
@@ -111,8 +156,6 @@ function Router() {
         <Route path="/dashboard" component={UserDashboard} />
         <Route path="/about" component={Contact} /> 
         <Route path="/admin/login" component={AdminLogin} />
-        <Route path="/admin" component={AdminDashboard} />
-        <Route path="/admin/bookings" component={AdminBookings} />
         <Route path="/user/dashboard" component={UserDashboard} />
         <Route component={NotFound} />
       </Switch>
