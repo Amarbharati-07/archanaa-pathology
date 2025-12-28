@@ -7,6 +7,16 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
 export default function AdminTests() {
   const { adminToken } = useAuth();
   const { toast } = useToast();
@@ -32,7 +42,49 @@ export default function AdminTests() {
     }
   };
 
-  const categories = ["All", ...Array.from(new Set(tests.map(t => t.category)))];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [testForm, setTestForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    reportTime: "24 hours",
+    category: "Hematology",
+    image: ""
+  });
+
+  const handleCreateTest = async () => {
+    try {
+      const res = await fetch("/api/admin/tests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({
+          ...testForm,
+          price: Number(testForm.price)
+        })
+      });
+      if (res.ok) {
+        toast({ title: "Success", description: "Test created successfully" });
+        setIsModalOpen(false);
+        loadTests();
+        setTestForm({
+          name: "",
+          description: "",
+          price: "",
+          reportTime: "24 hours",
+          category: "Hematology",
+          image: ""
+        });
+      } else {
+        const err = await res.json();
+        toast({ title: "Error", description: err.message || "Failed to create test", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Something went wrong", variant: "destructive" });
+    }
+  };
 
   const filteredTests = tests.filter(t => 
     (activeCategory === "All" || t.category === activeCategory) &&
@@ -47,11 +99,74 @@ export default function AdminTests() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Tests</h1>
           <p className="text-slate-500 mt-1">Manage test catalog and parameters</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
+        <Button className="bg-blue-600 hover:bg-blue-700 gap-2" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4" />
           Add Test
         </Button>
       </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Test</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Test Name *</Label>
+              <Input 
+                placeholder="e.g., Complete Blood Count" 
+                value={testForm.name}
+                onChange={(e) => setTestForm({ ...testForm, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Category *</Label>
+              <Input 
+                placeholder="e.g., Hematology" 
+                value={testForm.category}
+                onChange={(e) => setTestForm({ ...testForm, category: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Price (INR) *</Label>
+              <Input 
+                type="number" 
+                placeholder="e.g., 500" 
+                value={testForm.price}
+                onChange={(e) => setTestForm({ ...testForm, price: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Duration *</Label>
+              <Input 
+                placeholder="e.g., 24 hours" 
+                value={testForm.reportTime}
+                onChange={(e) => setTestForm({ ...testForm, reportTime: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label>Description</Label>
+              <Textarea 
+                placeholder="Brief description of the test..." 
+                value={testForm.description}
+                onChange={(e) => setTestForm({ ...testForm, description: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label>Image URL (optional)</Label>
+              <Input 
+                placeholder="https://example.com/image.jpg" 
+                value={testForm.image}
+                onChange={(e) => setTestForm({ ...testForm, image: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateTest}>Create Test</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-col md:flex-row gap-4">
         <Card className="flex-1 border-none shadow-sm bg-white">

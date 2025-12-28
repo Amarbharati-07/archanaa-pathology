@@ -7,6 +7,17 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+
 export default function AdminPackages() {
   const { adminToken } = useAuth();
   const { toast } = useToast();
@@ -31,7 +42,63 @@ export default function AdminPackages() {
     }
   };
 
-  const filteredPackages = packages.filter(p => 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tests, setTests] = useState<any[]>([]);
+  const [packageForm, setPackageForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "General",
+    image: "",
+    includes: [] as string[]
+  });
+
+  useEffect(() => {
+    fetch("/api/tests").then(res => res.json()).then(setTests);
+  }, []);
+
+  const handleCreatePackage = async () => {
+    try {
+      const res = await fetch("/api/admin/packages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({
+          ...packageForm,
+          price: Number(packageForm.price)
+        })
+      });
+      if (res.ok) {
+        toast({ title: "Success", description: "Package created successfully" });
+        setIsModalOpen(false);
+        loadPackages();
+        setPackageForm({
+          name: "",
+          description: "",
+          price: "",
+          category: "General",
+          image: "",
+          includes: []
+        });
+      } else {
+        const err = await res.json();
+        toast({ title: "Error", description: err.message || "Failed to create package", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Something went wrong", variant: "destructive" });
+    }
+  };
+
+  const toggleTest = (testName: string) => {
+    setPackageForm(prev => ({
+      ...prev,
+      includes: prev.includes.includes(testName)
+        ? prev.includes.filter(t => t !== testName)
+        : [...prev.includes, testName]
+    }));
+  };
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -43,11 +110,83 @@ export default function AdminPackages() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Health Packages</h1>
           <p className="text-slate-500 mt-1">Manage health checkup packages and pricing</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
+        <Button className="bg-blue-600 hover:bg-blue-700 gap-2" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4" />
           Add Package
         </Button>
       </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Package</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Package Name</Label>
+              <Input 
+                placeholder="e.g., Full Body Checkup" 
+                value={packageForm.name}
+                onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Input 
+                placeholder="e.g., General" 
+                value={packageForm.category}
+                onChange={(e) => setPackageForm({ ...packageForm, category: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label>Description</Label>
+              <Textarea 
+                placeholder="Package description..." 
+                value={packageForm.description}
+                onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Price (₹)</Label>
+              <Input 
+                type="number" 
+                placeholder="e.g., 2000" 
+                value={packageForm.price}
+                onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Image URL (optional)</Label>
+              <Input 
+                placeholder="https://example.com/image.jpg" 
+                value={packageForm.image}
+                onChange={(e) => setPackageForm({ ...packageForm, image: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 space-y-3">
+              <Label>Select Tests ({packageForm.includes.length} selected)</Label>
+              <div className="grid grid-cols-2 gap-2 border rounded-md p-3 max-h-40 overflow-y-auto">
+                {tests.map(test => (
+                  <div key={test.id} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`test-${test.id}`} 
+                      checked={packageForm.includes.includes(test.name)}
+                      onCheckedChange={() => toggleTest(test.name)}
+                    />
+                    <label htmlFor={`test-${test.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {test.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreatePackage}>Create Package</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card className="border-none shadow-sm bg-white">
         <CardContent className="p-4">
