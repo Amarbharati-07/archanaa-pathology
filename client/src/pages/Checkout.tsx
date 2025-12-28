@@ -335,9 +335,9 @@ export default function Checkout() {
                       <p className="text-slate-600">Choose your preferred appointment slot</p>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-6 relative">
                       {/* Date Selection */}
-                      <div>
+                      <div className="relative z-40">
                         <label className="text-slate-700 font-semibold block mb-3">Select Date</label>
                         <div className="relative">
                           <button
@@ -349,7 +349,7 @@ export default function Checkout() {
 
                           {/* Calendar Popup */}
                           {showCalendar && (
-                            <div className="absolute top-14 left-0 bg-white border-2 border-slate-200 rounded-xl shadow-xl p-4 z-50 w-96">
+                            <div className="absolute top-14 left-0 bg-white border-2 border-slate-200 rounded-2xl shadow-2xl p-6 z-50 w-full min-w-80">
                               {/* Month Navigation */}
                               <div className="flex items-center justify-between mb-6">
                                 <button
