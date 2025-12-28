@@ -76,6 +76,17 @@ export default function Checkout() {
     { id: "wallet", label: "Wallet", description: "Pay using digital wallets", icon: "💰" },
   ];
 
+  // Get today's date
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Check if a date is in the past
+  const isPastDate = (date: Date) => {
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate < today;
+  };
+
   // Calendar generation
   const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const getFirstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
@@ -93,6 +104,17 @@ export default function Checkout() {
 
   const handleDateSelect = (day: number) => {
     const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
+    
+    // Check if date is in the past
+    if (isPastDate(date)) {
+      toast({ 
+        title: "Invalid Date", 
+        description: "Please select a future date. Past dates are not available for booking.",
+        variant: "destructive" 
+      });
+      return;
+    }
+
     const formattedDate = date.toISOString().split('T')[0];
     setSelectedDate(formattedDate);
     setShowCalendar(false);
@@ -358,22 +380,41 @@ export default function Checkout() {
 
                               {/* Calendar Days */}
                               <div className="grid grid-cols-7 gap-2">
-                                {calendarDays.map((day, idx) => (
-                                  <button
-                                    key={idx}
-                                    onClick={() => day && handleDateSelect(day)}
-                                    disabled={!day}
-                                    className={`p-2 rounded-lg text-center font-semibold transition-all text-sm ${
-                                      !day
-                                        ? "text-slate-300 cursor-default"
-                                        : selectedDate === new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day).toISOString().split('T')[0]
-                                        ? "bg-blue-600 text-white"
-                                        : "hover:bg-slate-100 text-slate-600"
-                                    }`}
-                                  >
-                                    {day}
-                                  </button>
-                                ))}
+                                {calendarDays.map((day, idx) => {
+                                  if (!day) {
+                                    return (
+                                      <button
+                                        key={idx}
+                                        disabled
+                                        className="p-2 rounded-lg text-center font-semibold transition-all text-sm text-slate-300 cursor-default"
+                                      >
+                                        {day}
+                                      </button>
+                                    );
+                                  }
+
+                                  const dateObj = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
+                                  const isDisabled = isPastDate(dateObj);
+                                  const isSelected = selectedDate === dateObj.toISOString().split('T')[0];
+
+                                  return (
+                                    <button
+                                      key={idx}
+                                      onClick={() => !isDisabled && handleDateSelect(day)}
+                                      disabled={isDisabled}
+                                      className={`p-2 rounded-lg text-center font-semibold transition-all text-sm ${
+                                        isDisabled
+                                          ? "text-slate-300 bg-slate-100 cursor-not-allowed"
+                                          : isSelected
+                                          ? "bg-blue-600 text-white"
+                                          : "hover:bg-slate-100 text-slate-600 cursor-pointer"
+                                      }`}
+                                      title={isDisabled ? "Past date - not available" : ""}
+                                    >
+                                      {day}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
