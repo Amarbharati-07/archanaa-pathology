@@ -1,5 +1,7 @@
 import { db } from "./db";
-import { tests, packages, reviews } from "@shared/schema";
+import { tests, packages, reviews, admins } from "@shared/schema";
+import { hashPassword } from "./auth";
+import { sql } from "drizzle-orm";
 
 const SEED_TESTS = [
   // Blood Group & RBC Tests
@@ -569,6 +571,18 @@ export async function seedDatabase() {
       console.log(`[seed] ✓ Inserted ${SEED_REVIEWS.length} reviews`);
     } else {
       console.log("[seed] Database already seeded, skipping...");
+    }
+
+    // Seed admin if not exists
+    const existingAdmin = await db.select().from(admins).limit(1);
+    if (existingAdmin.length === 0) {
+      const hashedPassword = await hashPassword("admin123");
+      await db.insert(admins).values({
+        email: "admin",
+        password: hashedPassword,
+        name: "Admin",
+      });
+      console.log("[seed] ✓ Admin user created (email: admin, password: admin123)");
     }
 
     console.log("[seed] ✓ Database ready!");
