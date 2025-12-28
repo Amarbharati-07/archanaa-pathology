@@ -232,8 +232,8 @@ export default function Checkout() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
           <div className="lg:col-span-2">
-            <Card className="rounded-2xl border-none shadow-xl shadow-slate-200/50 overflow-hidden bg-white">
-              <CardContent className="p-8">
+            <Card className="rounded-2xl border-none shadow-xl shadow-slate-200/50 bg-white">
+              <CardContent className="p-8 relative">
                 {/* Step 1: Details */}
                 {currentStep === 1 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
