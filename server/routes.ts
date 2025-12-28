@@ -214,6 +214,56 @@ export async function registerRoutes(
     }
   });
 
+  // Get booking by ID
+  app.get("/api/bookings/:id", authUserMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const booking = await storage.getBookingById(Number(req.params.id));
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      if (booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+      res.json(booking);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Create payment (initiates payment process)
+  app.post("/api/payments/initiate", authUserMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, amount } = req.body;
+      const booking = await storage.getBookingById(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      if (booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+      // Update booking to pending verification
+      await storage.updatePaymentStatus(bookingId, "pending_verification");
+      res.json({ message: "Payment initiated", bookingId });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Verify payment (admin only)
+  app.post("/api/admin/payments/verify", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, verified } = req.body;
+      const status = verified ? "verified" : "rejected";
+      const booking = await storage.updatePaymentStatus(bookingId, status);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // ============ ADMIN ROUTES ============
 
   // Get dashboard stats
@@ -253,7 +303,9 @@ export async function registerRoutes(
 
       const bookingDetails = allBookings.map(b => ({
         id: b.id,
+        userId: b.userId,
         userName: users.find(u => u.id === b.userId)?.name || "Unknown",
+        phone: users.find(u => u.id === b.userId)?.phone || "",
         testName: b.testId ? tests.find(t => t.id === b.testId)?.name : null,
         packageName: b.packageId ? packages.find(p => p.id === b.packageId)?.name : null,
         date: b.date,
@@ -261,6 +313,9 @@ export async function registerRoutes(
         testStatus: b.testStatus,
         paymentStatus: b.paymentStatus,
         totalAmount: b.totalAmount,
+        bookingMode: b.bookingMode,
+        address: b.address,
+        distance: b.distance,
       }));
 
       res.json(bookingDetails);

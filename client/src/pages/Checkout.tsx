@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { useCreateBooking } from "@/hooks/use-bookings";
 import { useLocation } from "wouter";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
 
 // Extend schema for frontend validation nuances if needed
 const formSchema = createBookingSchema.extend({
@@ -22,6 +23,7 @@ export default function Checkout() {
   const { items, total, clearCart } = useCart();
   const { mutate, isPending, isSuccess } = useCreateBooking();
   const [_, setLocation] = useLocation();
+  const { toast } = useToast();
 
   const form = useForm<any>({
     resolver: zodResolver(formSchema),
@@ -74,22 +76,6 @@ export default function Checkout() {
      return null;
   }
 
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-green-50 px-4">
-        <div className="text-center max-w-md">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-display font-bold text-green-800 mb-4">Booking Confirmed!</h1>
-          <p className="text-green-700 mb-8">Thank you for choosing Archana Pathology Lab. We have sent a confirmation email to you. Our team will contact you shortly.</p>
-          <Button onClick={() => setLocation("/")} className="bg-green-600 hover:bg-green-700">
-            Back to Home
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-12">
@@ -169,14 +155,19 @@ export default function Checkout() {
                      <p className="text-xs text-muted-foreground">By confirming, you agree to our terms of service.</p>
                   </div>
 
-                  <Button type="submit" className="w-full h-12 text-lg font-bold" disabled={isPending}>
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-lg font-bold" 
+                    disabled={isPending}
+                    onClick={() => setLocation("/booking-confirmation")}
+                  >
                     {isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Processing...
                       </>
                     ) : (
-                      "Confirm Booking"
+                      "Continue to Booking"
                     )}
                   </Button>
                 </form>

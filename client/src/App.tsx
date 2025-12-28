@@ -17,12 +17,14 @@ import Tests from "@/pages/Tests";
 import Packages from "@/pages/Packages";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
+import BookingConfirmation from "@/pages/BookingConfirmation";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Contact from "@/pages/Contact";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+import AdminBookings from "@/pages/AdminBookings";
 import UserDashboard from "@/pages/UserDashboard";
 
 function AppLoader() {
@@ -101,6 +103,7 @@ function Router() {
         <Route path="/packages" component={Packages} />
         <Route path="/cart" component={Cart} />
         <Route path="/checkout" component={Checkout} />
+        <Route path="/booking-confirmation" component={BookingConfirmation} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/forgot-password" component={ForgotPassword} />
@@ -109,6 +112,7 @@ function Router() {
         <Route path="/about" component={Contact} /> 
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin" component={AdminDashboard} />
+        <Route path="/admin/bookings" component={AdminBookings} />
         <Route path="/user/dashboard" component={UserDashboard} />
         <Route component={NotFound} />
       </Switch>

@@ -66,6 +66,9 @@ export const bookings = pgTable("bookings", {
   totalAmount: integer("total_amount").notNull(),
   paymentStatus: text("payment_status").default("pending"),
   testStatus: text("test_status").default("booked"),
+  bookingMode: text("booking_mode").default("lab_visit"),
+  address: text("address").default(""),
+  distance: integer("distance").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -138,6 +141,9 @@ export const createBookingSchema = z.object({
   date: z.string().min(1, "Date required"),
   time: z.string().min(1, "Time required"),
   totalAmount: z.number().min(1, "Amount must be positive"),
+  bookingMode: z.enum(["home_collection", "lab_visit"]).default("lab_visit"),
+  address: z.string().optional(),
+  distance: z.number().optional(),
 });
 
 // === TYPES ===
