@@ -19,7 +19,7 @@ export default function Login() {
     try {
       await userLogin(email, password);
       toast({ title: "Login successful!", description: "Welcome back" });
-      setLocation("/dashboard");
+      setLocation("/");
     } catch (err: any) {
       toast({ title: "Login failed", description: err.message, variant: "destructive" });
     }
