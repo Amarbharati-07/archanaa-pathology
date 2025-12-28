@@ -576,13 +576,13 @@ export async function seedDatabase() {
     // Seed admin if not exists
     const existingAdmin = await db.select().from(admins).limit(1);
     if (existingAdmin.length === 0) {
-      const hashedPassword = await hashPassword("admin123");
+      const hashedPassword = await hashPassword("sourav0788");
       await db.insert(admins).values({
-        email: "admin",
+        email: "souravz@gmail.com",
         password: hashedPassword,
         name: "Admin",
       });
-      console.log("[seed] ✓ Admin user created (email: admin, password: admin123)");
+      console.log("[seed] ✓ Admin user created (email: souravz@gmail.com, password: sourav0788)");
     }
 
     console.log("[seed] ✓ Database ready!");
