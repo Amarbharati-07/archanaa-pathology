@@ -99,6 +99,7 @@ export default function AdminPackages() {
         : [...prev.includes, testName]
     }));
   };
+  const filteredPackages = packages.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.description.toLowerCase().includes(searchQuery.toLowerCase())
   );

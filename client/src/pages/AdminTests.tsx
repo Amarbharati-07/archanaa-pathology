@@ -86,6 +86,8 @@ export default function AdminTests() {
     }
   };
 
+  const categories = ["All", ...Array.from(new Set(tests.map(t => t.category)))];
+
   const filteredTests = tests.filter(t => 
     (activeCategory === "All" || t.category === activeCategory) &&
     (t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
