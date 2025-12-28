@@ -90,6 +90,9 @@ export const reports = pgTable("reports", {
   testName: text("test_name").notNull(),
   resultSummary: text("result_summary").notNull(),
   doctorRemarks: text("doctor_remarks").default(""),
+  parameters: jsonb("parameters").notNull(), // Added to store manual result values
+  technicianName: text("technician_name"),
+  referredBy: text("referred_by"),
   reportPath: text("report_path"),
   uploadDate: timestamp("upload_date").defaultNow(),
 });

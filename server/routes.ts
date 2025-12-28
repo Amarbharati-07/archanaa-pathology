@@ -424,5 +424,17 @@ export async function registerRoutes(
     }
   });
 
+  // Create report (admin only)
+  app.post("/api/admin/reports", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const report = await storage.createReport(req.body);
+      // Update booking status to completed
+      await storage.updateBookingStatus(req.body.bookingId, "completed");
+      res.status(201).json(report);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   return httpServer;
 }

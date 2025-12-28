@@ -1,0 +1,258 @@
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation, useParams } from "wouter";
+import { FileText, Users, Calendar, Microscope, User, Stethoscope, ClipboardCheck } from "lucide-react";
+import { format } from "date-fns";
+
+export default function AdminCreateReport() {
+  const { bookingId } = useParams();
+  const [, setLocation] = useLocation();
+  const { adminToken } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [booking, setBooking] = useState<any>(null);
+  const [testDetails, setTestDetails] = useState<any>(null);
+  const [patient, setPatient] = useState<any>(null);
+  
+  const [technician, setTechnician] = useState("");
+  const [referredBy, setReferredBy] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [paramValues, setParamValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadData();
+  }, [bookingId]);
+
+  const loadData = async () => {
+    try {
+      const res = await fetch("/api/admin/bookings", {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      const bookings = await res.json();
+      const currentBooking = bookings.find((b: any) => b.id === Number(bookingId));
+      
+      if (!currentBooking) {
+        toast({ title: "Error", description: "Booking not found", variant: "destructive" });
+        return;
+      }
+      setBooking(currentBooking);
+
+      // Get patient details
+      const pRes = await fetch("/api/admin/users", {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      const patients = await pRes.json();
+      setPatient(patients.find((p: any) => p.id === currentBooking.userId));
+
+      // Get test/package details for parameters
+      if (currentBooking.testId) {
+        const tRes = await fetch(`/api/tests/${currentBooking.testId}`);
+        const test = await tRes.json();
+        setTestDetails(test);
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    if (!technician) {
+      toast({ title: "Validation Error", description: "Technician name is required", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/reports", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}` 
+        },
+        body: JSON.stringify({
+          userId: booking.userId,
+          bookingId: booking.id,
+          testId: booking.testId || 0,
+          testName: booking.testName || booking.packageName,
+          resultSummary: "Complete",
+          doctorRemarks: remarks,
+          technicianName: technician,
+          referredBy: referredBy,
+          parameters: paramValues
+        })
+      });
+
+      if (res.ok) {
+        toast({ title: "Success", description: "Report generated successfully" });
+        setLocation("/admin/patients");
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to generate report", variant: "destructive" });
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center text-slate-500">Loading booking data...</div>;
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Create Report</h1>
+        <p className="text-slate-500 mt-1">Enter test results and generate patient report</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Patient & Info */}
+        <div className="space-y-6">
+          <Card className="border-none shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <User className="w-4 h-4 text-blue-600" /> Patient
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-slate-200 text-blue-600">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">{patient?.name}</h3>
+                    <p className="text-[10px] font-mono text-blue-600">ARCH-20251228-{String(patient?.id).padStart(4, '0')}</p>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-2 text-xs text-slate-500">
+                  <p className="flex items-center gap-2">📞 {patient?.phone}</p>
+                  <p className="flex items-center gap-2">✉️ {patient?.email}</p>
+                </div>
+                <Button variant="ghost" className="w-full mt-4 h-8 text-[11px] border border-slate-200">Change Patient</Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Microscope className="w-4 h-4 text-blue-600" /> Tests to Complete
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px] font-semibold">
+                    <span className="text-slate-500 uppercase">Progress</span>
+                    <span className="text-blue-600">0/1 completed</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-0 h-full bg-blue-600 rounded-full" />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-blue-50/50 rounded-lg border border-blue-100 shadow-sm flex items-center gap-3">
+                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">1</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-blue-900">{booking.testName || booking.packageName}</p>
+                    <p className="text-[10px] text-blue-600/70">{format(new Date(booking.date), 'dd MMM yyyy, h:mm a')}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Middle/Right Column - Parameter Inputs */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-none shadow-sm min-h-[400px]">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50">
+              <div>
+                <CardTitle className="text-lg font-bold text-slate-900">{booking.testName || booking.packageName}</CardTitle>
+                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">{booking.testCode || 'TEST'} | 1 parameters</p>
+              </div>
+              <Button 
+                onClick={handleGenerateReport}
+                className="bg-blue-600 hover:bg-blue-700 font-bold gap-2 shadow-lg shadow-blue-200"
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                Generate Report
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100">
+                    <tr>
+                      <th className="text-left py-4 px-6">Parameter</th>
+                      <th className="text-left py-4 px-6">Value</th>
+                      <th className="text-left py-4 px-6">Unit</th>
+                      <th className="text-left py-4 px-6">Normal Range</th>
+                      <th className="text-left py-4 px-6">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    <tr>
+                      <td className="py-4 px-6 text-sm font-medium text-slate-700">{booking.testName || booking.packageName}</td>
+                      <td className="py-4 px-6">
+                        <Input 
+                          placeholder="Value" 
+                          className="h-8 w-24 border-slate-200 focus:ring-blue-500"
+                          value={paramValues[booking.testName || booking.packageName] || ""}
+                          onChange={(e) => setParamValues({ ...paramValues, [booking.testName || booking.packageName]: e.target.value })}
+                        />
+                      </td>
+                      <td className="py-4 px-6 text-xs text-slate-500 font-mono">μmol/L</td>
+                      <td className="py-4 px-6 text-xs text-slate-500 font-mono">5-15</td>
+                      <td className="py-4 px-6">
+                        <span className="w-2.5 h-2.5 rounded-full bg-slate-200 block" />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="p-6 bg-slate-50/30 border-t border-slate-50">
+                <p className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <Stethoscope className="w-4 h-4 text-blue-600" /> Additional Information
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-slate-500">Technician Name *</Label>
+                    <Input 
+                      placeholder="Enter name" 
+                      className="h-9 border-slate-200" 
+                      value={technician}
+                      onChange={(e) => setTechnician(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-slate-500">Referred By (Doctor Name)</Label>
+                    <Input 
+                      placeholder="doctor@example.com" 
+                      className="h-9 border-slate-200" 
+                      value={referredBy}
+                      onChange={(e) => setReferredBy(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-slate-500">Remarks</Label>
+                    <Textarea 
+                      placeholder="Additional notes..." 
+                      className="min-h-[80px] border-slate-200 text-sm" 
+                      value={remarks}
+                      onChange={(e) => setRemarks(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

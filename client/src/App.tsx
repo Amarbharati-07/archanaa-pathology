@@ -132,6 +132,7 @@ function Router() {
                 <Route path="/admin/tests" component={AdminTests} />
                 <Route path="/admin/packages" component={AdminPackages} />
                 <Route path="/admin/bookings" component={AdminBookings} />
+                <Route path="/admin/create-report/:bookingId" component={AdminCreateReport} />
                 {/* Placeholder for other admin routes */}
                 <Route path="/admin/:rest*" component={AdminDashboard} />
               </Switch>

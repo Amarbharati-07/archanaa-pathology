@@ -49,7 +49,7 @@ export interface IStorage {
 
   // Reports
   getReportsByUser(userId: number): Promise<Report[]>;
-  createReport(userId: number, testId: number, bookingId: number, testName: string, resultSummary: string, doctorRemarks: string, reportPath?: string): Promise<Report>;
+  createReport(data: any): Promise<Report>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -182,8 +182,8 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(reports).where(eq(reports.userId, userId));
   }
 
-  async createReport(userId: number, testId: number, bookingId: number, testName: string, resultSummary: string, doctorRemarks: string, reportPath?: string): Promise<Report> {
-    const result = await db.insert(reports).values({ userId, testId, bookingId, testName, resultSummary, doctorRemarks, reportPath }).returning();
+  async createReport(data: any): Promise<Report> {
+    const result = await db.insert(reports).values(data).returning();
     return result[0];
   }
 }
