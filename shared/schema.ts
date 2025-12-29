@@ -85,14 +85,17 @@ export const payments = pgTable("payments", {
 export const reports = pgTable("reports", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
-  testId: integer("test_id").notNull(),
   bookingId: integer("booking_id").notNull(),
+  testId: integer("test_id"), // Nullable for packages
+  packageId: integer("package_id"), // Added for package reports
   testName: text("test_name").notNull(),
   resultSummary: text("result_summary").notNull(),
   doctorRemarks: text("doctor_remarks").default(""),
-  parameters: jsonb("parameters").notNull(), // Added to store manual result values
+  parameters: jsonb("parameters").notNull(), // List of { name, result, unit, normalRange, status }
   technicianName: text("technician_name"),
   referredBy: text("referred_by"),
+  clinicalRemarks: text("clinical_remarks"),
+  signaturePath: text("signature_path"),
   reportPath: text("report_path"),
   uploadDate: timestamp("upload_date").defaultNow(),
 });

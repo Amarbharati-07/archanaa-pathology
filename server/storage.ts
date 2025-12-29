@@ -183,7 +183,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createReport(data: any): Promise<Report> {
-    const result = await db.insert(reports).values(data).returning();
+    const result = await db.insert(reports).values({
+      userId: data.userId,
+      bookingId: data.bookingId,
+      testId: data.testId || null,
+      packageId: data.packageId || null,
+      testName: data.testName,
+      resultSummary: data.resultSummary || "Completed",
+      doctorRemarks: data.doctorRemarks || "",
+      parameters: data.parameters || [],
+      technicianName: data.technicianName || "",
+      referredBy: data.referredBy || "",
+      clinicalRemarks: data.clinicalRemarks || "",
+    }).returning();
     return result[0];
   }
 }
