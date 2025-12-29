@@ -226,14 +226,15 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-bold text-slate-900">Quick Actions</h2>
           <div className="grid gap-4">
             {[
-              { title: "Create New Report", desc: "Enter test results and generate PDF", icon: FileText, color: "blue" },
-              { title: "Search Patients", desc: "Find patient by ID, name, or phone", icon: Users, color: "indigo" },
-              { title: "View Bookings", desc: "Manage pending sample collections", icon: Calendar, color: "orange" },
+              { title: "Create New Report", desc: "Enter test results and generate PDF", icon: FileText, color: "blue", action: () => setLocation("/admin/reports") },
+              { title: "Search Patients", desc: "Find patient by ID, name, or phone", icon: Users, color: "indigo", action: () => setLocation("/admin/patients") },
+              { title: "View Bookings", desc: "Manage pending sample collections", icon: Calendar, color: "orange", action: () => setLocation("/admin/bookings") },
             ].map((action) => (
               <Button
                 key={action.title}
                 variant="outline"
                 className="h-auto p-4 flex items-center justify-start gap-4 border-slate-200 hover:border-blue-200 hover:bg-blue-50 group transition-all"
+                onClick={action.action}
               >
                 <div className={`w-10 h-10 rounded-lg bg-${action.color}-50 flex items-center justify-center group-hover:bg-white transition-colors`}>
                   <action.icon className={`w-5 h-5 text-${action.color}-600`} />
