@@ -157,8 +157,8 @@ export default function AdminCreateReport() {
                 <div className="p-3 bg-blue-50/50 rounded-lg border border-blue-100 shadow-sm flex items-center gap-3">
                   <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">1</span>
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-blue-900">{booking.testName || booking.packageName}</p>
-                    <p className="text-[10px] text-blue-600/70">{format(new Date(booking.date), 'dd MMM yyyy, h:mm a')}</p>
+                    <p className="text-sm font-bold text-blue-900">{booking?.testName || booking?.packageName || 'Loading...'}</p>
+                    <p className="text-[10px] text-blue-600/70">{booking?.date ? format(new Date(booking.date), 'dd MMM yyyy, h:mm a') : 'Loading...'}</p>
                   </div>
                 </div>
               </div>
@@ -171,8 +171,8 @@ export default function AdminCreateReport() {
           <Card className="border-none shadow-sm min-h-[400px]">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50">
               <div>
-                <CardTitle className="text-lg font-bold text-slate-900">{booking.testName || booking.packageName}</CardTitle>
-                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">{booking.testCode || 'TEST'} | 1 parameters</p>
+                <CardTitle className="text-lg font-bold text-slate-900">{booking?.testName || booking?.packageName || 'Loading...'}</CardTitle>
+                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">{booking?.testCode || 'TEST'} | 1 parameters</p>
               </div>
               <Button 
                 onClick={handleGenerateReport}
@@ -196,13 +196,13 @@ export default function AdminCreateReport() {
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     <tr>
-                      <td className="py-4 px-6 text-sm font-medium text-slate-700">{booking.testName || booking.packageName}</td>
+                      <td className="py-4 px-6 text-sm font-medium text-slate-700">{booking?.testName || booking?.packageName || 'Loading...'}</td>
                       <td className="py-4 px-6">
                         <Input 
                           placeholder="Value" 
                           className="h-8 w-24 border-slate-200 focus:ring-blue-500"
-                          value={paramValues[booking.testName || booking.packageName] || ""}
-                          onChange={(e) => setParamValues({ ...paramValues, [booking.testName || booking.packageName]: e.target.value })}
+                          value={booking ? (paramValues[booking.testName || booking.packageName] || "") : ""}
+                          onChange={(e) => booking && setParamValues({ ...paramValues, [booking.testName || booking.packageName]: e.target.value })}
                         />
                       </td>
                       <td className="py-4 px-6 text-xs text-slate-500 font-mono">μmol/L</td>
