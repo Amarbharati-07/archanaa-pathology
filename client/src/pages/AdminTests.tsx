@@ -94,7 +94,7 @@ export default function AdminTests() {
   };
 
   const removeParameter = (id: number) => {
-    setParameters(parameters.filter(p => p.id !== id));
+    setParameters(parameters.filter((p, idx) => idx !== id));
   };
 
   const handleSubmitTest = async () => {

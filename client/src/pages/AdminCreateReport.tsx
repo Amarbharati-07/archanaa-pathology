@@ -5,10 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation, useParams } from "wouter";
 import { FileText, Users, Calendar, Microscope, User, Stethoscope, ClipboardCheck } from "lucide-react";
 import { format } from "date-fns";
+import { calculateStatus, getStatusColor } from "@/lib/statusCalculation";
 
 export default function AdminCreateReport() {
   const { bookingId } = useParams();
@@ -23,7 +25,8 @@ export default function AdminCreateReport() {
   const [technician, setTechnician] = useState("");
   const [referredBy, setReferredBy] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [paramValues, setParamValues] = useState<Record<string, string>>({});
+  const [paramValues, setParamValues] = useState<Record<string, { value: string; unit: string; normalRange: string }>>({});
+  const [paramStatuses, setParamStatuses] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadData();
@@ -63,11 +66,39 @@ export default function AdminCreateReport() {
     }
   };
 
+  const handleParamChange = (paramName: string, field: string, value: string) => {
+    setParamValues(prev => ({
+      ...prev,
+      [paramName]: {
+        ...(prev[paramName] || { value: "", unit: "", normalRange: "" }),
+        [field]: value
+      }
+    }));
+
+    // Auto-calculate status if value changed
+    if (field === "value" && testDetails?.parameters) {
+      const param = testDetails.parameters.find((p: any) => p.name === paramName);
+      if (param && value) {
+        const status = calculateStatus(value, param.normalRange || "", patient?.age, patient?.gender);
+        setParamStatuses(prev => ({ ...prev, [paramName]: status }));
+      }
+    }
+  };
+
   const handleGenerateReport = async () => {
     if (!technician) {
       toast({ title: "Validation Error", description: "Technician name is required", variant: "destructive" });
       return;
     }
+
+    // Convert paramValues to proper format
+    const parameters = Object.entries(paramValues).map(([name, data]: any) => ({
+      name,
+      value: data.value || "",
+      unit: data.unit || "",
+      normalRange: data.normalRange || "",
+      status: paramStatuses[name] || "Unable to determine"
+    }));
 
     try {
       const res = await fetch("/api/admin/reports", {
@@ -85,7 +116,7 @@ export default function AdminCreateReport() {
           doctorRemarks: remarks,
           technicianName: technician,
           referredBy: referredBy,
-          parameters: paramValues
+          parameters
         })
       });
 
@@ -183,7 +214,7 @@ export default function AdminCreateReport() {
               </Button>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="overflow-hidden">
+              <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100">
                     <tr>
@@ -195,22 +226,42 @@ export default function AdminCreateReport() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    <tr>
-                      <td className="py-4 px-6 text-sm font-medium text-slate-700">{booking?.testName || booking?.packageName || 'Loading...'}</td>
-                      <td className="py-4 px-6">
-                        <Input 
-                          placeholder="Value" 
-                          className="h-8 w-24 border-slate-200 focus:ring-blue-500"
-                          value={booking ? (paramValues[booking.testName || booking.packageName] || "") : ""}
-                          onChange={(e) => booking && setParamValues({ ...paramValues, [booking.testName || booking.packageName]: e.target.value })}
-                        />
-                      </td>
-                      <td className="py-4 px-6 text-xs text-slate-500 font-mono">μmol/L</td>
-                      <td className="py-4 px-6 text-xs text-slate-500 font-mono">5-15</td>
-                      <td className="py-4 px-6">
-                        <span className="w-2.5 h-2.5 rounded-full bg-slate-200 block" />
-                      </td>
-                    </tr>
+                    {testDetails?.parameters && testDetails.parameters.length > 0 ? (
+                      testDetails.parameters.map((param: any, idx: number) => {
+                        const currentValue = paramValues[param.name]?.value || "";
+                        const status = paramStatuses[param.name] || "Unable to determine";
+                        return (
+                          <tr key={idx}>
+                            <td className="py-4 px-6 text-sm font-medium text-slate-700">{param.name}</td>
+                            <td className="py-4 px-6">
+                              <Input 
+                                placeholder="Enter value" 
+                                className="h-8 w-32 border-slate-200 focus:ring-blue-500"
+                                value={currentValue}
+                                onChange={(e) => handleParamChange(param.name, "value", e.target.value)}
+                                data-testid={`input-param-value-${param.name}`}
+                              />
+                            </td>
+                            <td className="py-4 px-6 text-xs text-slate-500 font-mono">{param.unit || "-"}</td>
+                            <td className="py-4 px-6 text-xs text-slate-500 font-mono">{param.normalRange || "-"}</td>
+                            <td className="py-4 px-6">
+                              <Badge 
+                                className={`${getStatusColor(status)} border text-xs font-semibold`}
+                                data-testid={`badge-status-${param.name}`}
+                              >
+                                {status}
+                              </Badge>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="py-8 px-6 text-center text-slate-500 text-sm">
+                          No parameters available for this test
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
