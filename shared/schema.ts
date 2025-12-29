@@ -100,6 +100,14 @@ export const reports = pgTable("reports", {
   uploadDate: timestamp("upload_date").defaultNow(),
 });
 
+export const walkInCollections = pgTable("walk_in_collections", {
+  id: serial("id").primaryKey(),
+  reportId: integer("report_id").notNull(),
+  doctorName: text("doctor_name").notNull(),
+  clinicName: text("clinic_name").notNull(),
+  collectionDate: timestamp("collection_date").defaultNow(),
+});
+
 // === SCHEMAS ===
 
 export const registerSchema = z.object({

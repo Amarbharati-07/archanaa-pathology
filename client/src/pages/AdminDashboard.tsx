@@ -227,8 +227,9 @@ export default function AdminDashboard() {
           <div className="grid gap-4">
             {[
               { title: "Create New Report", desc: "Enter test results and generate PDF", icon: FileText, color: "blue", action: () => setLocation("/admin/reports") },
-              { title: "Search Patients", desc: "Find patient by ID, name, or phone", icon: Users, color: "indigo", action: () => setLocation("/admin/patients") },
-              { title: "View Bookings", desc: "Manage pending sample collections", icon: Calendar, color: "orange", action: () => setLocation("/admin/bookings") },
+              { title: "View All Reports", desc: "View and manage all generated reports", icon: FileText, color: "indigo", action: () => setLocation("/admin/all-reports") },
+              { title: "Walk-in Collections", desc: "Direct collections from doctors/clinics", icon: Calendar, color: "orange", action: () => setLocation("/admin/walk-in") },
+              { title: "Search Patients", desc: "Find patient by ID, name, or phone", icon: Users, color: "violet", action: () => setLocation("/admin/patients") },
             ].map((action) => (
               <Button
                 key={action.title}

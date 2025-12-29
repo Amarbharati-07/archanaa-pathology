@@ -29,6 +29,9 @@ import AdminPatients from "@/pages/AdminPatients";
 import AdminTests from "@/pages/AdminTests";
 import AdminPackages from "@/pages/AdminPackages";
 import AdminCreateReport from "@/pages/AdminCreateReport";
+import AdminReports from "@/pages/AdminReports";
+import AdminAllReports from "@/pages/AdminAllReports";
+import AdminWalkInCollections from "@/pages/AdminWalkInCollections";
 import UserDashboard from "@/pages/UserDashboard";
 
 function AppLoader() {
@@ -133,6 +136,9 @@ function Router() {
                 <Route path="/admin/tests" component={AdminTests} />
                 <Route path="/admin/packages" component={AdminPackages} />
                 <Route path="/admin/bookings" component={AdminBookings} />
+                <Route path="/admin/reports" component={AdminReports} />
+                <Route path="/admin/all-reports" component={AdminAllReports} />
+                <Route path="/admin/walk-in" component={AdminWalkInCollections} />
                 <Route path="/admin/create-report/:bookingId" component={AdminCreateReport} />
                 {/* Placeholder for other admin routes */}
                 <Route path="/admin/:rest*" component={AdminDashboard} />

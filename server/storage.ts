@@ -1,7 +1,7 @@
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import {
-  users, admins, tests, packages, reviews, bookings, payments, reports,
+  users, admins, tests, packages, reviews, bookings, payments, reports, walkInCollections,
   type User, type Admin, type Test, type Package, type Review, type Booking, type Payment, type Report,
   type RegisterInput, type LoginInput, type AdminLoginInput,
 } from "@shared/schema";
@@ -49,7 +49,10 @@ export interface IStorage {
 
   // Reports
   getReportsByUser(userId: number): Promise<Report[]>;
+  getAllReports(): Promise<Report[]>;
   createReport(data: any): Promise<Report>;
+  createWalkInCollection(reportId: number, doctorName: string, clinicName: string): Promise<any>;
+  getWalkInCollectionsByDoctor(doctorName: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -182,6 +185,10 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(reports).where(eq(reports.userId, userId));
   }
 
+  async getAllReports(): Promise<Report[]> {
+    return db.select().from(reports);
+  }
+
   async createReport(data: any): Promise<Report> {
     const result = await db.insert(reports).values({
       userId: data.userId,
@@ -197,6 +204,20 @@ export class DatabaseStorage implements IStorage {
       clinicalRemarks: data.clinicalRemarks || "",
     }).returning();
     return result[0];
+  }
+
+  async createWalkInCollection(reportId: number, doctorName: string, clinicName: string): Promise<any> {
+    const result = await db.insert(walkInCollections).values({ reportId, doctorName, clinicName }).returning();
+    return result[0];
+  }
+
+  async getWalkInCollectionsByDoctor(doctorName: string): Promise<any[]> {
+    const collections = await db.select().from(walkInCollections).where(eq(walkInCollections.doctorName, doctorName));
+    // Join with reports to get full details
+    return Promise.all(collections.map(async (collection) => {
+      const report = await db.select().from(reports).where(eq(reports.id, collection.reportId));
+      return { ...collection, report: report[0] };
+    }));
   }
 }
 

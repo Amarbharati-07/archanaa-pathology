@@ -436,5 +436,44 @@ export async function registerRoutes(
     }
   });
 
+  // Get all reports (admin only)
+  app.get("/api/admin/all-reports", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const allReports = await storage.getAllReports();
+      const users = await storage.getAllUsers();
+      
+      const reportDetails = allReports.map(r => ({
+        ...r,
+        patientName: users.find(u => u.id === r.userId)?.name || "Unknown",
+        patientPhone: users.find(u => u.id === r.userId)?.phone || "",
+      }));
+      
+      res.json(reportDetails);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Create walk-in collection (admin only)
+  app.post("/api/admin/walk-in-collections", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const { reportId, doctorName, clinicName } = req.body;
+      const collection = await storage.createWalkInCollection(reportId, doctorName, clinicName);
+      res.status(201).json(collection);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Get walk-in collections by doctor (admin only)
+  app.get("/api/admin/walk-in-collections/:doctorName", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const collections = await storage.getWalkInCollectionsByDoctor(req.params.doctorName);
+      res.json(collections);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   return httpServer;
 }
