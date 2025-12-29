@@ -348,10 +348,15 @@ export default function AdminTests() {
                   {test.description}
                 </p>
                 <div className="flex items-center justify-between text-xs text-slate-400 border-t pt-4">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {test.reportTime}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {test.reportTime}
+                    </span>
+                    <span className="text-blue-600 font-medium">
+                      {Array.isArray(test.parameters) ? test.parameters.length : 0} parameters
+                    </span>
+                  </div>
                   <div className="flex gap-2">
                     <Button 
                       variant="ghost" 

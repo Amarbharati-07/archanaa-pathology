@@ -11,6 +11,22 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Hematology",
     isPopular: true,
+    parameters: [
+      { name: "Hemoglobin", unit: "g/dL", normalRange: "12-16 (F), 13-17 (M)", paramCode: "HGB" },
+      { name: "RBC Count", unit: "million/mcL", normalRange: "4.0-5.5 (F), 4.5-6.0 (M)", paramCode: "RBC" },
+      { name: "WBC Count", unit: "cells/mcL", normalRange: "4500-11000", paramCode: "WBC" },
+      { name: "Platelets", unit: "cells/mcL", normalRange: "150000-400000", paramCode: "PLT" },
+      { name: "Hematocrit (HCT/PCV)", unit: "%", normalRange: "36-46 (F), 40-54 (M)", paramCode: "HCT" },
+      { name: "MCV", unit: "fL", normalRange: "80-100", paramCode: "MCV" },
+      { name: "MCH", unit: "pg", normalRange: "27-33", paramCode: "MCH" },
+      { name: "MCHC", unit: "g/dL", normalRange: "32-36", paramCode: "MCHC" },
+      { name: "RDW-CV", unit: "%", normalRange: "11.5-14.5", paramCode: "RDWCV" },
+      { name: "Neutrophils", unit: "%", normalRange: "40-70", paramCode: "NEUT" },
+      { name: "Lymphocytes", unit: "%", normalRange: "20-40", paramCode: "LYMPH" },
+      { name: "Monocytes", unit: "%", normalRange: "2-8", paramCode: "MONO" },
+      { name: "Eosinophils", unit: "%", normalRange: "1-4", paramCode: "EOS" },
+      { name: "Basophils", unit: "%", normalRange: "0-1", paramCode: "BASO" },
+    ],
   },
   {
     name: "Erythrocyte Sedimentation Rate (ESR)",
@@ -19,6 +35,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Hematology",
     isPopular: false,
+    parameters: [
+      { name: "ESR", unit: "mm/hr", normalRange: "0-15 (M), 0-20 (F)", paramCode: "ESR" },
+    ],
   },
   {
     name: "Peripheral Blood Smear",
@@ -27,6 +46,12 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Hematology",
     isPopular: false,
+    parameters: [
+      { name: "RBC Morphology", unit: "", normalRange: "Normocytic Normochromic", paramCode: "RBCM" },
+      { name: "WBC Morphology", unit: "", normalRange: "Normal", paramCode: "WBCM" },
+      { name: "Platelet Morphology", unit: "", normalRange: "Adequate", paramCode: "PLTM" },
+      { name: "Parasites", unit: "", normalRange: "Not Seen", paramCode: "PARA" },
+    ],
   },
   {
     name: "Blood Group & Rh Typing",
@@ -35,6 +60,10 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Hematology",
     isPopular: true,
+    parameters: [
+      { name: "Blood Group", unit: "", normalRange: "A/B/AB/O", paramCode: "BG" },
+      { name: "Rh Factor", unit: "", normalRange: "Positive/Negative", paramCode: "RH" },
+    ],
   },
   {
     name: "Reticulocyte Count",
@@ -43,7 +72,12 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Hematology",
     isPopular: false,
+    parameters: [
+      { name: "Reticulocyte Count", unit: "%", normalRange: "0.5-2.5", paramCode: "RETIC" },
+      { name: "Absolute Reticulocyte Count", unit: "cells/mcL", normalRange: "25000-125000", paramCode: "ARC" },
+    ],
   },
+  // ==================== DIABETES TESTS ====================
   {
     name: "Blood Sugar Fasting",
     description: "Measures blood glucose levels after an overnight fast (8-12 hours). Primary screening test for diabetes.\n\nSample Type: Plasma (Fluoride)\nFasting: Yes (10 hours)\nMethod: Hexokinase/GOD-POD",
@@ -51,6 +85,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Diabetes",
     isPopular: true,
+    parameters: [
+      { name: "Fasting Blood Glucose", unit: "mg/dL", normalRange: "70-100", paramCode: "FBG" },
+    ],
   },
   {
     name: "Blood Sugar PP (Postprandial)",
@@ -59,6 +96,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Diabetes",
     isPopular: true,
+    parameters: [
+      { name: "Postprandial Blood Glucose", unit: "mg/dL", normalRange: "<140", paramCode: "PPBG" },
+    ],
   },
   {
     name: "Blood Sugar Random",
@@ -67,6 +107,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Diabetes",
     isPopular: false,
+    parameters: [
+      { name: "Random Blood Glucose", unit: "mg/dL", normalRange: "<200", paramCode: "RBG" },
+    ],
   },
   {
     name: "HbA1c (Glycated Hemoglobin)",
@@ -75,6 +118,10 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Diabetes",
     isPopular: true,
+    parameters: [
+      { name: "HbA1c", unit: "%", normalRange: "<5.7 (Normal), 5.7-6.4 (Prediabetes), ≥6.5 (Diabetes)", paramCode: "A1C" },
+      { name: "Estimated Average Glucose", unit: "mg/dL", normalRange: "<117", paramCode: "EAG" },
+    ],
   },
   {
     name: "Fasting Insulin",
@@ -83,6 +130,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Diabetes",
     isPopular: false,
+    parameters: [
+      { name: "Fasting Insulin", unit: "µIU/mL", normalRange: "2.6-24.9", paramCode: "FINS" },
+    ],
   },
   {
     name: "Liver Function Test (LFT)",
@@ -91,6 +141,19 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Liver Profile",
     isPopular: true,
+    parameters: [
+      { name: "Bilirubin Total", unit: "mg/dL", normalRange: "0.1-1.2", paramCode: "TBIL" },
+      { name: "Bilirubin Direct", unit: "mg/dL", normalRange: "0-0.3", paramCode: "DBIL" },
+      { name: "Bilirubin Indirect", unit: "mg/dL", normalRange: "0.1-0.9", paramCode: "IBIL" },
+      { name: "SGOT (AST)", unit: "U/L", normalRange: "10-40", paramCode: "AST" },
+      { name: "SGPT (ALT)", unit: "U/L", normalRange: "7-56", paramCode: "ALT" },
+      { name: "Alkaline Phosphatase (ALP)", unit: "U/L", normalRange: "44-147", paramCode: "ALP" },
+      { name: "Gamma GT (GGT)", unit: "U/L", normalRange: "9-48 (M), 9-36 (F)", paramCode: "GGT" },
+      { name: "Total Protein", unit: "g/dL", normalRange: "6.0-8.3", paramCode: "TP" },
+      { name: "Albumin", unit: "g/dL", normalRange: "3.5-5.0", paramCode: "ALB" },
+      { name: "Globulin", unit: "g/dL", normalRange: "2.0-3.5", paramCode: "GLOB" },
+      { name: "A/G Ratio", unit: "", normalRange: "1.0-2.5", paramCode: "AGR" },
+    ],
   },
   {
     name: "Kidney Function Test (KFT)",
@@ -99,6 +162,14 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Kidney Profile",
     isPopular: true,
+    parameters: [
+      { name: "Blood Urea", unit: "mg/dL", normalRange: "15-45", paramCode: "UREA" },
+      { name: "Blood Urea Nitrogen (BUN)", unit: "mg/dL", normalRange: "7-20", paramCode: "BUN" },
+      { name: "Creatinine", unit: "mg/dL", normalRange: "0.6-1.2 (M), 0.5-1.1 (F)", paramCode: "CREAT" },
+      { name: "Uric Acid", unit: "mg/dL", normalRange: "3.5-7.2 (M), 2.6-6.0 (F)", paramCode: "UA" },
+      { name: "eGFR", unit: "mL/min/1.73m²", normalRange: ">90", paramCode: "EGFR" },
+      { name: "BUN/Creatinine Ratio", unit: "", normalRange: "10-20", paramCode: "BCR" },
+    ],
   },
   {
     name: "Electrolyte Panel",
@@ -107,6 +178,12 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Kidney Profile",
     isPopular: true,
+    parameters: [
+      { name: "Sodium", unit: "mEq/L", normalRange: "136-145", paramCode: "NA" },
+      { name: "Potassium", unit: "mEq/L", normalRange: "3.5-5.0", paramCode: "K" },
+      { name: "Chloride", unit: "mEq/L", normalRange: "98-106", paramCode: "CL" },
+      { name: "Bicarbonate", unit: "mEq/L", normalRange: "22-29", paramCode: "HCO3" },
+    ],
   },
   {
     name: "Lipid Profile",
@@ -115,6 +192,16 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Lipid Profile",
     isPopular: true,
+    parameters: [
+      { name: "Total Cholesterol", unit: "mg/dL", normalRange: "<200 (Desirable)", paramCode: "TC" },
+      { name: "HDL Cholesterol", unit: "mg/dL", normalRange: ">40 (M), >50 (F)", paramCode: "HDL" },
+      { name: "LDL Cholesterol", unit: "mg/dL", normalRange: "<100 (Optimal)", paramCode: "LDL" },
+      { name: "VLDL Cholesterol", unit: "mg/dL", normalRange: "<30", paramCode: "VLDL" },
+      { name: "Triglycerides", unit: "mg/dL", normalRange: "<150", paramCode: "TG" },
+      { name: "Total Cholesterol/HDL Ratio", unit: "", normalRange: "<5", paramCode: "TCHDL" },
+      { name: "LDL/HDL Ratio", unit: "", normalRange: "<3", paramCode: "LDLHDL" },
+      { name: "Non-HDL Cholesterol", unit: "mg/dL", normalRange: "<130", paramCode: "NONHDL" },
+    ],
   },
   {
     name: "Apolipoprotein A1",
@@ -123,6 +210,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Lipid Profile",
     isPopular: false,
+    parameters: [
+      { name: "Apolipoprotein A1", unit: "mg/dL", normalRange: "104-202 (M), 108-225 (F)", paramCode: "APOA1" },
+    ],
   },
   {
     name: "Apolipoprotein B",
@@ -131,6 +221,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Lipid Profile",
     isPopular: false,
+    parameters: [
+      { name: "Apolipoprotein B", unit: "mg/dL", normalRange: "66-133 (M), 60-117 (F)", paramCode: "APOB" },
+    ],
   },
   {
     name: "Lipoprotein (a)",
@@ -139,6 +232,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Lipid Profile",
     isPopular: false,
+    parameters: [
+      { name: "Lipoprotein (a)", unit: "mg/dL", normalRange: "<30", paramCode: "LPA" },
+    ],
   },
   {
     name: "Thyroid Profile (T3, T4, TSH)",
@@ -147,6 +243,11 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Thyroid",
     isPopular: true,
+    parameters: [
+      { name: "TSH", unit: "µIU/mL", normalRange: "0.4-4.0", paramCode: "TSH" },
+      { name: "Total T3", unit: "ng/dL", normalRange: "80-200", paramCode: "T3" },
+      { name: "Total T4", unit: "µg/dL", normalRange: "5.0-12.0", paramCode: "T4" },
+    ],
   },
   {
     name: "Free T3",
@@ -155,6 +256,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Thyroid",
     isPopular: false,
+    parameters: [
+      { name: "Free T3", unit: "pg/mL", normalRange: "2.3-4.2", paramCode: "FT3" },
+    ],
   },
   {
     name: "Free T4",
@@ -163,6 +267,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Thyroid",
     isPopular: false,
+    parameters: [
+      { name: "Free T4", unit: "ng/dL", normalRange: "0.8-1.8", paramCode: "FT4" },
+    ],
   },
   {
     name: "Anti-TPO Antibodies",
@@ -171,6 +278,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Thyroid",
     isPopular: false,
+    parameters: [
+      { name: "Anti-TPO Antibodies", unit: "IU/mL", normalRange: "<34", paramCode: "ATPO" },
+    ],
   },
   {
     name: "Anti-Thyroglobulin Antibodies",
@@ -179,6 +289,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Thyroid",
     isPopular: false,
+    parameters: [
+      { name: "Anti-Thyroglobulin Antibodies", unit: "IU/mL", normalRange: "<115", paramCode: "ATG" },
+    ],
   },
   {
     name: "Vitamin D (25-OH)",
@@ -187,6 +300,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Vitamins",
     isPopular: true,
+    parameters: [
+      { name: "Vitamin D (25-OH)", unit: "ng/mL", normalRange: "30-100 (Sufficient), 20-29 (Insufficient), <20 (Deficient)", paramCode: "VITD" },
+    ],
   },
   {
     name: "Vitamin B12",
@@ -195,6 +311,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Vitamins",
     isPopular: true,
+    parameters: [
+      { name: "Vitamin B12", unit: "pg/mL", normalRange: "200-900", paramCode: "B12" },
+    ],
   },
   {
     name: "Folate (Folic Acid)",
@@ -203,6 +322,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Vitamins",
     isPopular: false,
+    parameters: [
+      { name: "Serum Folate", unit: "ng/mL", normalRange: "3.0-17.0", paramCode: "FOL" },
+    ],
   },
   {
     name: "Iron Studies",
@@ -211,6 +333,11 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Vitamins",
     isPopular: false,
+    parameters: [
+      { name: "Serum Iron", unit: "µg/dL", normalRange: "60-170 (M), 50-150 (F)", paramCode: "FE" },
+      { name: "TIBC", unit: "µg/dL", normalRange: "250-400", paramCode: "TIBC" },
+      { name: "Transferrin Saturation", unit: "%", normalRange: "20-50", paramCode: "TSAT" },
+    ],
   },
   {
     name: "Ferritin",
@@ -219,6 +346,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Vitamins",
     isPopular: false,
+    parameters: [
+      { name: "Ferritin", unit: "ng/mL", normalRange: "12-300 (M), 12-150 (F)", paramCode: "FERR" },
+    ],
   },
   {
     name: "Calcium",
@@ -227,6 +357,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Vitamins",
     isPopular: false,
+    parameters: [
+      { name: "Calcium", unit: "mg/dL", normalRange: "8.5-10.5", paramCode: "CA" },
+    ],
   },
   {
     name: "Phosphorus",
@@ -235,6 +368,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Vitamins",
     isPopular: false,
+    parameters: [
+      { name: "Phosphorus", unit: "mg/dL", normalRange: "2.5-4.5", paramCode: "PHOS" },
+    ],
   },
   {
     name: "Magnesium",
@@ -243,6 +379,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Vitamins",
     isPopular: false,
+    parameters: [
+      { name: "Magnesium", unit: "mg/dL", normalRange: "1.7-2.4", paramCode: "MG" },
+    ],
   },
   {
     name: "Troponin I",
@@ -251,6 +390,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Cardiac",
     isPopular: true,
+    parameters: [
+      { name: "Troponin I", unit: "ng/mL", normalRange: "<0.04", paramCode: "TROPI" },
+    ],
   },
   {
     name: "CK-MB",
@@ -259,6 +401,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Cardiac",
     isPopular: false,
+    parameters: [
+      { name: "CK-MB", unit: "U/L", normalRange: "<25", paramCode: "CKMB" },
+    ],
   },
   {
     name: "NT-proBNP",
@@ -267,6 +412,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Cardiac",
     isPopular: false,
+    parameters: [
+      { name: "NT-proBNP", unit: "pg/mL", normalRange: "<125 (Age <75), <450 (Age ≥75)", paramCode: "NTBNP" },
+    ],
   },
   {
     name: "Homocysteine",
@@ -275,6 +423,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Cardiac",
     isPopular: false,
+    parameters: [
+      { name: "Homocysteine", unit: "µmol/L", normalRange: "5-15", paramCode: "HCY" },
+    ],
   },
   {
     name: "hs-CRP (High Sensitivity CRP)",
@@ -283,6 +434,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Cardiac",
     isPopular: false,
+    parameters: [
+      { name: "hs-CRP", unit: "mg/L", normalRange: "<1 (Low Risk), 1-3 (Average), >3 (High Risk)", paramCode: "HSCRP" },
+    ],
   },
   {
     name: "C-Reactive Protein (CRP)",
@@ -291,6 +445,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Infection",
     isPopular: true,
+    parameters: [
+      { name: "CRP", unit: "mg/L", normalRange: "<6", paramCode: "CRP" },
+    ],
   },
   {
     name: "Procalcitonin",
@@ -299,6 +456,9 @@ const SEED_TESTS = [
     reportTime: "24 hours",
     category: "Infection",
     isPopular: false,
+    parameters: [
+      { name: "Procalcitonin", unit: "ng/mL", normalRange: "<0.5", paramCode: "PCT" },
+    ],
   },
   {
     name: "Dengue NS1 Antigen",
@@ -307,6 +467,9 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Infection",
     isPopular: true,
+    parameters: [
+      { name: "Dengue NS1 Antigen", unit: "", normalRange: "Negative", paramCode: "DNS1" },
+    ],
   },
   {
     name: "Typhoid (Widal Test)",
@@ -315,6 +478,12 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Infection",
     isPopular: true,
+    parameters: [
+      { name: "S. Typhi O", unit: "Titre", normalRange: "<1:80", paramCode: "WIDO" },
+      { name: "S. Typhi H", unit: "Titre", normalRange: "<1:80", paramCode: "WIDH" },
+      { name: "S. Paratyphi AH", unit: "Titre", normalRange: "<1:80", paramCode: "WIDAH" },
+      { name: "S. Paratyphi BH", unit: "Titre", normalRange: "<1:80", paramCode: "WIDBH" },
+    ],
   },
   {
     name: "Malaria Parasite (MP) - Rapid",
@@ -323,6 +492,10 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Infection",
     isPopular: true,
+    parameters: [
+      { name: "Malaria P.f.", unit: "", normalRange: "Negative", paramCode: "MPF" },
+      { name: "Malaria P.v.", unit: "", normalRange: "Negative", paramCode: "MPV" },
+    ],
   },
   {
     name: "Testosterone (Total)",
@@ -331,6 +504,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "Testosterone (Total)", unit: "ng/dL", normalRange: "240-870", paramCode: "TEST" },
+    ],
   },
   {
     name: "Prolactin",
@@ -339,6 +515,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "Prolactin", unit: "ng/mL", normalRange: "4-15 (M), 4-23 (F)", paramCode: "PRL" },
+    ],
   },
   {
     name: "LH (Luteinizing Hormone)",
@@ -347,6 +526,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "LH", unit: "mIU/mL", normalRange: "1.5-9.3 (M), Varies by cycle phase (F)", paramCode: "LH" },
+    ],
   },
   {
     name: "FSH (Follicle Stimulating Hormone)",
@@ -355,6 +537,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "FSH", unit: "mIU/mL", normalRange: "1.5-12.4 (M), Varies by cycle phase (F)", paramCode: "FSH" },
+    ],
   },
   {
     name: "Estradiol (E2)",
@@ -363,6 +548,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "Estradiol", unit: "pg/mL", normalRange: "Varies by cycle phase (F), 10-40 (M)", paramCode: "E2" },
+    ],
   },
   {
     name: "Progesterone",
@@ -371,6 +559,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "Progesterone", unit: "ng/mL", normalRange: "Varies by cycle phase (F), <1 (M)", paramCode: "PROG" },
+    ],
   },
   {
     name: "Cortisol (Morning)",
@@ -379,6 +570,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "Cortisol (8 AM)", unit: "µg/dL", normalRange: "6-23", paramCode: "CORT" },
+    ],
   },
   {
     name: "DHEA-Sulfate",
@@ -387,6 +581,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "DHEA-S", unit: "µg/dL", normalRange: "Age and gender dependent", paramCode: "DHEAS" },
+    ],
   },
   {
     name: "Parathyroid Hormone (PTH)",
@@ -395,6 +592,9 @@ const SEED_TESTS = [
     reportTime: "48 hours",
     category: "Hormones",
     isPopular: false,
+    parameters: [
+      { name: "PTH (Intact)", unit: "pg/mL", normalRange: "15-65", paramCode: "PTH" },
+    ],
   },
   {
     name: "Urine Routine Examination",
@@ -403,6 +603,24 @@ const SEED_TESTS = [
     reportTime: "4 hours",
     category: "Urine",
     isPopular: true,
+    parameters: [
+      { name: "Color", unit: "", normalRange: "Pale Yellow to Yellow", paramCode: "UCOL" },
+      { name: "Appearance", unit: "", normalRange: "Clear", paramCode: "UAPP" },
+      { name: "Specific Gravity", unit: "", normalRange: "1.005-1.030", paramCode: "USG" },
+      { name: "pH", unit: "", normalRange: "4.5-8.0", paramCode: "UPH" },
+      { name: "Protein", unit: "", normalRange: "Absent", paramCode: "UPRO" },
+      { name: "Glucose", unit: "", normalRange: "Absent", paramCode: "UGLU" },
+      { name: "Ketones", unit: "", normalRange: "Absent", paramCode: "UKET" },
+      { name: "Bilirubin", unit: "", normalRange: "Absent", paramCode: "UBIL" },
+      { name: "Urobilinogen", unit: "", normalRange: "Normal", paramCode: "UURO" },
+      { name: "Nitrite", unit: "", normalRange: "Absent", paramCode: "UNIT" },
+      { name: "Blood", unit: "", normalRange: "Absent", paramCode: "UBLD" },
+      { name: "Pus Cells", unit: "/hpf", normalRange: "0-5", paramCode: "UPUS" },
+      { name: "Epithelial Cells", unit: "/hpf", normalRange: "0-5", paramCode: "UEPI" },
+      { name: "RBCs", unit: "/hpf", normalRange: "Absent", paramCode: "URBC" },
+      { name: "Casts", unit: "/hpf", normalRange: "Absent", paramCode: "UCAST" },
+      { name: "Crystals", unit: "/hpf", normalRange: "Absent", paramCode: "UCRY" },
+    ],
   }
 ];
 

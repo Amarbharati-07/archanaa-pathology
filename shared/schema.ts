@@ -33,6 +33,7 @@ export const tests = pgTable("tests", {
   category: text("category").notNull(),
   isPopular: boolean("is_popular").default(false),
   image: text("image"),
+  parameters: jsonb("parameters").default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
