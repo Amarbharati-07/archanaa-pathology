@@ -424,6 +424,24 @@ export async function registerRoutes(
     }
   });
 
+  // Get all generated reports (admin only)
+  app.get("/api/admin/all-reports", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const allReports = await storage.getAllReports();
+      const users = await storage.getAllUsers();
+      
+      const reportDetails = allReports.map(r => ({
+        ...r,
+        patientName: users.find(u => u.id === r.userId)?.name || "Unknown",
+        patientPhone: users.find(u => u.id === r.userId)?.phone || "",
+      }));
+      
+      res.json(reportDetails);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // Create report (admin only)
   app.post("/api/admin/reports", authAdminMiddleware, async (req: AuthRequest, res) => {
     try {
