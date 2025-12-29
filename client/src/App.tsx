@@ -28,6 +28,7 @@ import AdminBookings from "@/pages/AdminBookings";
 import AdminPatients from "@/pages/AdminPatients";
 import AdminTests from "@/pages/AdminTests";
 import AdminPackages from "@/pages/AdminPackages";
+import AdminCreateReport from "@/pages/AdminCreateReport";
 import UserDashboard from "@/pages/UserDashboard";
 
 function AppLoader() {
