@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Microscope, Search, Plus, FileText, LayoutGrid, List, Clock } from "lucide-react";
+import { Microscope, Search, Plus, FileText, Clock, Edit2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -25,6 +25,20 @@ export default function AdminTests() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTest, setEditingTest] = useState<any>(null);
+  const [testForm, setTestForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    reportTime: "24 hours",
+    category: "Hematology",
+    image: "",
+    testCode: ""
+  });
+  const [parameters, setParameters] = useState<any[]>([]);
+  const [newParam, setNewParam] = useState({ name: "", unit: "", normalRange: "" });
+
   useEffect(() => {
     loadTests();
   }, []);
@@ -42,18 +56,35 @@ export default function AdminTests() {
     }
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [testForm, setTestForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    reportTime: "24 hours",
-    category: "Hematology",
-    image: "",
-    testCode: ""
-  });
-  const [parameters, setParameters] = useState<any[]>([]);
-  const [newParam, setNewParam] = useState({ name: "", unit: "", normalRange: "" });
+  const handleOpenAddModal = () => {
+    setEditingTest(null);
+    setTestForm({
+      name: "",
+      description: "",
+      price: "",
+      reportTime: "24 hours",
+      category: "Hematology",
+      image: "",
+      testCode: ""
+    });
+    setParameters([]);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (test: any) => {
+    setEditingTest(test);
+    setTestForm({
+      name: test.name,
+      description: test.description || "",
+      price: String(test.price),
+      reportTime: test.reportTime || "24 hours",
+      category: test.category || "Hematology",
+      image: test.image || "",
+      testCode: test.testCode || ""
+    });
+    setParameters(test.parameters || []);
+    setIsModalOpen(true);
+  };
 
   const addParameter = () => {
     if (newParam.name && newParam.normalRange) {
@@ -66,37 +97,50 @@ export default function AdminTests() {
     setParameters(parameters.filter(p => p.id !== id));
   };
 
-  const handleCreateTest = async () => {
+  const handleSubmitTest = async () => {
     try {
-      const res = await fetch("/api/admin/tests", {
-        method: "POST",
+      const url = editingTest ? `/api/admin/tests/${editingTest.id}` : "/api/admin/tests";
+      const method = editingTest ? "PATCH" : "POST";
+      
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${adminToken}`
         },
         body: JSON.stringify({
           ...testForm,
-          price: Number(testForm.price)
+          price: Number(testForm.price),
+          parameters
         })
       });
+
       if (res.ok) {
-        toast({ title: "Success", description: "Test created successfully" });
+        toast({ title: "Success", description: `Test ${editingTest ? "updated" : "created"} successfully` });
         setIsModalOpen(false);
         loadTests();
-        setTestForm({
-          name: "",
-          description: "",
-          price: "",
-          reportTime: "24 hours",
-          category: "Hematology",
-          image: ""
-        });
       } else {
         const err = await res.json();
-        toast({ title: "Error", description: err.message || "Failed to create test", variant: "destructive" });
+        toast({ title: "Error", description: err.message || "Operation failed", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Error", description: "Something went wrong", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteTest = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this test?")) return;
+    try {
+      const res = await fetch(`/api/admin/tests/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      if (res.ok) {
+        toast({ title: "Success", description: "Test deleted successfully" });
+        loadTests();
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete test", variant: "destructive" });
     }
   };
 
@@ -115,16 +159,16 @@ export default function AdminTests() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Tests</h1>
           <p className="text-slate-500 mt-1">Manage test catalog and parameters</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 gap-2" onClick={() => setIsModalOpen(true)}>
+        <Button className="bg-blue-600 hover:bg-blue-700 gap-2" onClick={handleOpenAddModal}>
           <Plus className="w-4 h-4" />
           Add Test
         </Button>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add New Test</DialogTitle>
+            <DialogTitle>{editingTest ? "Edit Test" : "Add New Test"}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="space-y-2">
@@ -217,8 +261,8 @@ export default function AdminTests() {
 
               {parameters.length > 0 && (
                 <div className="space-y-2">
-                  {parameters.map((param) => (
-                    <div key={param.id} className="flex items-center justify-between p-2 bg-slate-50 rounded-md border border-slate-100 group">
+                  {parameters.map((param, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 bg-slate-50 rounded-md border border-slate-100 group">
                       <div className="flex gap-4 text-sm">
                         <span className="font-medium text-slate-700 min-w-[100px]">{param.name}</span>
                         <span className="text-slate-500 w-16 text-center">{param.unit || "-"}</span>
@@ -227,7 +271,7 @@ export default function AdminTests() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => removeParameter(param.id)}
+                        onClick={() => removeParameter(idx)}
                         className="h-6 w-6 p-0 text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         ×
@@ -240,7 +284,9 @@ export default function AdminTests() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreateTest}>Create Test</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleSubmitTest}>
+              {editingTest ? "Update Test" : "Create Test"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -307,8 +353,21 @@ export default function AdminTests() {
                     {test.reportTime}
                   </span>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <FileText className="w-4 h-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600"
+                      onClick={() => handleOpenEditModal(test)}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 p-0 text-slate-400 hover:text-red-600"
+                      onClick={() => handleDeleteTest(test.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>

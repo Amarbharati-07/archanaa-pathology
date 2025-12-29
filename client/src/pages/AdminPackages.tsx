@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Search, Plus, FileText, Trash2, Edit2, BadgeCheck } from "lucide-react";
+import { Package, Search, Plus, Trash2, Edit2, BadgeCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -22,11 +22,24 @@ export default function AdminPackages() {
   const { adminToken } = useAuth();
   const { toast } = useToast();
   const [packages, setPackages] = useState<any[]>([]);
+  const [tests, setTests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<any>(null);
+  const [packageForm, setPackageForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "General",
+    image: "",
+    includes: [] as string[]
+  });
+
   useEffect(() => {
     loadPackages();
+    fetch("/api/tests").then(res => res.json()).then(setTests);
   }, []);
 
   const loadPackages = async () => {
@@ -42,25 +55,39 @@ export default function AdminPackages() {
     }
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tests, setTests] = useState<any[]>([]);
-  const [packageForm, setPackageForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    category: "General",
-    image: "",
-    includes: [] as string[]
-  });
+  const handleOpenAddModal = () => {
+    setEditingPackage(null);
+    setPackageForm({
+      name: "",
+      description: "",
+      price: "",
+      category: "General",
+      image: "",
+      includes: []
+    });
+    setIsModalOpen(true);
+  };
 
-  useEffect(() => {
-    fetch("/api/tests").then(res => res.json()).then(setTests);
-  }, []);
+  const handleOpenEditModal = (pkg: any) => {
+    setEditingPackage(pkg);
+    setPackageForm({
+      name: pkg.name,
+      description: pkg.description || "",
+      price: String(pkg.price),
+      category: pkg.category || "General",
+      image: pkg.image || "",
+      includes: pkg.includes || []
+    });
+    setIsModalOpen(true);
+  };
 
-  const handleCreatePackage = async () => {
+  const handleSubmitPackage = async () => {
     try {
-      const res = await fetch("/api/admin/packages", {
-        method: "POST",
+      const url = editingPackage ? `/api/admin/packages/${editingPackage.id}` : "/api/admin/packages";
+      const method = editingPackage ? "PATCH" : "POST";
+      
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${adminToken}`
@@ -70,24 +97,33 @@ export default function AdminPackages() {
           price: Number(packageForm.price)
         })
       });
+
       if (res.ok) {
-        toast({ title: "Success", description: "Package created successfully" });
+        toast({ title: "Success", description: `Package ${editingPackage ? "updated" : "created"} successfully` });
         setIsModalOpen(false);
         loadPackages();
-        setPackageForm({
-          name: "",
-          description: "",
-          price: "",
-          category: "General",
-          image: "",
-          includes: []
-        });
       } else {
         const err = await res.json();
-        toast({ title: "Error", description: err.message || "Failed to create package", variant: "destructive" });
+        toast({ title: "Error", description: err.message || "Operation failed", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Error", description: "Something went wrong", variant: "destructive" });
+    }
+  };
+
+  const handleDeletePackage = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this package?")) return;
+    try {
+      const res = await fetch(`/api/admin/packages/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      if (res.ok) {
+        toast({ title: "Success", description: "Package deleted successfully" });
+        loadPackages();
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete package", variant: "destructive" });
     }
   };
 
@@ -99,6 +135,7 @@ export default function AdminPackages() {
         : [...prev.includes, testName]
     }));
   };
+
   const filteredPackages = packages.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -111,7 +148,7 @@ export default function AdminPackages() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Health Packages</h1>
           <p className="text-slate-500 mt-1">Manage health checkup packages and pricing</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 gap-2" onClick={() => setIsModalOpen(true)}>
+        <Button className="bg-blue-600 hover:bg-blue-700 gap-2" onClick={handleOpenAddModal}>
           <Plus className="w-4 h-4" />
           Add Package
         </Button>
@@ -120,7 +157,7 @@ export default function AdminPackages() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New Package</DialogTitle>
+            <DialogTitle>{editingPackage ? "Edit Package" : "Create New Package"}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="space-y-2">
@@ -184,7 +221,9 @@ export default function AdminPackages() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreatePackage}>Create Package</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleSubmitPackage}>
+              {editingPackage ? "Update Package" : "Create Package"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -223,7 +262,6 @@ export default function AdminPackages() {
                     <h3 className="text-lg font-bold text-slate-900">{pkg.name}</h3>
                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">Active</Badge>
                     <Badge variant="outline" className="text-slate-500 border-slate-200">{pkg.category}</Badge>
-                    {pkg.price < 2000 && <Badge className="bg-red-50 text-red-600 border-red-100">40% OFF</Badge>}
                   </div>
                   <p className="text-sm text-slate-500 line-clamp-2 mb-3">
                     {pkg.description}
@@ -235,16 +273,25 @@ export default function AdminPackages() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="font-bold text-blue-600 text-sm">₹{pkg.price}</span>
-                      {pkg.price < 2000 && <span className="line-through">₹{Math.round(pkg.price * 1.4)}</span>}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-center">
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-blue-600 hover:bg-blue-50">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-9 w-9 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                    onClick={() => handleOpenEditModal(pkg)}
+                  >
                     <Edit2 className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                    onClick={() => handleDeletePackage(pkg.id)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
