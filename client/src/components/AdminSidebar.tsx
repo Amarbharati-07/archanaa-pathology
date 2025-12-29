@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Patients", url: "/admin/patients", icon: UserCheck },
+  { title: "Walk-in Collections", url: "/admin/walk-in", icon: Microscope },
   { title: "Reports", url: "/admin/reports", icon: FileText },
   { title: "Tests", url: "/admin/tests", icon: Microscope },
   { title: "Health Packages", url: "/admin/packages", icon: Package },

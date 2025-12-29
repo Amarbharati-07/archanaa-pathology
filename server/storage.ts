@@ -53,6 +53,7 @@ export interface IStorage {
   createReport(data: any): Promise<Report>;
   createWalkInCollection(reportId: number, doctorName: string, clinicName: string): Promise<any>;
   getWalkInCollectionsByDoctor(doctorName: string): Promise<any[]>;
+  getAllWalkInCollections(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -217,6 +218,22 @@ export class DatabaseStorage implements IStorage {
     return Promise.all(collections.map(async (collection) => {
       const report = await db.select().from(reports).where(eq(reports.id, collection.reportId));
       return { ...collection, report: report[0] };
+    }));
+  }
+
+  async getAllWalkInCollections(): Promise<any[]> {
+    const collections = await db.select().from(walkInCollections);
+    // Join with reports to get full details
+    return Promise.all(collections.map(async (collection) => {
+      const report = await db.select().from(reports).where(eq(reports.id, collection.reportId));
+      const user = report[0] ? await db.select().from(users).where(eq(users.id, report[0].userId)) : null;
+      return {
+        ...collection,
+        report: report[0],
+        patientName: user?.[0]?.name || report?.[0]?.testName || 'N/A',
+        patientPhone: user?.[0]?.phone || 'N/A',
+        testName: report?.[0]?.testName || 'N/A'
+      };
     }));
   }
 }

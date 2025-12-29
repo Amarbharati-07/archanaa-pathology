@@ -454,5 +454,26 @@ export async function registerRoutes(
     }
   });
 
+  // Create walk-in collection (admin only)
+  app.post("/api/admin/walk-in-collections", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const { reportId, doctorName, clinicName } = req.body;
+      const collection = await storage.createWalkInCollection(reportId, doctorName, clinicName);
+      res.status(201).json(collection);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Get all walk-in collections (admin only)
+  app.get("/api/admin/walk-in-collections", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const collections = await storage.getAllWalkInCollections();
+      res.json(collections);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   return httpServer;
 }
