@@ -233,7 +233,7 @@ export default function AdminDashboard() {
               <Button
                 key={action.title}
                 variant="outline"
-                className="h-auto p-4 flex items-center justify-start gap-4 border-slate-200 hover:border-blue-200 hover:bg-blue-50 group transition-all"
+                className="h-auto p-4 flex items-center justify-start gap-4 border-slate-200 hover:border-blue-200 hover:bg-blue-50 group transition-all w-full"
                 onClick={action.action}
               >
                 <div className={`w-10 h-10 rounded-lg bg-${action.color}-50 flex items-center justify-center group-hover:bg-white transition-colors`}>
