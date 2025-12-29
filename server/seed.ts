@@ -4,6 +4,7 @@ import { hashPassword } from "./auth";
 import { sql } from "drizzle-orm";
 
 const SEED_TESTS = [
+  // ==================== HEMATOLOGY ====================
   {
     name: "Complete Blood Count (CBC)",
     description: "Comprehensive blood test that evaluates overall health and detects a wide range of disorders including anemia, infection, and blood diseases.\n\nSample Type: Whole Blood (EDTA)\nFasting: No\nMethod: Automated Cell Counter",
@@ -77,6 +78,7 @@ const SEED_TESTS = [
       { name: "Absolute Reticulocyte Count", unit: "cells/mcL", normalRange: "25000-125000", paramCode: "ARC" },
     ],
   },
+
   // ==================== DIABETES TESTS ====================
   {
     name: "Blood Sugar Fasting",
@@ -134,6 +136,8 @@ const SEED_TESTS = [
       { name: "Fasting Insulin", unit: "µIU/mL", normalRange: "2.6-24.9", paramCode: "FINS" },
     ],
   },
+
+  // ==================== LIVER PROFILE (LFT) ====================
   {
     name: "Liver Function Test (LFT)",
     description: "Comprehensive panel to assess liver health, function, and detect liver diseases.\n\nSample Type: Serum\nFasting: Yes (10 hours)\nMethod: Colorimetric/Kinetic",
@@ -155,6 +159,8 @@ const SEED_TESTS = [
       { name: "A/G Ratio", unit: "", normalRange: "1.0-2.5", paramCode: "AGR" },
     ],
   },
+
+  // ==================== KIDNEY PROFILE (KFT) ====================
   {
     name: "Kidney Function Test (KFT)",
     description: "Evaluates kidney health and function. Essential for detecting kidney diseases and monitoring kidney function.\n\nSample Type: Serum\nFasting: Yes (10 hours)\nMethod: Colorimetric/Enzymatic",
@@ -185,6 +191,8 @@ const SEED_TESTS = [
       { name: "Bicarbonate", unit: "mEq/L", normalRange: "22-29", paramCode: "HCO3" },
     ],
   },
+
+  // ==================== LIPID PROFILE ====================
   {
     name: "Lipid Profile",
     description: "Measures cholesterol and triglyceride levels to assess cardiovascular health and heart disease risk.\n\nSample Type: Serum\nFasting: Yes (12 hours)\nMethod: Enzymatic Colorimetric",
@@ -236,6 +244,8 @@ const SEED_TESTS = [
       { name: "Lipoprotein (a)", unit: "mg/dL", normalRange: "<30", paramCode: "LPA" },
     ],
   },
+
+  // ==================== THYROID PROFILE ====================
   {
     name: "Thyroid Profile (T3, T4, TSH)",
     description: "Comprehensive assessment of thyroid function. Detects hyperthyroidism, hypothyroidism, and other thyroid disorders.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
@@ -293,6 +303,8 @@ const SEED_TESTS = [
       { name: "Anti-Thyroglobulin Antibodies", unit: "IU/mL", normalRange: "<115", paramCode: "ATG" },
     ],
   },
+
+  // ==================== VITAMINS & MINERALS ====================
   {
     name: "Vitamin D (25-OH)",
     description: "Measures 25-hydroxyvitamin D levels. Essential for bone health and immune function.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
@@ -383,6 +395,8 @@ const SEED_TESTS = [
       { name: "Magnesium", unit: "mg/dL", normalRange: "1.7-2.4", paramCode: "MG" },
     ],
   },
+
+  // ==================== CARDIAC MARKERS ====================
   {
     name: "Troponin I",
     description: "Highly sensitive marker for heart muscle damage. Primary test for diagnosing heart attack.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
@@ -438,6 +452,8 @@ const SEED_TESTS = [
       { name: "hs-CRP", unit: "mg/L", normalRange: "<1 (Low Risk), 1-3 (Average), >3 (High Risk)", paramCode: "HSCRP" },
     ],
   },
+
+  // ==================== INFECTION PANELS ====================
   {
     name: "C-Reactive Protein (CRP)",
     description: "Marker for inflammation and infection. Elevated in bacterial infections and inflammatory conditions.\n\nSample Type: Serum\nFasting: No\nMethod: Immunoturbidimetry",
@@ -497,6 +513,8 @@ const SEED_TESTS = [
       { name: "Malaria P.v.", unit: "", normalRange: "Negative", paramCode: "MPV" },
     ],
   },
+
+  // ==================== HORMONES ====================
   {
     name: "Testosterone (Total)",
     description: "Primary male sex hormone. Important for energy, libido, and muscle health assessment.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
@@ -596,6 +614,8 @@ const SEED_TESTS = [
       { name: "PTH (Intact)", unit: "pg/mL", normalRange: "15-65", paramCode: "PTH" },
     ],
   },
+
+  // ==================== URINE ====================
   {
     name: "Urine Routine Examination",
     description: "Complete physical, chemical, and microscopic examination of urine.\n\nSample Type: Urine (Midstream)\nFasting: No\nMethod: Dipstick/Microscopy",
