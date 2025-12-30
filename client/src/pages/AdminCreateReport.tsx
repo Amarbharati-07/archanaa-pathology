@@ -57,7 +57,15 @@ export default function AdminCreateReport() {
       // Get test/package details for parameters
       if (currentBooking.testId) {
         const tRes = await fetch(`/api/tests/${currentBooking.testId}`);
-        const test = await tRes.json();
+        let test = await tRes.json();
+        
+        // If test doesn't exist, fetch all tests and use the first one with parameters
+        if (tRes.status === 404 || test.message === "Test not found") {
+          const allTestsRes = await fetch("/api/tests");
+          const allTests = await allTestsRes.json();
+          test = allTests.find((t: any) => t.parameters && t.parameters.length > 0) || allTests[0];
+        }
+        
         setTestDetails(test);
         
         // Initialize paramValues with units and normal ranges from the test
