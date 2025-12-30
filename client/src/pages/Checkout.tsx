@@ -159,13 +159,20 @@ export default function Checkout() {
   };
 
   const handleCheckout = async () => {
-    const firstItem = items[0];
     // Convert date string to Date object for database
     const dateObj = new Date(selectedDate + "T00:00:00Z");
     
+    // Collect ALL test and package IDs from cart
+    const testIds = items
+      .filter(item => item.type === 'test')
+      .map(item => item.id);
+    const packageIds = items
+      .filter(item => item.type === 'package')
+      .map(item => item.id);
+    
     const payload = {
-      testId: firstItem.type === 'test' ? firstItem.id : undefined,
-      packageId: firstItem.type === 'package' ? firstItem.id : undefined,
+      testIds: testIds.length > 0 ? testIds : undefined,
+      packageIds: packageIds.length > 0 ? packageIds : undefined,
       date: dateObj,
       time: selectedTime,
       totalAmount: total,
