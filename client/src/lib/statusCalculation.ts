@@ -9,14 +9,20 @@ export function calculateStatus(
     const numValue = Number(value);
     if (isNaN(numValue)) return "Unable to determine";
 
-    // Handle gender-specific ranges like "Male: 4.5-5.9, Female: 4.1-5.5"
+    // Handle gender-specific ranges like "12-16 (F), 13-17 (M)" or "Male: 4.5-5.9, Female: 4.1-5.5"
     if (normalRange.includes(",") && (patientGender === "Male" || patientGender === "Female")) {
       const ranges = normalRange.split(",").map(r => r.trim());
       for (const range of ranges) {
-        if (range.toLowerCase().startsWith(patientGender.toLowerCase())) {
-          const values = range.split(":")[1]?.trim() || "";
-          if (values) {
-            return compareWithRange(numValue, values);
+        // Match format: "12-16 (F)" or "12-16 (Female)" or "Female: 4.5-5.9"
+        const genderMatch = range.match(/(?:^|\s)(M|F|Male|Female)(?:\)|:|\s|$)/i);
+        const rangeGender = genderMatch ? genderMatch[1].charAt(0).toUpperCase() : null;
+        const patientGenderChar = patientGender?.charAt(0).toUpperCase();
+        
+        if (rangeGender && rangeGender === patientGenderChar) {
+          // Extract the numeric range
+          const numericRange = range.replace(/\([^)]*\)|Male:|Female:/g, "").trim();
+          if (numericRange) {
+            return compareWithRange(numValue, numericRange);
           }
         }
       }

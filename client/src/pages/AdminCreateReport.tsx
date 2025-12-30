@@ -21,6 +21,7 @@ export default function AdminCreateReport() {
   const [booking, setBooking] = useState<any>(null);
   const [testDetails, setTestDetails] = useState<any>(null);
   const [patient, setPatient] = useState<any>(null);
+  const [userBookings, setUserBookings] = useState<any[]>([]);
   
   const [technician, setTechnician] = useState("");
   const [referredBy, setReferredBy] = useState("");
@@ -45,6 +46,10 @@ export default function AdminCreateReport() {
         return;
       }
       setBooking(currentBooking);
+      
+      // Store all bookings for the same user
+      const userAllBookings = bookings.filter((b: any) => b.userId === currentBooking.userId);
+      setUserBookings(userAllBookings);
 
       // Get patient details
       const pRes = await fetch("/api/admin/users", {
@@ -251,19 +256,25 @@ export default function AdminCreateReport() {
                 <div className="space-y-1">
                   <div className="flex justify-between text-[11px] font-semibold">
                     <span className="text-slate-500 uppercase">Progress</span>
-                    <span className="text-blue-600">0/1 completed</span>
+                    <span className="text-blue-600">0/{userBookings.length || 1} completed</span>
                   </div>
                   <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div className="w-0 h-full bg-blue-600 rounded-full" />
                   </div>
                 </div>
 
-                <div className="p-3 bg-blue-50/50 rounded-lg border border-blue-100 shadow-sm flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">1</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-blue-900">{booking?.testName || booking?.packageName || 'Loading...'}</p>
-                    <p className="text-[10px] text-blue-600/70">{booking?.date ? format(new Date(booking.date), 'dd MMM yyyy, h:mm a') : 'Loading...'}</p>
-                  </div>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {userBookings.length > 0 ? userBookings.map((b: any, idx: number) => (
+                    <div key={b.id} className={`p-3 rounded-lg border shadow-sm flex items-center gap-3 ${String(b.id) === String(bookingId) ? 'bg-blue-50/50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
+                      <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">{idx + 1}</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-slate-900">{b.testName || b.packageName}</p>
+                        <p className="text-[10px] text-slate-600">{b.date ? format(new Date(b.date), 'dd MMM yyyy, h:mm a') : 'No date'}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="text-xs text-slate-500">No bookings found</p>
+                  )}
                 </div>
               </div>
             </CardContent>
