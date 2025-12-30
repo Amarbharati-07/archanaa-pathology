@@ -24,7 +24,8 @@ import {
   Activity,
   Microscope,
   MapPin,
-  X
+  X,
+  Printer
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +99,11 @@ export default function UserDashboard() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   
+  const { data: reports, isLoading: reportsLoading } = useQuery<any[]>({
+    queryKey: ["/api/user/reports"],
+    enabled: !!user,
+  });
+
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
