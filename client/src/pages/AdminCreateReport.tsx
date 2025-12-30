@@ -118,6 +118,27 @@ export default function AdminCreateReport() {
     }
   };
 
+  const handleParamChange = (paramName: string, field: string, value: string) => {
+    setParamValues(prev => ({
+      ...prev,
+      [paramName]: {
+        ...(prev[paramName] || { value: "", unit: "", normalRange: "" }),
+        [field]: value
+      }
+    }));
+
+    // Auto-calculate status if value changed
+    if (field === "value" && testDetails?.parameters) {
+      const param = testDetails.parameters.find((p: any) => p.name === paramName);
+      if (param && value) {
+        const statusResult = calculateStatus(value, param.normalRange || "", patient?.age, patient?.gender);
+        setParamStatuses(prev => ({ ...prev, [paramName]: statusResult }));
+      } else if (!value) {
+        setParamStatuses(prev => ({ ...prev, [paramName]: "Unable to determine" }));
+      }
+    }
+  };
+
   const loadQueueItem = (item: any) => {
     setTestDetails({ name: item.name, parameters: item.parameters, type: item.type, packageName: item.packageName });
     
