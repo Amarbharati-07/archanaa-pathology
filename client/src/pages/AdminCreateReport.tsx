@@ -253,7 +253,14 @@ export default function AdminCreateReport() {
             ? Array.from(new Set([...(booking.completedTestIds || []), currentItem.id]))
             : booking.completedTestIds || [],
           completedPackageTestIds: currentItem.type === 'package-test'
-            ? [...(booking.completedPackageTestIds || []), { packageId: currentItem.packageId, testId: currentItem.id }]
+            ? (() => {
+                const updated = [...(booking.completedPackageTestIds || [])];
+                const alreadyExists = updated.some((cp: any) => cp.packageId === currentItem.packageId && cp.testId === currentItem.id);
+                if (!alreadyExists) {
+                  updated.push({ packageId: currentItem.packageId, testId: currentItem.id });
+                }
+                return updated;
+              })()
             : booking.completedPackageTestIds || []
         })
       });
