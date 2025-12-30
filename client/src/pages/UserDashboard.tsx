@@ -96,6 +96,10 @@ export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  
+  const { data: reports, isLoading: reportsLoading } = useQuery<any[]>({
+    queryKey: ["/api/user/reports"],
+  });
 
   useEffect(() => {
     if (!user) {
@@ -637,57 +641,49 @@ export default function UserDashboard() {
 
           {activeTab === "reports" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4">
-              {(() => {
-                const { data: reports, isLoading: reportsLoading } = useQuery<any[]>({
-                  queryKey: ["/api/user/reports"],
-                });
+              {reportsLoading && (
+                <div className="col-span-full py-20 text-center text-slate-500">Loading reports...</div>
+              )}
 
-                if (reportsLoading) {
-                  return <div className="col-span-full py-20 text-center text-slate-500">Loading reports...</div>;
-                }
+              {!reportsLoading && (!reports || reports.length === 0) && (
+                <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+                  <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                    <FileText className="h-10 w-10 text-slate-300" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">No Reports Yet</h3>
+                  <p className="text-slate-500">Your lab results will appear here once processed and verified by admin.</p>
+                </div>
+              )}
 
-                if (!reports || reports.length === 0) {
-                  return (
-                    <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-                      <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
-                        <FileText className="h-10 w-10 text-slate-300" />
-                      </div>
-                      <h3 className="text-xl font-bold text-slate-900">No Reports Yet</h3>
-                      <p className="text-slate-500">Your lab results will appear here once processed and verified by admin.</p>
+              {!reportsLoading && reports && reports.length > 0 && reports.map((report) => (
+                <Card key={report.id} className="overflow-hidden border-none shadow-xl shadow-slate-200/50 rounded-[2rem] bg-white group hover:shadow-2xl transition-all duration-300">
+                  <CardHeader className="bg-slate-900 text-white p-6">
+                    <div className="flex items-center justify-between">
+                      <FileText className="h-6 w-6 text-blue-400" />
+                      <Badge className="bg-blue-500/20 text-blue-200 border-none">Verified</Badge>
                     </div>
-                  );
-                }
-
-                return reports.map((report) => (
-                  <Card key={report.id} className="overflow-hidden border-none shadow-xl shadow-slate-200/50 rounded-[2rem] bg-white group hover:shadow-2xl transition-all duration-300">
-                    <CardHeader className="bg-slate-900 text-white p-6">
-                      <div className="flex items-center justify-between">
-                        <FileText className="h-6 w-6 text-blue-400" />
-                        <Badge className="bg-blue-500/20 text-blue-200 border-none">Verified</Badge>
+                    <CardTitle className="mt-4 text-lg font-bold line-clamp-1">{report.testName}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400">Date</span>
+                        <span className="font-semibold text-slate-700">{new Date(report.uploadDate).toLocaleDateString()}</span>
                       </div>
-                      <CardTitle className="mt-4 text-lg font-bold line-clamp-1">{report.testName}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-slate-400">Date</span>
-                          <span className="font-semibold text-slate-700">{new Date(report.uploadDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-slate-400">Status</span>
-                          <span className="text-emerald-600 font-bold">{report.resultSummary}</span>
-                        </div>
-                        <div className="pt-4 border-t border-slate-100">
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl gap-2 shadow-lg shadow-blue-100" onClick={() => window.open(`/api/reports/${report.id}/download`, '_blank')}>
-                            <Download className="h-4 w-4" />
-                            Download PDF
-                          </Button>
-                        </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400">Status</span>
+                        <span className="text-emerald-600 font-bold">{report.resultSummary}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                ));
-              })()}
+                      <div className="pt-4 border-t border-slate-100">
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl gap-2 shadow-lg shadow-blue-100" onClick={() => window.open(`/api/reports/${report.id}/download`, '_blank')}>
+                          <Download className="h-4 w-4" />
+                          Download PDF
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
 
