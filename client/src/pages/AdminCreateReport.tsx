@@ -129,13 +129,11 @@ export default function AdminCreateReport() {
 
       setCompletedInQueue(initialCompletedCount);
       
-      if (firstPendingIndex !== -1) {
-        setCurrentQueueIndex(firstPendingIndex);
-        loadQueueItem(queue[firstPendingIndex]);
-      } else if (queue.length > 0) {
-        // All completed, but let's load the last one for viewing/editing
-        setCurrentQueueIndex(queue.length - 1);
-        loadQueueItem(queue[queue.length - 1]);
+      // Auto-load the first pending item OR the last item if all are done
+      const indexToLoad = firstPendingIndex !== -1 ? firstPendingIndex : (queue.length > 0 ? queue.length - 1 : 0);
+      setCurrentQueueIndex(indexToLoad);
+      if (queue.length > 0) {
+        loadQueueItem(queue[indexToLoad]);
       }
     } catch (error) {
       console.error("Error loading data:", error);
