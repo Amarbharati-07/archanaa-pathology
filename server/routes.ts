@@ -476,14 +476,15 @@ export async function registerRoutes(
   // Create report (admin only)
   app.post("/api/admin/reports", authAdminMiddleware, async (req: AuthRequest, res) => {
     try {
-      const { updateBookingStatus, completedTestIds, completedPackageTestIds, ...reportData } = req.body;
+      const { updateBookingStatus: isLastItem, completedTestIds, completedPackageTestIds, ...reportData } = req.body;
       const report = await storage.createReport(reportData);
       
-      const testStatus = updateBookingStatus ? "completed" : "processing";
+      const testStatus = isLastItem ? "completed" : "processing";
       await storage.updateBookingStatus(req.body.bookingId, testStatus, undefined, completedTestIds, completedPackageTestIds);
       
       res.status(201).json(report);
     } catch (err: any) {
+      console.error("Error creating report:", err);
       res.status(500).json({ message: err.message });
     }
   });

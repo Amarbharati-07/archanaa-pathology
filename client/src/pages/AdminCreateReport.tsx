@@ -219,7 +219,7 @@ export default function AdminCreateReport() {
           parameters,
           updateBookingStatus: isLastItem,
           completedTestIds: currentItem.type === 'test' 
-            ? [...new Set([...(booking.completedTestIds || []), currentItem.id])]
+            ? Array.from(new Set([...(booking.completedTestIds || []), currentItem.id]))
             : booking.completedTestIds || [],
           completedPackageTestIds: currentItem.type === 'package-test'
             ? [...(booking.completedPackageTestIds || []), { packageId: currentItem.packageId, testId: currentItem.id }]
