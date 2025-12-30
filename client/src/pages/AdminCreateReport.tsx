@@ -29,6 +29,10 @@ export default function AdminCreateReport() {
   const [paramValues, setParamValues] = useState<Record<string, { value: string; unit: string; normalRange: string }>>({});
   const [paramStatuses, setParamStatuses] = useState<Record<string, string>>({});
 
+  const [pendingQueue, setPendingQueue] = useState<any[]>([]);
+  const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
+  const [completedInQueue, setCompletedInQueue] = useState<number>(0);
+
   useEffect(() => {
     loadData();
   }, [bookingId]);
@@ -47,11 +51,6 @@ export default function AdminCreateReport() {
       }
       setBooking(currentBooking);
       
-      // Store all bookings for the same user
-      const userAllBookings = bookings.filter((b: any) => b.userId === currentBooking.userId);
-      setUserBookings(userAllBookings);
-
-      // Get patient details
       const pRes = await fetch("/api/admin/users", {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
@@ -59,66 +58,58 @@ export default function AdminCreateReport() {
       const patientData = patients.find((p: any) => p.id === currentBooking.userId);
       setPatient(patientData);
 
-      // Handle tests
-      const allTestParams: any[] = [];
-      const testNames: string[] = [];
+      const testsRes = await fetch("/api/tests");
+      const allTests = await testsRes.json();
+      const packagesRes = await fetch("/api/packages");
+      const allPackages = await packagesRes.json();
 
+      const queue: any[] = [];
+
+      // Process Individual Tests
       if (currentBooking.testIds && currentBooking.testIds.length > 0) {
-        const testsRes = await fetch("/api/tests");
-        const allTests = await testsRes.json();
-        const bookedTests = currentBooking.testIds.map((id: number) => allTests.find((t: any) => t.id === id)).filter(Boolean);
-        
-        bookedTests.forEach((t: any) => {
-          testNames.push(t.name);
-          if (t.parameters && Array.isArray(t.parameters)) {
-            t.parameters.forEach((p: any) => {
-              if (!allTestParams.find(existing => existing.name === p.name)) {
-                allTestParams.push(p);
-              }
+        currentBooking.testIds.forEach((id: number) => {
+          const test = allTests.find((t: any) => t.id === id);
+          if (test) {
+            queue.push({
+              type: 'test',
+              id: test.id,
+              name: test.name,
+              parameters: test.parameters || [],
+              bookingId: currentBooking.id
             });
           }
         });
       }
 
+      // Process Packages (break down into individual tests)
       if (currentBooking.packageIds && currentBooking.packageIds.length > 0) {
-        const packagesRes = await fetch("/api/packages");
-        const allPackages = await packagesRes.json();
-        const testsRes = await fetch("/api/tests");
-        const allTests = await testsRes.json();
-        
-        const bookedPkgs = currentBooking.packageIds.map((id: number) => allPackages.find((p: any) => p.id === id)).filter(Boolean);
-        
-        bookedPkgs.forEach((pkg: any) => {
-          testNames.push(pkg.name);
-          const pkgTests = allTests.filter((t: any) => 
-            pkg.includes?.some((name: string) => 
-              name.trim().toLowerCase() === t.name.trim().toLowerCase()
-            )
-          );
-          
-          pkgTests.forEach((t: any) => {
-            if (t.parameters && Array.isArray(t.parameters)) {
-              t.parameters.forEach((p: any) => {
-                if (!allTestParams.find(existing => existing.name === p.name)) {
-                  allTestParams.push(p);
-                }
+        currentBooking.packageIds.forEach((id: number) => {
+          const pkg = allPackages.find((p: any) => p.id === id);
+          if (pkg) {
+            const pkgTests = allTests.filter((t: any) => 
+              pkg.includes?.some((name: string) => 
+                name.trim().toLowerCase() === t.name.trim().toLowerCase()
+              )
+            );
+            pkgTests.forEach((t: any) => {
+              queue.push({
+                type: 'package-test',
+                packageId: pkg.id,
+                packageName: pkg.name,
+                id: t.id,
+                name: t.name,
+                parameters: t.parameters || [],
+                bookingId: currentBooking.id
               });
-            }
-          });
+            });
+          }
         });
       }
 
-      setTestDetails({ name: testNames.join(", "), parameters: allTestParams });
-      
-      const initialValues: any = {};
-      allTestParams.forEach((p: any) => {
-        initialValues[p.name] = {
-          value: "",
-          unit: p.unit || "",
-          normalRange: p.normalRange || ""
-        };
-      });
-      setParamValues(initialValues);
+      setPendingQueue(queue);
+      if (queue.length > 0) {
+        loadQueueItem(queue[0]);
+      }
     } catch (error) {
       console.error("Error loading data:", error);
       toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
@@ -127,25 +118,19 @@ export default function AdminCreateReport() {
     }
   };
 
-  const handleParamChange = (paramName: string, field: string, value: string) => {
-    setParamValues(prev => ({
-      ...prev,
-      [paramName]: {
-        ...(prev[paramName] || { value: "", unit: "", normalRange: "" }),
-        [field]: value
-      }
-    }));
-
-    // Auto-calculate status if value changed
-    if (field === "value" && testDetails?.parameters) {
-      const param = testDetails.parameters.find((p: any) => p.name === paramName);
-      if (param && value) {
-        const statusResult = calculateStatus(value, param.normalRange || "", patient?.age, patient?.gender);
-        setParamStatuses(prev => ({ ...prev, [paramName]: statusResult }));
-      } else if (!value) {
-        setParamStatuses(prev => ({ ...prev, [paramName]: "Unable to determine" }));
-      }
-    }
+  const loadQueueItem = (item: any) => {
+    setTestDetails({ name: item.name, parameters: item.parameters, type: item.type, packageName: item.packageName });
+    
+    const initialValues: any = {};
+    item.parameters.forEach((p: any) => {
+      initialValues[p.name] = {
+        value: "",
+        unit: p.unit || "",
+        normalRange: p.normalRange || ""
+      };
+    });
+    setParamValues(initialValues);
+    setParamStatuses({});
   };
 
   const handleGenerateReport = async () => {
@@ -154,7 +139,7 @@ export default function AdminCreateReport() {
       return;
     }
 
-    // Convert paramValues to proper format
+    const currentItem = pendingQueue[currentQueueIndex];
     const parameters = Object.entries(paramValues).map(([name, data]: any) => ({
       name,
       value: data.value || "",
@@ -164,6 +149,8 @@ export default function AdminCreateReport() {
     }));
 
     try {
+      const isLastItem = currentQueueIndex === pendingQueue.length - 1;
+      
       const res = await fetch("/api/admin/reports", {
         method: "POST",
         headers: { 
@@ -173,21 +160,33 @@ export default function AdminCreateReport() {
         body: JSON.stringify({
           userId: booking.userId,
           bookingId: booking.id,
-          testId: booking.testId || null,
-          packageId: booking.packageId || null,
-          testName: testDetails.name,
-          resultSummary: "Complete",
+          testId: currentItem.type === 'test' ? currentItem.id : null,
+          packageId: currentItem.type === 'package-test' ? currentItem.packageId : null,
+          testName: currentItem.type === 'package-test' ? `${currentItem.packageName} - ${currentItem.name}` : currentItem.name,
+          resultSummary: "Completed",
           doctorRemarks: remarks,
           technicianName: technician,
           referredBy: referredBy,
           clinicalRemarks: remarks,
-          parameters
+          parameters,
+          updateBookingStatus: isLastItem // Only update booking status to 'completed' on last test
         })
       });
 
       if (res.ok) {
-        toast({ title: "Success", description: "Report generated successfully" });
-        setLocation("/admin/reports");
+        toast({ title: "Success", description: `Report for ${currentItem.name} generated` });
+        
+        const nextIndex = currentQueueIndex + 1;
+        setCompletedInQueue(nextIndex);
+        
+        if (nextIndex < pendingQueue.length) {
+          setCurrentQueueIndex(nextIndex);
+          loadQueueItem(pendingQueue[nextIndex]);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          toast({ title: "Completed", description: "All tests in this booking have been reported." });
+          setLocation("/admin/reports");
+        }
       } else {
         const errorData = await res.json();
         toast({ title: "Error", description: errorData.message || "Failed to generate report", variant: "destructive" });
@@ -247,26 +246,50 @@ export default function AdminCreateReport() {
                 <div className="space-y-1">
                   <div className="flex justify-between text-[11px] font-semibold">
                     <span className="text-slate-500 uppercase">Progress</span>
-                    <span className="text-blue-600">0/{userBookings.length || 1} completed</span>
+                    <span className="text-blue-600">{completedInQueue}/{pendingQueue.length} completed</span>
                   </div>
                   <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="w-0 h-full bg-blue-600 rounded-full" />
+                    <div 
+                      className="h-full bg-blue-600 transition-all duration-500" 
+                      style={{ width: `${(completedInQueue / (pendingQueue.length || 1)) * 100}%` }}
+                    />
                   </div>
                 </div>
 
-                <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                  {userBookings.length > 0 ? userBookings.map((b: any, idx: number) => (
-                    <div key={b.id} className={`p-3 rounded-lg border shadow-sm ${String(b.id) === String(bookingId) ? 'bg-blue-50/50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                  {pendingQueue.length > 0 ? pendingQueue.map((item, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`p-3 rounded-lg border shadow-sm transition-all ${
+                        idx === currentQueueIndex 
+                          ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-100' 
+                          : idx < completedInQueue 
+                            ? 'bg-emerald-50/30 border-emerald-100 opacity-70' 
+                            : 'bg-slate-50 border-slate-100'
+                      }`}
+                    >
                       <div className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">{idx + 1}</span>
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                          idx === currentQueueIndex 
+                            ? 'bg-blue-600 text-white' 
+                            : idx < completedInQueue 
+                              ? 'bg-emerald-500 text-white' 
+                              : 'bg-slate-200 text-slate-500'
+                        }`}>
+                          {idx < completedInQueue ? '✓' : idx + 1}
+                        </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 break-words">{b.testName || b.packageName || 'Unknown Test'}</p>
-                          <p className="text-[10px] text-slate-600 mt-0.5">{b.date ? format(new Date(b.date), 'dd MMM yyyy, h:mm a') : 'No date'}</p>
+                          <p className={`text-sm font-bold truncate ${idx === currentQueueIndex ? 'text-blue-900' : 'text-slate-700'}`}>
+                            {item.name}
+                          </p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">
+                            {item.type === 'package-test' ? `From: ${item.packageName}` : 'Individual Test'}
+                          </p>
                         </div>
                       </div>
                     </div>
                   )) : (
-                    <p className="text-xs text-slate-500">No bookings found</p>
+                    <p className="text-xs text-slate-500 text-center py-4">Processing booking details...</p>
                   )}
                 </div>
               </div>
@@ -277,35 +300,26 @@ export default function AdminCreateReport() {
         {/* Middle/Right Column - Parameter Inputs */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-none shadow-sm min-h-[400px]">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-white sticky top-0 z-10">
               <div>
-                <CardTitle className="text-lg font-bold text-slate-900">
-                  {booking?.testNames && booking.testNames.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-1">
-                      {booking.testNames.map((name: string, i: number) => (
-                        <Badge key={i} variant="outline" className="bg-blue-50/50 text-blue-700 border-blue-100">{name}</Badge>
-                      ))}
-                    </div>
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  {testDetails?.packageName && (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px]">
+                      {testDetails.packageName}
+                    </Badge>
                   )}
-                  {booking?.packageNames && booking.packageNames.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {booking.packageNames.map((name: string, i: number) => (
-                        <Badge key={i} variant="outline" className="bg-emerald-50/50 text-emerald-700 border-emerald-100">{name}</Badge>
-                      ))}
-                    </div>
-                  )}
-                  {(!booking?.testNames?.length && !booking?.packageNames?.length) && 'Test Details'}
+                  <span className="text-blue-600">{testDetails?.name}</span>
                 </CardTitle>
-                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">
-                  REPORT GENERATION | {testDetails?.parameters?.length || 0} parameters
+                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-medium">
+                  Step {currentQueueIndex + 1} of {pendingQueue.length} | {testDetails?.parameters?.length || 0} parameters
                 </p>
               </div>
               <Button 
                 onClick={handleGenerateReport}
-                className="bg-blue-600 hover:bg-blue-700 font-bold gap-2 shadow-lg shadow-blue-200"
+                className="bg-blue-600 hover:bg-blue-700 font-bold gap-2 shadow-lg shadow-blue-200 min-w-[160px]"
               >
                 <ClipboardCheck className="w-4 h-4" />
-                Generate Report
+                {currentQueueIndex === pendingQueue.length - 1 ? 'Finish & Save All' : 'Save & Next Test'}
               </Button>
             </CardHeader>
             <CardContent className="p-0">
