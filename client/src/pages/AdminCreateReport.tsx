@@ -74,22 +74,45 @@ export default function AdminCreateReport() {
         }
       } else if (currentBooking.packageId || currentBooking.packageName) {
         // Handle packages - fetch all tests in the package
-        const pkgId = currentBooking.packageId || (await fetch("/api/packages").then(r => r.json()).then(pkgs => pkgs.find((p: any) => p.name === currentBooking.packageName)?.id));
+        const allPackagesRes = await fetch("/api/packages");
+        const allPackages = await allPackagesRes.json();
         
-        if (!pkgId) {
-          console.error("Package ID not found");
+        const pkg = allPackages.find((p: any) => 
+          (currentBooking.packageId && String(p.id) === String(currentBooking.packageId)) || 
+          (currentBooking.packageName && p.name === currentBooking.packageName)
+        );
+        
+        if (!pkg) {
+          console.error("Package not found in list", currentBooking);
+          // Try fetching by name as fallback from tests if it's actually a test booked as a package
+          const allTestsRes = await fetch("/api/tests");
+          const allTests = await allTestsRes.json();
+          const fallbackTest = allTests.find((t: any) => t.name === (currentBooking.packageName || currentBooking.testName));
+          
+          if (fallbackTest) {
+            console.log("Found fallback test:", fallbackTest);
+            setTestDetails(fallbackTest);
+            const initialValues: any = {};
+            if (fallbackTest.parameters) {
+              fallbackTest.parameters.forEach((p: any) => {
+                initialValues[p.name] = { value: "", unit: p.unit || "", normalRange: p.normalRange || "" };
+              });
+              setParamValues(initialValues);
+            }
+            return;
+          }
           return;
         }
 
-        const pkgRes = await fetch(`/api/packages/${pkgId}`);
-        const pkg = await pkgRes.json();
+        const pkgRes = await fetch(`/api/packages/${pkg.id}`);
+        const fullPkg = await pkgRes.json();
         
         // Find the tests included in this package from the global tests list
         const allTestsRes = await fetch("/api/tests");
         const allTests = await allTestsRes.json();
         
         // The package.includes field contains test names
-        const packageTestNames = pkg.includes || [];
+        const packageTestNames = fullPkg.includes || [];
         const packageTests = allTests.filter((t: any) => 
           packageTestNames.some((name: string) => 
             name.trim().toLowerCase() === t.name.trim().toLowerCase() ||
@@ -113,7 +136,7 @@ export default function AdminCreateReport() {
         });
 
         console.log("Combined parameters:", allParams);
-        setTestDetails({ ...pkg, parameters: allParams });
+        setTestDetails({ ...fullPkg, parameters: allParams });
         
         const initialValues: any = {};
         allParams.forEach((p: any) => {
