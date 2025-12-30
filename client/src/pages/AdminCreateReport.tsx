@@ -38,7 +38,7 @@ export default function AdminCreateReport() {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
       const bookings = await res.json();
-      const currentBooking = bookings.find((b: any) => b.id === Number(bookingId));
+      const currentBooking = bookings.find((b: any) => String(b.id) === String(bookingId));
       
       if (!currentBooking) {
         toast({ title: "Error", description: "Booking not found", variant: "destructive" });
@@ -80,9 +80,11 @@ export default function AdminCreateReport() {
         const allTestsRes = await fetch("/api/tests");
         const allTests = await allTestsRes.json();
         
-        // Packages in this app usually have a list of test names or IDs in their 'includes' or 'testIds' field
+        // The package.includes field contains test names
         const packageTestNames = pkg.includes || [];
-        const packageTests = allTests.filter((t: any) => packageTestNames.includes(t.name));
+        const packageTests = allTests.filter((t: any) => 
+          packageTestNames.some((name: string) => name.trim().toLowerCase() === t.name.trim().toLowerCase())
+        );
         
         const allParams: any[] = [];
         packageTests.forEach((t: any) => {
