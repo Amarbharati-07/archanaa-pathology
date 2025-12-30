@@ -22,7 +22,8 @@ import {
   AlertCircle,
   Activity,
   Microscope,
-  MapPin
+  MapPin,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+
+interface Test {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  reportTime: string;
+  category: string;
+  isPopular?: boolean;
+  image?: string;
+  parameters?: any[];
+  createdAt?: string;
+}
+
+interface Package {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  includes: string[];
+  category: string;
+  isFeatured?: boolean;
+  image?: string;
+  createdAt?: string;
+}
 
 interface Booking {
   id: number;
@@ -46,6 +73,8 @@ interface Booking {
   packageIds: number[];
   testNames?: string[];
   packageNames?: string[];
+  bookedTests?: Test[];
+  bookedPackages?: Package[];
 }
 
 interface Payment {
@@ -384,6 +413,7 @@ export default function UserDashboard() {
                                 setSelectedBooking(booking);
                                 setIsDetailsOpen(true);
                               }}
+                              data-testid="button-view-details"
                             >
                               View Details
                             </Button>
@@ -397,6 +427,139 @@ export default function UserDashboard() {
                   ))}
                 </div>
               )}
+
+              {/* View Details Modal */}
+              <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                <DialogContent className="max-w-3xl p-0 gap-0 overflow-hidden rounded-2xl border-none shadow-2xl">
+                  <div className="p-8 bg-white max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-start mb-8">
+                      <div>
+                        <DialogTitle className="text-2xl font-bold text-slate-900">Booking Details</DialogTitle>
+                        <p className="text-slate-500 mt-2">Booking ID: #BK-{selectedBooking?.id}</p>
+                      </div>
+                      <DialogClose asChild>
+                        <button className="text-slate-400 hover:text-slate-600">
+                          <X className="h-6 w-6" />
+                        </button>
+                      </DialogClose>
+                    </div>
+
+                    {selectedBooking && (
+                      <div className="space-y-8">
+                        {/* Appointment Info */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-slate-50 rounded-xl">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Appointment Date</p>
+                            <p className="font-bold text-slate-900">{new Date(selectedBooking.date).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Slot Time</p>
+                            <p className="font-bold text-slate-900">{selectedBooking.time}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Total Price</p>
+                            <p className="font-bold text-slate-900">₹{selectedBooking.totalAmount}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Payment Status</p>
+                            {getStatusBadge(selectedBooking.paymentStatus)}
+                          </div>
+                        </div>
+
+                        {/* Tests Section */}
+                        {selectedBooking.bookedTests && selectedBooking.bookedTests.length > 0 && (
+                          <div>
+                            <h3 className="font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+                              <Microscope className="h-5 w-5 text-blue-600" />
+                              Tests Included ({selectedBooking.bookedTests.length})
+                            </h3>
+                            <div className="space-y-3">
+                              {selectedBooking.bookedTests.map((test) => (
+                                <div key={test.id} className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <p className="font-bold text-slate-900">{test.name}</p>
+                                      <p className="text-sm text-slate-500 mt-1">{test.description}</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-blue-700 border-blue-200 bg-blue-50">₹{test.price}</Badge>
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-4 text-sm mt-3 pt-3 border-t">
+                                    <div>
+                                      <p className="text-xs text-slate-400 font-semibold">Category</p>
+                                      <p className="text-slate-700 capitalize">{test.category}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-slate-400 font-semibold">Report Time</p>
+                                      <p className="text-slate-700">{test.reportTime}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-slate-400 font-semibold">Sample Type</p>
+                                      <p className="text-slate-700">Blood/Urine</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Packages Section */}
+                        {selectedBooking.bookedPackages && selectedBooking.bookedPackages.length > 0 && (
+                          <div>
+                            <h3 className="font-bold text-lg text-slate-900 mb-4">Packages Included ({selectedBooking.bookedPackages.length})</h3>
+                            <div className="space-y-3">
+                              {selectedBooking.bookedPackages.map((pkg) => (
+                                <div key={pkg.id} className="p-4 border border-emerald-200 rounded-lg bg-emerald-50/30 hover:bg-emerald-50 transition-colors">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <p className="font-bold text-slate-900">{pkg.name}</p>
+                                      <p className="text-sm text-slate-500 mt-1">{pkg.description}</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-100">₹{pkg.price}</Badge>
+                                  </div>
+                                  {pkg.includes && pkg.includes.length > 0 && (
+                                    <div className="text-sm mt-3 pt-3 border-t border-emerald-200">
+                                      <p className="text-xs text-slate-400 font-semibold mb-2">Tests Included</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {pkg.includes.map((test, i) => (
+                                          <Badge key={i} variant="secondary" className="text-xs">{test}</Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Test Status */}
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1">Test Status</p>
+                              <p className="font-bold text-blue-900 capitalize">{selectedBooking.testStatus}</p>
+                            </div>
+                            {getStatusBadge(selectedBooking.testStatus)}
+                          </div>
+                        </div>
+
+                        {/* Booking Mode Info */}
+                        {selectedBooking.bookingMode === 'home_collection' && (
+                          <div className="flex items-start gap-3 bg-amber-50 p-4 rounded-xl border border-amber-200">
+                            <MapPin className="h-5 w-5 text-amber-600 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-semibold text-amber-900">Home Collection</p>
+                              <p className="text-xs text-amber-800 mt-1">{selectedBooking.address}</p>
+                              <p className="text-xs text-amber-700 mt-1">Distance: {selectedBooking.distance} km</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           )}
 

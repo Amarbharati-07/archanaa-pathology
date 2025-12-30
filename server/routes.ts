@@ -227,7 +227,7 @@ export async function registerRoutes(
     }
   });
 
-  // Get booking by ID
+  // Get booking by ID with full details
   app.get("/api/bookings/:id", authUserMiddleware, async (req: AuthRequest, res) => {
     try {
       const booking = await storage.getBookingById(Number(req.params.id));
@@ -237,7 +237,18 @@ export async function registerRoutes(
       if (booking.userId !== req.user!.id) {
         return res.status(403).json({ message: "Unauthorized" });
       }
-      res.json(booking);
+      
+      const tests = await storage.getTests();
+      const packages = await storage.getPackages();
+      
+      const bookedTests = (booking.testIds || []).map(id => tests.find(t => t.id === id)).filter(Boolean);
+      const bookedPackages = (booking.packageIds || []).map(id => packages.find(p => p.id === id)).filter(Boolean);
+      
+      res.json({
+        ...booking,
+        bookedTests,
+        bookedPackages,
+      });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
