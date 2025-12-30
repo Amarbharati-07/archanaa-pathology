@@ -279,9 +279,25 @@ export default function AdminCreateReport() {
           <Card className="border-none shadow-sm min-h-[400px]">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50">
               <div>
-                <CardTitle className="text-lg font-bold text-slate-900">{booking?.testName || booking?.packageName || 'Test Details'}</CardTitle>
+                <CardTitle className="text-lg font-bold text-slate-900">
+                  {booking?.testNames && booking.testNames.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-1">
+                      {booking.testNames.map((name: string, i: number) => (
+                        <Badge key={i} variant="outline" className="bg-blue-50/50 text-blue-700 border-blue-100">{name}</Badge>
+                      ))}
+                    </div>
+                  )}
+                  {booking?.packageNames && booking.packageNames.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {booking.packageNames.map((name: string, i: number) => (
+                        <Badge key={i} variant="outline" className="bg-emerald-50/50 text-emerald-700 border-emerald-100">{name}</Badge>
+                      ))}
+                    </div>
+                  )}
+                  {(!booking?.testNames?.length && !booking?.packageNames?.length) && 'Test Details'}
+                </CardTitle>
                 <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">
-                  {booking?.testId ? 'TEST' : booking?.packageId ? 'PACKAGE' : 'LOADING'} | {testDetails?.parameters?.length || 0} parameters
+                  REPORT GENERATION | {testDetails?.parameters?.length || 0} parameters
                 </p>
               </div>
               <Button 

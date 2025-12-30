@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -41,6 +42,8 @@ interface Booking {
   address: string;
   distance: number;
   createdAt: string;
+  testIds: number[];
+  packageIds: number[];
   testNames?: string[];
   packageNames?: string[];
 }
@@ -62,6 +65,8 @@ export default function UserDashboard() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -307,17 +312,30 @@ export default function UserDashboard() {
                   {bookings.filter(b => b.testStatus !== 'completed').map((booking) => (
                     <Card key={booking.id} className="overflow-hidden border-none shadow-xl shadow-slate-200/50 rounded-[2rem] bg-white">
                       <div className="p-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                           <div className="flex items-center gap-4">
                             <div className="h-14 w-14 rounded-2xl bg-blue-100 flex items-center justify-center">
                               <Microscope className="h-7 w-7 text-blue-600" />
                             </div>
-                            <div>
-                              <h3 className="font-bold text-xl text-slate-900">
-                                {booking.testNames && booking.testNames.length > 0 ? booking.testNames.join(", ") : 
-                                 booking.packageNames && booking.packageNames.length > 0 ? booking.packageNames.join(", ") : "Test Booking"}
+                            <div className="flex-1">
+                              <h3 className="font-bold text-xl text-slate-900 leading-tight">
+                                {booking.testNames && booking.testNames.length > 0 && (
+                                  <div className="flex flex-wrap gap-2 mb-1">
+                                    {booking.testNames.map((name, i) => (
+                                      <Badge key={i} variant="outline" className="bg-blue-50/50 text-blue-700 border-blue-100">{name}</Badge>
+                                    ))}
+                                  </div>
+                                )}
+                                {booking.packageNames && booking.packageNames.length > 0 && (
+                                  <div className="flex flex-wrap gap-2">
+                                    {booking.packageNames.map((name, i) => (
+                                      <Badge key={i} variant="outline" className="bg-emerald-50/50 text-emerald-700 border-emerald-100">{name}</Badge>
+                                    ))}
+                                  </div>
+                                )}
+                                {(!booking.testNames?.length && !booking.packageNames?.length) && "Test Booking"}
                               </h3>
-                              <p className="text-sm text-slate-500 font-medium">Booking ID: #BK-{booking.id}</p>
+                              <p className="text-sm text-slate-500 font-medium mt-1">Booking ID: #BK-{booking.id}</p>
                             </div>
                           </div>
                           {getStatusBadge(booking.testStatus)}
@@ -353,12 +371,26 @@ export default function UserDashboard() {
                           </div>
                         )}
                         
-                        <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
+                          <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
                           <div className="flex items-center gap-2 text-slate-500">
                             <AlertCircle className="w-4 h-4" />
                             <span className="text-sm">Please arrive 15 mins early with a valid ID.</span>
                           </div>
-                          <Button variant="outline" className="rounded-xl border-slate-200 hover:bg-slate-50">View Full Details</Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              className="rounded-xl border-slate-200 hover:bg-slate-50"
+                              onClick={() => {
+                                setSelectedBooking(booking);
+                                setIsDetailsOpen(true);
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            {booking.paymentStatus === 'pending' && (
+                              <Button className="bg-emerald-600 hover:bg-emerald-700 rounded-xl text-white shadow-lg shadow-emerald-100">Pay Now</Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Card>
@@ -413,13 +445,57 @@ export default function UserDashboard() {
 
           {activeTab === "reports" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-                <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
-                  <FileText className="h-10 w-10 text-slate-300" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900">No Reports Yet</h3>
-                <p className="text-slate-500">Your lab results will appear here once processed and verified by admin.</p>
-              </div>
+              {(() => {
+                const { data: reports, isLoading: reportsLoading } = useQuery<any[]>({
+                  queryKey: ["/api/user/reports"],
+                });
+
+                if (reportsLoading) {
+                  return <div className="col-span-full py-20 text-center text-slate-500">Loading reports...</div>;
+                }
+
+                if (!reports || reports.length === 0) {
+                  return (
+                    <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+                      <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                        <FileText className="h-10 w-10 text-slate-300" />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900">No Reports Yet</h3>
+                      <p className="text-slate-500">Your lab results will appear here once processed and verified by admin.</p>
+                    </div>
+                  );
+                }
+
+                return reports.map((report) => (
+                  <Card key={report.id} className="overflow-hidden border-none shadow-xl shadow-slate-200/50 rounded-[2rem] bg-white group hover:shadow-2xl transition-all duration-300">
+                    <CardHeader className="bg-slate-900 text-white p-6">
+                      <div className="flex items-center justify-between">
+                        <FileText className="h-6 w-6 text-blue-400" />
+                        <Badge className="bg-blue-500/20 text-blue-200 border-none">Verified</Badge>
+                      </div>
+                      <CardTitle className="mt-4 text-lg font-bold line-clamp-1">{report.testName}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-400">Date</span>
+                          <span className="font-semibold text-slate-700">{new Date(report.uploadDate).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-400">Status</span>
+                          <span className="text-emerald-600 font-bold">{report.resultSummary}</span>
+                        </div>
+                        <div className="pt-4 border-t border-slate-100">
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl gap-2 shadow-lg shadow-blue-100" onClick={() => window.open(`/api/reports/${report.id}/download`, '_blank')}>
+                            <Download className="h-4 w-4" />
+                            Download PDF
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ));
+              })()}
             </div>
           )}
 

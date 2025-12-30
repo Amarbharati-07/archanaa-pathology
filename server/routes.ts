@@ -147,7 +147,7 @@ export async function registerRoutes(
   app.get("/api/user/reports", authUserMiddleware, async (req: AuthRequest, res) => {
     try {
       const reports = await storage.getReportsByUser(req.user!.id);
-      res.json(reports);
+      res.json(reports.sort((a, b) => new Date(b.uploadDate || 0).getTime() - new Date(a.uploadDate || 0).getTime()));
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
@@ -266,7 +266,7 @@ export async function registerRoutes(
   app.post("/api/admin/payments/verify", authAdminMiddleware, async (req: AuthRequest, res) => {
     try {
       const { bookingId, verified } = req.body;
-      const status = verified ? "verified" : "rejected";
+      const status = verified ? "verified" : "pending";
       const booking = await storage.updatePaymentStatus(bookingId, status);
       if (!booking) {
         return res.status(404).json({ message: "Booking not found" });

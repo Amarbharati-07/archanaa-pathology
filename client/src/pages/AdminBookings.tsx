@@ -191,21 +191,26 @@ export default function AdminBookings() {
                       <div className="flex items-center gap-2">
                         <CreditCard className="h-4 w-4 text-slate-400" />
                         <span className="text-slate-500">Payment Information</span>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="ml-2 h-7 px-2 text-[10px]"
-                          onClick={() => {
-                            const verified = booking.paymentStatus !== "verified";
-                            apiRequest("POST", "/api/admin/payments/verify", { bookingId: booking.id, verified })
-                              .then(() => {
-                                queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
-                                toast({ title: `Payment status updated to ${verified ? 'verified' : 'pending'}` });
-                              });
-                          }}
-                        >
-                          {booking.paymentStatus === "verified" ? "Set Pending" : "Verify Payment"}
-                        </Button>
+                        <div className="flex gap-2 ml-2">
+                          <Button 
+                            size="sm" 
+                            variant={booking.paymentStatus === 'verified' ? 'outline' : 'default'}
+                            className={cn(
+                              "h-7 px-3 text-[10px] font-bold rounded-full transition-all",
+                              booking.paymentStatus === 'verified' ? "border-emerald-200 text-emerald-600 hover:bg-emerald-50" : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                            )}
+                            onClick={() => {
+                              const verified = booking.paymentStatus !== "verified";
+                              apiRequest("POST", "/api/admin/payments/verify", { bookingId: booking.id, verified })
+                                .then(() => {
+                                  queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+                                  toast({ title: `Payment status updated to ${verified ? 'verified' : 'pending'}` });
+                                });
+                            }}
+                          >
+                            {booking.paymentStatus === "verified" ? "Revoke Verification" : "Verify Payment"}
+                          </Button>
+                        </div>
                       </div>
                       <div className="flex flex-wrap gap-x-8 gap-y-2">
                         <div className="flex items-center gap-2">
