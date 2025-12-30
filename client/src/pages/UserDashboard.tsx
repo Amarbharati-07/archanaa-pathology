@@ -98,10 +98,96 @@ export default function UserDashboard() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   
-  const { data: reports, isLoading: reportsLoading } = useQuery<any[]>({
-    queryKey: ["/api/user/reports"],
-    enabled: !!user,
-  });
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
+  const handlePrint = (report: any) => {
+    // Generate simple printable view
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const parametersHtml = report.parameters.map((p: any) => `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>${p.value}</strong></td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.unit}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.normalRange}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.status}</td>
+      </tr>
+    `).join('');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Report - ${report.patientName || user?.name}</title>
+          <style>
+            body { font-family: sans-serif; padding: 40px; color: #333; }
+            .header { border-bottom: 2px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+            .lab-name { font-size: 24px; font-weight: bold; color: #2563eb; }
+            .patient-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th { text-align: left; background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; }
+            .footer { margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; font-size: 12px; color: #666; }
+            @media print { .no-print { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="lab-name">Archana Pathology Lab</div>
+            <div>Professional Diagnostic Services</div>
+          </div>
+          <div class="patient-info">
+            <div>
+              <strong>Patient Name:</strong> ${report.patientName || user?.name}<br>
+              <strong>Phone:</strong> ${report.patientPhone || user?.phone}<br>
+              <strong>Date:</strong> ${new Date(report.uploadDate).toLocaleDateString()}
+            </div>
+            <div style="text-align: right;">
+              <strong>Technician:</strong> ${report.technicianName || 'N/A'}<br>
+              <strong>Referred By:</strong> ${report.referredBy || 'Self'}<br>
+              <strong>Report ID:</strong> ARCH-RPT-${report.id}
+            </div>
+          </div>
+          <h3>${report.testName}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Result</th>
+                <th>Unit</th>
+                <th>Normal Range</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${parametersHtml}
+            </tbody>
+          </table>
+          <div style="margin-top: 30px;">
+            <strong>Remarks:</strong><br>
+            ${report.doctorRemarks || 'No remarks provided.'}
+          </div>
+          <div class="footer">
+            This is a computer-generated report and does not require a physical signature.
+            <div class="no-print" style="margin-top: 20px;">
+              <button onclick="window.print()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;">Print Now</button>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleDownload = (report: any) => {
+    toast({ title: "Downloading...", description: "Your report is being prepared." });
+    handlePrint(report);
+  };
+
+  const handleViewReport = (report: any) => {
+    setSelectedReport(report);
+    setIsReportOpen(true);
+  };
 
   useEffect(() => {
     if (!user) {
@@ -688,17 +774,124 @@ export default function UserDashboard() {
                     <div className="flex gap-2">
                       <Button 
                         className="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-10 text-xs font-bold gap-2"
-                        onClick={() => window.open(`/api/reports/${report.id}/download`, '_blank')}
+                        onClick={() => handleDownload(report)}
                       >
                         <Download className="w-3.5 h-3.5" /> Download PDF
                       </Button>
-                      <Button variant="outline" className="flex-1 rounded-xl h-10 text-xs font-bold border-slate-200 hover:bg-slate-50">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 rounded-xl h-10 text-xs font-bold border-slate-200 hover:bg-slate-50"
+                        onClick={() => handleViewReport(report)}
+                      >
                         View Digital
                       </Button>
                     </div>
                   </div>
                 </Card>
               ))}
+
+              {/* View Report Digital Modal */}
+              <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
+                <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden rounded-2xl border-none shadow-2xl">
+                  <div className="p-8 bg-white max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-start mb-8">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                          <ShieldCheck className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <DialogTitle className="text-2xl font-bold text-slate-900">Digital Report Preview</DialogTitle>
+                          <p className="text-slate-500 mt-1">Verified Laboratory Result</p>
+                        </div>
+                      </div>
+                      <DialogClose asChild>
+                        <button className="text-slate-400 hover:text-slate-600">
+                          <X className="h-6 w-6" />
+                        </button>
+                      </DialogClose>
+                    </div>
+
+                    {selectedReport && (
+                      <div className="space-y-8">
+                        <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold text-slate-400 uppercase">Patient Name</p>
+                            <p className="text-lg font-bold text-slate-900">{user?.name}</p>
+                          </div>
+                          <div className="text-right space-y-1">
+                            <p className="text-xs font-bold text-slate-400 uppercase">Report ID</p>
+                            <p className="text-lg font-bold text-blue-600">#ARCH-RPT-{selectedReport.id}</p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="text-xl font-bold text-slate-900 mb-4">{selectedReport.testName}</h4>
+                          <div className="overflow-hidden border border-slate-100 rounded-2xl shadow-sm">
+                            <table className="w-full text-sm">
+                              <thead className="bg-slate-50 border-b">
+                                <tr>
+                                  <th className="px-6 py-4 text-left font-bold text-slate-600">Parameter</th>
+                                  <th className="px-6 py-4 text-left font-bold text-slate-600">Result</th>
+                                  <th className="px-6 py-4 text-left font-bold text-slate-600">Unit</th>
+                                  <th className="px-6 py-4 text-left font-bold text-slate-600">Normal Range</th>
+                                  <th className="px-6 py-4 text-right font-bold text-slate-600">Status</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {selectedReport.parameters.map((p: any, i: number) => (
+                                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-6 py-4 font-medium text-slate-700">{p.name}</td>
+                                    <td className="px-6 py-4 font-bold text-slate-900">{p.value}</td>
+                                    <td className="px-6 py-4 text-slate-600">{p.unit}</td>
+                                    <td className="px-6 py-4 text-slate-600">{p.normalRange}</td>
+                                    <td className="px-6 py-4 text-right">
+                                      <Badge className={cn(
+                                        "capitalize",
+                                        p.status === "Normal" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-rose-50 text-rose-700 border-rose-100"
+                                      )}>
+                                        {p.status}
+                                      </Badge>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <h5 className="font-bold text-slate-900 mb-2">Doctor Remarks</h5>
+                            <p className="text-slate-600 text-sm leading-relaxed">{selectedReport.doctorRemarks || "No special remarks provided by the physician."}</p>
+                          </div>
+                          <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <h5 className="font-bold text-slate-900 mb-2">Technician Information</h5>
+                            <p className="text-slate-600 text-sm">Verified by: {selectedReport.technicianName || "Certified Lab Technician"}</p>
+                            <p className="text-slate-400 text-xs mt-4 italic">This report is verified and electronically signed.</p>
+                          </div>
+                        </div>
+
+                        <div className="pt-6 border-t flex justify-end gap-3">
+                          <Button 
+                            variant="outline" 
+                            className="rounded-xl"
+                            onClick={() => setIsReportOpen(false)}
+                          >
+                            Close Preview
+                          </Button>
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700 rounded-xl gap-2 shadow-lg shadow-blue-100"
+                            onClick={() => handlePrint(selectedReport)}
+                          >
+                            <Printer className="w-4 h-4" />
+                            Print Report
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           )}
 
