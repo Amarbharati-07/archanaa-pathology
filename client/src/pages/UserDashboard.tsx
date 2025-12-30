@@ -134,6 +134,18 @@ export default function UserDashboard() {
     }
   };
 
+  const handleViewDetails = async (booking: Booking) => {
+    try {
+      const res = await apiRequest("GET", `/api/bookings/${booking.id}`);
+      const fullBooking = await res.json();
+      setSelectedBooking(fullBooking);
+      setIsDetailsOpen(true);
+    } catch (err: any) {
+      console.error("Error loading booking details:", err);
+      toast({ title: "Error loading booking details", variant: "destructive" });
+    }
+  };
+
   const handleLogout = () => {
     logout();
     toast({ title: "Logged out successfully" });
@@ -409,10 +421,7 @@ export default function UserDashboard() {
                             <Button 
                               variant="outline" 
                               className="rounded-xl border-slate-200 hover:bg-slate-50"
-                              onClick={() => {
-                                setSelectedBooking(booking);
-                                setIsDetailsOpen(true);
-                              }}
+                              onClick={() => handleViewDetails(booking)}
                               data-testid="button-view-details"
                             >
                               View Details
