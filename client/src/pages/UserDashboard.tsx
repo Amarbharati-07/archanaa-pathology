@@ -252,6 +252,16 @@ export default function UserDashboard() {
         </header>
 
         <div className="p-8 max-w-7xl mx-auto">
+          {(activeTab !== "history") && (
+            <div className="flex items-center gap-4 mb-8">
+              <Link href="/tests">
+                <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 rounded-xl">
+                  Book a Test
+                </Button>
+              </Link>
+            </div>
+          )}
+
           {activeTab === "overview" && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="flex flex-col gap-2">
@@ -579,6 +589,7 @@ export default function UserDashboard() {
                   <thead>
                     <tr className="bg-slate-50/50 border-b">
                       <th className="p-6 text-xs font-bold uppercase tracking-wider text-slate-500">Booking ID</th>
+                      <th className="p-6 text-xs font-bold uppercase tracking-wider text-slate-500">Booked Items</th>
                       <th className="p-6 text-xs font-bold uppercase tracking-wider text-slate-500">Mode</th>
                       <th className="p-6 text-xs font-bold uppercase tracking-wider text-slate-500">Appointment Date</th>
                       <th className="p-6 text-xs font-bold uppercase tracking-wider text-slate-500">Total Price</th>
@@ -588,21 +599,30 @@ export default function UserDashboard() {
                   <tbody className="divide-y divide-slate-100">
                     {bookings.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="p-12 text-center text-slate-400 font-medium italic">No booking records found</td>
+                        <td colSpan={6} className="p-12 text-center text-slate-400 font-medium italic">No booking records found</td>
                       </tr>
                     ) : (
                       bookings.map((booking) => (
                         <tr key={booking.id} className="hover:bg-slate-50/50 transition-colors">
                           <td className="p-6 font-bold text-slate-900">#BK-{booking.id}</td>
-                          <td className="p-6 font-medium text-slate-700 capitalize">
-                            <div className="flex flex-col">
-                              <span>{booking.bookingMode.replace('_', ' ')}</span>
-                              <span className="text-[10px] text-slate-400">
-                                {booking.testNames && booking.testNames.length > 0 ? booking.testNames.join(", ") : 
-                                 booking.packageNames && booking.packageNames.length > 0 ? booking.packageNames.join(", ") : ""}
-                              </span>
+                          <td className="p-6 font-medium text-slate-700">
+                            <div className="flex flex-wrap gap-2">
+                              {booking.testNames && booking.testNames.length > 0 && (
+                                booking.testNames.map((name, i) => (
+                                  <Badge key={i} variant="outline" className="bg-blue-50/50 text-blue-700 border-blue-100">{name}</Badge>
+                                ))
+                              )}
+                              {booking.packageNames && booking.packageNames.length > 0 && (
+                                booking.packageNames.map((name, i) => (
+                                  <Badge key={i} variant="outline" className="bg-emerald-50/50 text-emerald-700 border-emerald-100">{name}</Badge>
+                                ))
+                              )}
+                              {(!booking.testNames?.length && !booking.packageNames?.length) && (
+                                <span className="text-slate-400 italic">No items</span>
+                              )}
                             </div>
                           </td>
+                          <td className="p-6 font-medium text-slate-700 capitalize">{booking.bookingMode.replace('_', ' ')}</td>
                           <td className="p-6 text-slate-600 font-medium">{new Date(booking.date).toLocaleDateString()}</td>
                           <td className="p-6 font-bold text-slate-900">₹{booking.totalAmount}</td>
                           <td className="p-6">{getStatusBadge(booking.testStatus)}</td>
