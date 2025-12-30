@@ -43,6 +43,7 @@ export default function AdminCreateReport() {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
       const bookings = await res.json();
+      console.log("Admin API Bookings:", bookings);
       const currentBooking = bookings.find((b: any) => String(b.id) === String(bookingId));
       
       if (!currentBooking) {

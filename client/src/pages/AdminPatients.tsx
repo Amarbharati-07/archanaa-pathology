@@ -37,8 +37,8 @@ export default function AdminPatients() {
 
         const enrichedBookings = bookingsData.map((b: any) => ({
           ...b,
-          testNames: (b.testIds || []).map((id: number) => testsData.find((t: any) => t.id === id)?.name).filter(Boolean),
-          packageNames: (b.packageIds || []).map((id: number) => packagesData.find((p: any) => p.id === id)?.name).filter(Boolean),
+          testNames: (b.testIds && b.testIds.length > 0) ? b.testIds.map((id: number) => testsData.find((t: any) => t.id === id)?.name).filter(Boolean) : [],
+          packageNames: (b.packageIds && b.packageIds.length > 0) ? b.packageIds.map((id: number) => packagesData.find((p: any) => p.id === id)?.name).filter(Boolean) : [],
         }));
 
         setPatients(patientsData);

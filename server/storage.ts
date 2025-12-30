@@ -144,7 +144,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(userId: number, data: any): Promise<Booking> {
-    const result = await db.insert(bookings).values({ userId, ...data }).returning();
+    const bookingData = {
+      userId,
+      testIds: data.testIds || [],
+      packageIds: data.packageIds || [],
+      date: data.date instanceof Date ? data.date : new Date(data.date),
+      time: data.time,
+      totalAmount: data.totalAmount,
+      bookingMode: data.bookingMode || "lab_visit",
+      address: data.address || "",
+      distance: data.distance || 0,
+      paymentStatus: "pending",
+      testStatus: "booked",
+      completedTestIds: [],
+      completedPackageTestIds: []
+    };
+    const result = await db.insert(bookings).values(bookingData).returning();
     return result[0];
   }
 
