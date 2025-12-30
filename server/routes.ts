@@ -479,18 +479,54 @@ export async function registerRoutes(
     }
   });
 
+  // Get single report (admin only)
+  app.get("/api/admin/reports/:id", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const report = await storage.getReportById(Number(req.params.id));
+      if (!report) return res.status(404).json({ message: "Report not found" });
+      res.json(report);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // Create report (admin only)
   app.post("/api/admin/reports", authAdminMiddleware, async (req: AuthRequest, res) => {
     try {
       const { updateBookingStatus: isLastItem, completedTestIds, completedPackageTestIds, ...reportData } = req.body;
-      const report = await storage.createReport(reportData);
+      
+      // Check if report already exists for this test/package in this booking
+      const allReports = await storage.getAllReports();
+      const existingReport = allReports.find(r => 
+        r.bookingId === req.body.bookingId && 
+        (req.body.testId ? r.testId === req.body.testId : r.packageId === req.body.packageId) &&
+        r.testName === req.body.testName
+      );
+
+      let report;
+      if (existingReport) {
+        report = await storage.updateReport(existingReport.id, reportData);
+      } else {
+        report = await storage.createReport(reportData);
+      }
       
       const testStatus = isLastItem ? "completed" : "processing";
       await storage.updateBookingStatus(req.body.bookingId, testStatus, undefined, completedTestIds, completedPackageTestIds);
       
-      res.status(201).json(report);
+      res.status(existingReport ? 200 : 201).json(report);
     } catch (err: any) {
-      console.error("Error creating report:", err);
+      console.error("Error creating/updating report:", err);
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Update report (admin only)
+  app.patch("/api/admin/reports/:id", authAdminMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const report = await storage.updateReport(Number(req.params.id), req.body);
+      if (!report) return res.status(404).json({ message: "Report not found" });
+      res.json(report);
+    } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
   });

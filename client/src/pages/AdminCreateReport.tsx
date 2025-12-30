@@ -134,7 +134,12 @@ export default function AdminCreateReport() {
       const indexToLoad = firstPendingIndex !== -1 ? firstPendingIndex : (queue.length > 0 ? queue.length - 1 : 0);
       setCurrentQueueIndex(indexToLoad);
       if (queue.length > 0) {
-        loadQueueItem(queue[indexToLoad]);
+        // Check if report already exists for this item to pre-fill
+        const reportsRes = await fetch("/api/admin/all-reports", {
+          headers: { Authorization: `Bearer ${adminToken}` }
+        });
+        const allReports = await reportsRes.json();
+        loadQueueItem(queue[indexToLoad], allReports);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -165,19 +170,46 @@ export default function AdminCreateReport() {
     }
   };
 
-  const loadQueueItem = (item: any) => {
+  const loadQueueItem = (item: any, allReports?: any[]) => {
     setTestDetails({ name: item.name, parameters: item.parameters, type: item.type, packageName: item.packageName });
     
-    const initialValues: any = {};
-    item.parameters.forEach((p: any) => {
-      initialValues[p.name] = {
-        value: "",
-        unit: p.unit || "",
-        normalRange: p.normalRange || ""
-      };
-    });
-    setParamValues(initialValues);
-    setParamStatuses({});
+    // Find existing report if any
+    const existingReport = allReports?.find(r => 
+      r.bookingId === item.bookingId && 
+      (item.type === 'test' ? r.testId === item.id : r.packageId === item.packageId) &&
+      r.testName === (item.type === 'package-test' ? `${item.packageName} - ${item.name}` : item.name)
+    );
+
+    if (existingReport) {
+      setTechnician(existingReport.technicianName || "");
+      setReferredBy(existingReport.referredBy || "");
+      setRemarks(existingReport.doctorRemarks || "");
+      
+      const savedValues: any = {};
+      const savedStatuses: any = {};
+      
+      existingReport.parameters.forEach((p: any) => {
+        savedValues[p.name] = {
+          value: p.value || "",
+          unit: p.unit || "",
+          normalRange: p.normalRange || ""
+        };
+        savedStatuses[p.name] = p.status || "Unable to determine";
+      });
+      setParamValues(savedValues);
+      setParamStatuses(savedStatuses);
+    } else {
+      const initialValues: any = {};
+      item.parameters.forEach((p: any) => {
+        initialValues[p.name] = {
+          value: "",
+          unit: p.unit || "",
+          normalRange: p.normalRange || ""
+        };
+      });
+      setParamValues(initialValues);
+      setParamStatuses({});
+    }
   };
 
   const handleGenerateReport = async () => {
@@ -259,7 +291,12 @@ export default function AdminCreateReport() {
         
         if (nextIndex < pendingQueue.length) {
           setCurrentQueueIndex(nextIndex);
-          loadQueueItem(pendingQueue[nextIndex]);
+          // Fetch all reports again to check for next item
+          const reportsRes = await fetch("/api/admin/all-reports", {
+            headers: { Authorization: `Bearer ${adminToken}` }
+          });
+          const allReports = await reportsRes.json();
+          loadQueueItem(pendingQueue[nextIndex], allReports);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           toast({ title: "Completed", description: "All tests in this booking have been reported." });

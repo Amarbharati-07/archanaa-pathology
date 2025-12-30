@@ -50,7 +50,9 @@ export interface IStorage {
   // Reports
   getReportsByUser(userId: number): Promise<Report[]>;
   getAllReports(): Promise<Report[]>;
+  getReportById(id: number): Promise<Report | undefined>;
   createReport(data: any): Promise<Report>;
+  updateReport(id: number, data: any): Promise<Report | undefined>;
   createWalkInCollection(reportId: number, doctorName: string, clinicName: string): Promise<any>;
   getWalkInCollectionsByDoctor(doctorName: string): Promise<any[]>;
   getAllWalkInCollections(): Promise<any[]>;
@@ -211,6 +213,11 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(reports);
   }
 
+  async getReportById(id: number): Promise<Report | undefined> {
+    const result = await db.select().from(reports).where(eq(reports.id, id));
+    return result[0];
+  }
+
   async createReport(data: any): Promise<Report> {
     const result = await db.insert(reports).values({
       userId: data.userId,
@@ -226,6 +233,19 @@ export class DatabaseStorage implements IStorage {
       clinicalRemarks: data.clinicalRemarks || "",
       uploadDate: new Date(),
     }).returning();
+    return result[0];
+  }
+
+  async updateReport(id: number, data: any): Promise<Report | undefined> {
+    const updateData: any = {};
+    if (data.resultSummary) updateData.resultSummary = data.resultSummary;
+    if (data.doctorRemarks !== undefined) updateData.doctorRemarks = data.doctorRemarks;
+    if (data.parameters) updateData.parameters = data.parameters;
+    if (data.technicianName) updateData.technicianName = data.technicianName;
+    if (data.referredBy !== undefined) updateData.referredBy = data.referredBy;
+    if (data.clinicalRemarks !== undefined) updateData.clinicalRemarks = data.clinicalRemarks;
+    
+    const result = await db.update(reports).set(updateData).where(eq(reports.id, id)).returning();
     return result[0];
   }
 
