@@ -60,7 +60,7 @@ export default function AdminCreateReport() {
         setTestDetails(test);
         
         // Initialize paramValues with units and normal ranges from the test
-        if (test.parameters) {
+        if (test.parameters && Array.isArray(test.parameters)) {
           const initialValues: any = {};
           test.parameters.forEach((p: any) => {
             initialValues[p.name] = {
@@ -76,29 +76,32 @@ export default function AdminCreateReport() {
         const pkgRes = await fetch(`/api/packages/${currentBooking.packageId}`);
         const pkg = await pkgRes.json();
         
-        // The package object usually has testIds or similar
-        // Let's fetch the test details for each test in the package
-        if (pkg.testIds && Array.isArray(pkg.testIds)) {
-          const allParams: any[] = [];
-          for (const tId of pkg.testIds) {
-            const tRes = await fetch(`/api/tests/${tId}`);
-            const tData = await tRes.json();
-            if (tData.parameters) {
-              allParams.push(...tData.parameters);
-            }
+        // Find the tests included in this package from the global tests list
+        const allTestsRes = await fetch("/api/tests");
+        const allTests = await allTestsRes.json();
+        
+        // Packages in this app usually have a list of test names or IDs in their 'includes' or 'testIds' field
+        const packageTestNames = pkg.includes || [];
+        const packageTests = allTests.filter((t: any) => packageTestNames.includes(t.name));
+        
+        const allParams: any[] = [];
+        packageTests.forEach((t: any) => {
+          if (t.parameters && Array.isArray(t.parameters)) {
+            allParams.push(...t.parameters);
           }
-          setTestDetails({ ...pkg, parameters: allParams });
-          
-          const initialValues: any = {};
-          allParams.forEach((p: any) => {
-            initialValues[p.name] = {
-              value: "",
-              unit: p.unit || "",
-              normalRange: p.normalRange || ""
-            };
-          });
-          setParamValues(initialValues);
-        }
+        });
+
+        setTestDetails({ ...pkg, parameters: allParams });
+        
+        const initialValues: any = {};
+        allParams.forEach((p: any) => {
+          initialValues[p.name] = {
+            value: "",
+            unit: p.unit || "",
+            normalRange: p.normalRange || ""
+          };
+        });
+        setParamValues(initialValues);
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
