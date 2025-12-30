@@ -51,13 +51,13 @@ export default function AdminCreateReport() {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
       const patients = await pRes.json();
-      setPatient(patients.find((p: any) => p.id === currentBooking.userId));
+      const patientData = patients.find((p: any) => p.id === currentBooking.userId);
+      setPatient(patientData);
 
       // Get test/package details for parameters
       if (currentBooking.testId) {
         const tRes = await fetch(`/api/tests/${currentBooking.testId}`);
         const test = await tRes.json();
-        console.log("Loaded test details:", test);
         setTestDetails(test);
         
         // Initialize paramValues with units and normal ranges from the test
@@ -72,42 +72,12 @@ export default function AdminCreateReport() {
           });
           setParamValues(initialValues);
         }
-      } else if (currentBooking.packageId || currentBooking.packageName) {
-        // Handle packages - fetch all tests in the package
-        const allPackagesRes = await fetch("/api/packages");
-        const allPackages = await allPackagesRes.json();
-        
-        const pkg = allPackages.find((p: any) => 
-          (currentBooking.packageId && String(p.id) === String(currentBooking.packageId)) || 
-          (currentBooking.packageName && p.name === currentBooking.packageName)
-        );
-        
-        if (!pkg) {
-          console.error("Package not found in list", currentBooking);
-          // Try fetching by name as fallback from tests if it's actually a test booked as a package
-          const allTestsRes = await fetch("/api/tests");
-          const allTests = await allTestsRes.json();
-          const fallbackTest = allTests.find((t: any) => t.name === (currentBooking.packageName || currentBooking.testName));
-          
-          if (fallbackTest) {
-            console.log("Found fallback test:", fallbackTest);
-            setTestDetails(fallbackTest);
-            const initialValues: any = {};
-            if (fallbackTest.parameters) {
-              fallbackTest.parameters.forEach((p: any) => {
-                initialValues[p.name] = { value: "", unit: p.unit || "", normalRange: p.normalRange || "" };
-              });
-              setParamValues(initialValues);
-            }
-            return;
-          }
-          return;
-        }
-
-        const pkgRes = await fetch(`/api/packages/${pkg.id}`);
+      } else if (currentBooking.packageId) {
+        // Handle packages - fetch the package and all its tests
+        const pkgRes = await fetch(`/api/packages/${currentBooking.packageId}`);
         const fullPkg = await pkgRes.json();
         
-        // Find the tests included in this package from the global tests list
+        // Fetch all tests to find ones included in this package
         const allTestsRes = await fetch("/api/tests");
         const allTests = await allTestsRes.json();
         
@@ -120,13 +90,11 @@ export default function AdminCreateReport() {
             name.trim().toLowerCase().includes(t.name.trim().toLowerCase())
           )
         );
-        
-        console.log("Matched package tests:", packageTests);
 
+        // Combine all parameters from all tests in the package
         const allParams: any[] = [];
         packageTests.forEach((t: any) => {
           if (t.parameters && Array.isArray(t.parameters)) {
-            // Avoid duplicate parameters by name
             t.parameters.forEach((p: any) => {
               if (!allParams.find(existing => existing.name === p.name)) {
                 allParams.push(p);
@@ -135,7 +103,6 @@ export default function AdminCreateReport() {
           }
         });
 
-        console.log("Combined parameters:", allParams);
         setTestDetails({ ...fullPkg, parameters: allParams });
         
         const initialValues: any = {};
@@ -149,6 +116,7 @@ export default function AdminCreateReport() {
         setParamValues(initialValues);
       }
     } catch (error) {
+      console.error("Error loading data:", error);
       toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -168,8 +136,10 @@ export default function AdminCreateReport() {
     if (field === "value" && testDetails?.parameters) {
       const param = testDetails.parameters.find((p: any) => p.name === paramName);
       if (param && value) {
-        const status = calculateStatus(value, param.normalRange || "", patient?.age, patient?.gender);
-        setParamStatuses(prev => ({ ...prev, [paramName]: status }));
+        const statusResult = calculateStatus(value, param.normalRange || "", patient?.age, patient?.gender);
+        setParamStatuses(prev => ({ ...prev, [paramName]: statusResult }));
+      } else if (!value) {
+        setParamStatuses(prev => ({ ...prev, [paramName]: "Unable to determine" }));
       }
     }
   };
@@ -199,21 +169,27 @@ export default function AdminCreateReport() {
         body: JSON.stringify({
           userId: booking.userId,
           bookingId: booking.id,
-          testId: booking.testId || 0,
+          testId: booking.testId || null,
+          packageId: booking.packageId || null,
           testName: booking.testName || booking.packageName,
           resultSummary: "Complete",
           doctorRemarks: remarks,
           technicianName: technician,
           referredBy: referredBy,
+          clinicalRemarks: remarks,
           parameters
         })
       });
 
       if (res.ok) {
         toast({ title: "Success", description: "Report generated successfully" });
-        setLocation("/admin/patients");
+        setLocation("/admin/reports");
+      } else {
+        const errorData = await res.json();
+        toast({ title: "Error", description: errorData.message || "Failed to generate report", variant: "destructive" });
       }
     } catch (error) {
+      console.error("Report generation error:", error);
       toast({ title: "Error", description: "Failed to generate report", variant: "destructive" });
     }
   };
@@ -291,9 +267,9 @@ export default function AdminCreateReport() {
           <Card className="border-none shadow-sm min-h-[400px]">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50">
               <div>
-                <CardTitle className="text-lg font-bold text-slate-900">{booking?.testName || booking?.packageName || 'Loading...'}</CardTitle>
+                <CardTitle className="text-lg font-bold text-slate-900">{booking?.testName || booking?.packageName || 'Test Details'}</CardTitle>
                 <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">
-                  {booking?.testCode || (booking?.testId ? 'TEST' : 'PACKAGE')} | {testDetails?.parameters?.length || 0} parameters
+                  {booking?.testId ? 'TEST' : booking?.packageId ? 'PACKAGE' : 'LOADING'} | {testDetails?.parameters?.length || 0} parameters
                 </p>
               </div>
               <Button 

@@ -304,6 +304,8 @@ export async function registerRoutes(
       const bookingDetails = allBookings.map(b => ({
         id: b.id,
         userId: b.userId,
+        testId: b.testId || null,
+        packageId: b.packageId || null,
         userName: users.find(u => u.id === b.userId)?.name || "Unknown",
         phone: users.find(u => u.id === b.userId)?.phone || "",
         testName: b.testId ? tests.find(t => t.id === b.testId)?.name : null,
