@@ -321,21 +321,25 @@ export async function registerRoutes(
   app.get("/api/admin/bookings", authAdminMiddleware, async (req: AuthRequest, res) => {
     try {
       const allBookings = await storage.getAllBookings();
-      const users = await storage.getAllUsers();
-      const tests = await storage.getTests();
-      const packages = await storage.getPackages();
+      const usersList = await storage.getAllUsers();
+      const testsData = await storage.getTests();
+      const packagesData = await storage.getPackages();
 
       const bookingDetails = allBookings.map(b => {
-        const bookedTests = (b.testIds || []).map(id => tests.find(t => t.id === id)).filter(Boolean);
-        const bookedPackages = (b.packageIds || []).map(id => packages.find(p => p.id === id)).filter(Boolean);
+        const bookedTests = (b.testIds && b.testIds.length > 0) 
+          ? b.testIds.map(id => testsData.find(t => t.id === id)).filter(Boolean) 
+          : [];
+        const bookedPackages = (b.packageIds && b.packageIds.length > 0) 
+          ? b.packageIds.map(id => packagesData.find(p => p.id === id)).filter(Boolean) 
+          : [];
         
         return {
           id: b.id,
           userId: b.userId,
           testIds: b.testIds || [],
           packageIds: b.packageIds || [],
-          userName: users.find(u => u.id === b.userId)?.name || "Unknown",
-          phone: users.find(u => u.id === b.userId)?.phone || "",
+          userName: usersList.find(u => u.id === b.userId)?.name || "Unknown",
+          phone: usersList.find(u => u.id === b.userId)?.phone || "",
           testNames: bookedTests.map(t => t!.name),
           packageNames: bookedPackages.map(p => p!.name),
           date: b.date,
@@ -346,6 +350,8 @@ export async function registerRoutes(
           bookingMode: b.bookingMode,
           address: b.address,
           distance: b.distance,
+          completedTestIds: b.completedTestIds || [],
+          completedPackageTestIds: b.completedPackageTestIds || []
         };
       });
 

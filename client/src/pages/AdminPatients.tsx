@@ -120,16 +120,16 @@ export default function AdminPatients() {
                       <div className="space-y-3">
                         {patientBookings.map((booking) => (
                           <div key={booking.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                            <div className="flex gap-6 items-center">
-                              <div className="flex flex-col">
-                                <span className="text-sm font-bold text-slate-800">
+                            <div className="flex gap-6 items-center flex-1">
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-bold text-slate-800 truncate">
                                   {[...(booking.testNames || []), ...(booking.packageNames || [])].join(", ") || "N/A"}
                                 </span>
                                 <span className="text-xs text-slate-500 flex items-center gap-1">
                                   <Calendar className="w-3 h-3" /> {format(new Date(booking.date), 'dd MMM yyyy')} | <Clock className="w-3 h-3" /> {booking.time}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-shrink-0">
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                                   booking.testStatus === 'completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
                                 }`}>
@@ -142,12 +142,14 @@ export default function AdminPatients() {
                                 </span>
                               </div>
                             </div>
-                            <Link href={`/admin/create-report/${booking.id}`}>
-                              <Button variant="outline" size="sm" className="gap-2 border-slate-200 hover:border-blue-200 hover:bg-blue-50 text-blue-600 font-semibold h-8">
-                                <FileText className="w-3.5 h-3.5" />
-                                Create Report
-                              </Button>
-                            </Link>
+                            <div className="flex items-center gap-2 ml-4">
+                              <Link href={`/admin/create-report/${booking.id}`}>
+                                <Button variant="outline" size="sm" className="gap-2 border-slate-200 hover:border-blue-200 hover:bg-blue-50 text-blue-600 font-semibold h-8">
+                                  <FileText className="w-3.5 h-3.5" />
+                                  {booking.testStatus === 'completed' ? 'View/Edit' : 'Create Report'}
+                                </Button>
+                              </Link>
+                            </div>
                           </div>
                         ))}
                       </div>
