@@ -58,6 +58,47 @@ export default function AdminCreateReport() {
         const tRes = await fetch(`/api/tests/${currentBooking.testId}`);
         const test = await tRes.json();
         setTestDetails(test);
+        
+        // Initialize paramValues with units and normal ranges from the test
+        if (test.parameters) {
+          const initialValues: any = {};
+          test.parameters.forEach((p: any) => {
+            initialValues[p.name] = {
+              value: "",
+              unit: p.unit || "",
+              normalRange: p.normalRange || ""
+            };
+          });
+          setParamValues(initialValues);
+        }
+      } else if (currentBooking.packageId) {
+        // Handle packages - fetch all tests in the package
+        const pkgRes = await fetch(`/api/packages/${currentBooking.packageId}`);
+        const pkg = await pkgRes.json();
+        
+        // The package object usually has testIds or similar
+        // Let's fetch the test details for each test in the package
+        if (pkg.testIds && Array.isArray(pkg.testIds)) {
+          const allParams: any[] = [];
+          for (const tId of pkg.testIds) {
+            const tRes = await fetch(`/api/tests/${tId}`);
+            const tData = await tRes.json();
+            if (tData.parameters) {
+              allParams.push(...tData.parameters);
+            }
+          }
+          setTestDetails({ ...pkg, parameters: allParams });
+          
+          const initialValues: any = {};
+          allParams.forEach((p: any) => {
+            initialValues[p.name] = {
+              value: "",
+              unit: p.unit || "",
+              normalRange: p.normalRange || ""
+            };
+          });
+          setParamValues(initialValues);
+        }
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
@@ -203,7 +244,9 @@ export default function AdminCreateReport() {
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50">
               <div>
                 <CardTitle className="text-lg font-bold text-slate-900">{booking?.testName || booking?.packageName || 'Loading...'}</CardTitle>
-                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">{booking?.testCode || 'TEST'} | 1 parameters</p>
+                <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">
+                  {booking?.testCode || (booking?.testId ? 'TEST' : 'PACKAGE')} | {testDetails?.parameters?.length || 0} parameters
+                </p>
               </div>
               <Button 
                 onClick={handleGenerateReport}
