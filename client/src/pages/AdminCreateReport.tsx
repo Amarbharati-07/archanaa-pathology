@@ -83,13 +83,22 @@ export default function AdminCreateReport() {
         // The package.includes field contains test names
         const packageTestNames = pkg.includes || [];
         const packageTests = allTests.filter((t: any) => 
-          packageTestNames.some((name: string) => name.trim().toLowerCase() === t.name.trim().toLowerCase())
+          packageTestNames.some((name: string) => 
+            name.trim().toLowerCase() === t.name.trim().toLowerCase() ||
+            t.name.trim().toLowerCase().includes(name.trim().toLowerCase()) ||
+            name.trim().toLowerCase().includes(t.name.trim().toLowerCase())
+          )
         );
         
         const allParams: any[] = [];
         packageTests.forEach((t: any) => {
           if (t.parameters && Array.isArray(t.parameters)) {
-            allParams.push(...t.parameters);
+            // Avoid duplicate parameters by name
+            t.parameters.forEach((p: any) => {
+              if (!allParams.find(existing => existing.name === p.name)) {
+                allParams.push(p);
+              }
+            });
           }
         });
 
