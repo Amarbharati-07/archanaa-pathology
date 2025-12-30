@@ -161,9 +161,11 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async updateBookingStatus(id: number, testStatus: string, paymentStatus?: string): Promise<Booking | undefined> {
+  async updateBookingStatus(id: number, testStatus: string, paymentStatus?: string, completedTestIds?: number[], completedPackageTestIds?: any[]): Promise<Booking | undefined> {
     const updates: any = { testStatus };
     if (paymentStatus) updates.paymentStatus = paymentStatus;
+    if (completedTestIds) updates.completedTestIds = completedTestIds;
+    if (completedPackageTestIds) updates.completedPackageTestIds = completedPackageTestIds;
     const result = await db.update(bookings).set(updates).where(eq(bookings.id, id)).returning();
     return result[0];
   }

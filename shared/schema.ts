@@ -67,6 +67,8 @@ export const bookings = pgTable("bookings", {
   totalAmount: integer("total_amount").notNull(),
   paymentStatus: text("payment_status").default("pending"),
   testStatus: text("test_status").default("booked"),
+  completedTestIds: integer("completed_test_ids").array().default([]),
+  completedPackageTestIds: jsonb("completed_package_test_ids").default([]), // List of { packageId, testId }
   bookingMode: text("booking_mode").default("lab_visit"),
   address: text("address").default(""),
   distance: integer("distance").default(0),

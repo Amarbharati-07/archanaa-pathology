@@ -476,16 +476,11 @@ export async function registerRoutes(
   // Create report (admin only)
   app.post("/api/admin/reports", authAdminMiddleware, async (req: AuthRequest, res) => {
     try {
-      const { updateBookingStatus, ...reportData } = req.body;
+      const { updateBookingStatus, completedTestIds, completedPackageTestIds, ...reportData } = req.body;
       const report = await storage.createReport(reportData);
       
-      // Only update booking status to completed if specified (usually on the last test of a booking)
-      if (updateBookingStatus) {
-        await storage.updateBookingStatus(req.body.bookingId, "completed");
-      } else {
-        // Otherwise mark it as 'processing' or keep it as 'booked'
-        await storage.updateBookingStatus(req.body.bookingId, "processing");
-      }
+      const testStatus = updateBookingStatus ? "completed" : "processing";
+      await storage.updateBookingStatus(req.body.bookingId, testStatus, undefined, completedTestIds, completedPackageTestIds);
       
       res.status(201).json(report);
     } catch (err: any) {

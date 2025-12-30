@@ -107,8 +107,35 @@ export default function AdminCreateReport() {
       }
 
       setPendingQueue(queue);
-      if (queue.length > 0) {
-        loadQueueItem(queue[0]);
+      
+      // Calculate completed count from booking data
+      const completedIds = currentBooking.completedTestIds || [];
+      const completedPkgTests = currentBooking.completedPackageTestIds || [];
+      
+      let initialCompletedCount = 0;
+      let firstPendingIndex = -1;
+
+      queue.forEach((item, idx) => {
+        const isCompleted = item.type === 'test' 
+          ? completedIds.includes(item.id)
+          : completedPkgTests.some((cp: any) => cp.packageId === item.packageId && cp.testId === item.id);
+        
+        if (isCompleted) {
+          initialCompletedCount++;
+        } else if (firstPendingIndex === -1) {
+          firstPendingIndex = idx;
+        }
+      });
+
+      setCompletedInQueue(initialCompletedCount);
+      
+      if (firstPendingIndex !== -1) {
+        setCurrentQueueIndex(firstPendingIndex);
+        loadQueueItem(queue[firstPendingIndex]);
+      } else if (queue.length > 0) {
+        // All completed, but let's load the last one for viewing/editing
+        setCurrentQueueIndex(queue.length - 1);
+        loadQueueItem(queue[queue.length - 1]);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -190,15 +217,46 @@ export default function AdminCreateReport() {
           referredBy: referredBy,
           clinicalRemarks: remarks,
           parameters,
-          updateBookingStatus: isLastItem // Only update booking status to 'completed' on last test
+          updateBookingStatus: isLastItem,
+          completedTestIds: currentItem.type === 'test' 
+            ? [...new Set([...(booking.completedTestIds || []), currentItem.id])]
+            : booking.completedTestIds || [],
+          completedPackageTestIds: currentItem.type === 'package-test'
+            ? [...(booking.completedPackageTestIds || []), { packageId: currentItem.packageId, testId: currentItem.id }]
+            : booking.completedPackageTestIds || []
         })
       });
 
       if (res.ok) {
         toast({ title: "Success", description: `Report for ${currentItem.name} generated` });
         
+        // Update local booking state with new completion info
+        const updatedCompletedTests = [...(booking.completedTestIds || [])];
+        const updatedCompletedPkgTests = [...(booking.completedPackageTestIds || [])];
+        
+        if (currentItem.type === 'test') {
+          if (!updatedCompletedTests.includes(currentItem.id)) {
+            updatedCompletedTests.push(currentItem.id);
+          }
+        } else {
+          const alreadyExists = updatedCompletedPkgTests.some(
+            (cp: any) => cp.packageId === currentItem.packageId && cp.testId === currentItem.id
+          );
+          if (!alreadyExists) {
+            updatedCompletedPkgTests.push({ packageId: currentItem.packageId, testId: currentItem.id });
+          }
+        }
+
         const nextIndex = currentQueueIndex + 1;
-        setCompletedInQueue(nextIndex);
+        // Count total completed based on new lists
+        const newCompletedCount = pendingQueue.filter((item, idx) => {
+          if (idx < nextIndex) return true; // Items up to current are done
+          return item.type === 'test' 
+            ? updatedCompletedTests.includes(item.id)
+            : updatedCompletedPkgTests.some((cp: any) => cp.packageId === item.packageId && cp.testId === item.id);
+        }).length;
+
+        setCompletedInQueue(newCompletedCount);
         
         if (nextIndex < pendingQueue.length) {
           setCurrentQueueIndex(nextIndex);
