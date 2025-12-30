@@ -57,6 +57,7 @@ export default function AdminCreateReport() {
       if (currentBooking.testId) {
         const tRes = await fetch(`/api/tests/${currentBooking.testId}`);
         const test = await tRes.json();
+        console.log("Loaded test details:", test);
         setTestDetails(test);
         
         // Initialize paramValues with units and normal ranges from the test
@@ -71,9 +72,16 @@ export default function AdminCreateReport() {
           });
           setParamValues(initialValues);
         }
-      } else if (currentBooking.packageId) {
+      } else if (currentBooking.packageId || currentBooking.packageName) {
         // Handle packages - fetch all tests in the package
-        const pkgRes = await fetch(`/api/packages/${currentBooking.packageId}`);
+        const pkgId = currentBooking.packageId || (await fetch("/api/packages").then(r => r.json()).then(pkgs => pkgs.find((p: any) => p.name === currentBooking.packageName)?.id));
+        
+        if (!pkgId) {
+          console.error("Package ID not found");
+          return;
+        }
+
+        const pkgRes = await fetch(`/api/packages/${pkgId}`);
         const pkg = await pkgRes.json();
         
         // Find the tests included in this package from the global tests list
@@ -90,6 +98,8 @@ export default function AdminCreateReport() {
           )
         );
         
+        console.log("Matched package tests:", packageTests);
+
         const allParams: any[] = [];
         packageTests.forEach((t: any) => {
           if (t.parameters && Array.isArray(t.parameters)) {
@@ -102,6 +112,7 @@ export default function AdminCreateReport() {
           }
         });
 
+        console.log("Combined parameters:", allParams);
         setTestDetails({ ...pkg, parameters: allParams });
         
         const initialValues: any = {};
