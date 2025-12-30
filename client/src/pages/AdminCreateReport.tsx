@@ -265,11 +265,13 @@ export default function AdminCreateReport() {
 
                 <div className="space-y-2 max-h-[400px] overflow-y-auto">
                   {userBookings.length > 0 ? userBookings.map((b: any, idx: number) => (
-                    <div key={b.id} className={`p-3 rounded-lg border shadow-sm flex items-center gap-3 ${String(b.id) === String(bookingId) ? 'bg-blue-50/50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
-                      <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">{idx + 1}</span>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-slate-900">{b.testName || b.packageName}</p>
-                        <p className="text-[10px] text-slate-600">{b.date ? format(new Date(b.date), 'dd MMM yyyy, h:mm a') : 'No date'}</p>
+                    <div key={b.id} className={`p-3 rounded-lg border shadow-sm ${String(b.id) === String(bookingId) ? 'bg-blue-50/50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">{idx + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-900 break-words">{b.testName || b.packageName || 'Unknown Test'}</p>
+                          <p className="text-[10px] text-slate-600 mt-0.5">{b.date ? format(new Date(b.date), 'dd MMM yyyy, h:mm a') : 'No date'}</p>
+                        </div>
                       </div>
                     </div>
                   )) : (
