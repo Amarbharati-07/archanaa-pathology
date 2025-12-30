@@ -315,8 +315,8 @@ export async function registerRoutes(
       const packages = await storage.getPackages();
 
       const bookingDetails = allBookings.map(b => {
-        const bookedTests = b.testIds ? b.testIds.map(id => tests.find(t => t.id === id)).filter(Boolean) : [];
-        const bookedPackages = b.packageIds ? b.packageIds.map(id => packages.find(p => p.id === id)).filter(Boolean) : [];
+        const bookedTests = (b.testIds || []).map(id => tests.find(t => t.id === id)).filter(Boolean);
+        const bookedPackages = (b.packageIds || []).map(id => packages.find(p => p.id === id)).filter(Boolean);
         
         return {
           id: b.id,

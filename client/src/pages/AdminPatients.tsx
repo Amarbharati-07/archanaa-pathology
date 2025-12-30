@@ -22,14 +22,27 @@ export default function AdminPatients() {
 
   const loadData = async () => {
     try {
-      const [patientsRes, bookingsRes] = await Promise.all([
+      const [patientsRes, bookingsRes, testsRes, packagesRes] = await Promise.all([
         fetch("/api/admin/users", { headers: { Authorization: `Bearer ${adminToken}` } }),
-        fetch("/api/admin/bookings", { headers: { Authorization: `Bearer ${adminToken}` } })
+        fetch("/api/admin/bookings", { headers: { Authorization: `Bearer ${adminToken}` } }),
+        fetch("/api/tests"),
+        fetch("/api/packages")
       ]);
       
-      if (patientsRes.ok && bookingsRes.ok) {
-        setPatients(await patientsRes.json());
-        setBookings(await bookingsRes.json());
+      if (patientsRes.ok && bookingsRes.ok && testsRes.ok && packagesRes.ok) {
+        const patientsData = await patientsRes.json();
+        const bookingsData = await bookingsRes.json();
+        const testsData = await testsRes.json();
+        const packagesData = await packagesRes.json();
+
+        const enrichedBookings = bookingsData.map((b: any) => ({
+          ...b,
+          testNames: (b.testIds || []).map((id: number) => testsData.find((t: any) => t.id === id)?.name).filter(Boolean),
+          packageNames: (b.packageIds || []).map((id: number) => packagesData.find((p: any) => p.id === id)?.name).filter(Boolean),
+        }));
+
+        setPatients(patientsData);
+        setBookings(enrichedBookings);
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
