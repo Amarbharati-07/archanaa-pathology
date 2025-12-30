@@ -9,14 +9,15 @@ import { Loader2, MapPin, Calendar, Phone, Search, CreditCard, Clock } from "luc
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface BookingDetail {
   id: number;
   userId: number;
   userName: string;
   phone: string;
-  testName?: string;
-  packageName?: string;
+  testNames?: string[];
+  packageNames?: string[];
   date: string;
   time: string;
   testStatus: string;
@@ -147,7 +148,10 @@ export default function AdminBookings() {
                             {booking.bookingMode.replace('_', ' ')}
                           </span>
                         </div>
-                        <p className="text-slate-600 font-medium">{booking.testName || booking.packageName}</p>
+                        <p className="text-slate-600 font-medium">
+                          {booking.testNames && booking.testNames.length > 0 ? booking.testNames.join(", ") : 
+                           booking.packageNames && booking.packageNames.length > 0 ? booking.packageNames.join(", ") : "N/A"}
+                        </p>
                         <div className="flex items-center gap-4 text-sm text-slate-500">
                           <div className="flex items-center gap-1.5">
                             <Calendar className="h-4 w-4" />
@@ -187,11 +191,29 @@ export default function AdminBookings() {
                       <div className="flex items-center gap-2">
                         <CreditCard className="h-4 w-4 text-slate-400" />
                         <span className="text-slate-500">Payment Information</span>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="ml-2 h-7 px-2 text-[10px]"
+                          onClick={() => {
+                            const verified = booking.paymentStatus !== "verified";
+                            apiRequest("POST", "/api/admin/payments/verify", { bookingId: booking.id, verified })
+                              .then(() => {
+                                queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+                                toast({ title: `Payment status updated to ${verified ? 'verified' : 'pending'}` });
+                              });
+                          }}
+                        >
+                          {booking.paymentStatus === "verified" ? "Set Pending" : "Verify Payment"}
+                        </Button>
                       </div>
                       <div className="flex flex-wrap gap-x-8 gap-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-slate-500">Status:</span>
-                          <Badge className="bg-blue-500 text-white border-none hover:bg-blue-600 flex items-center gap-1 h-6">
+                          <Badge className={cn(
+                            "border-none flex items-center gap-1 h-6",
+                            booking.paymentStatus === "verified" ? "bg-emerald-500 text-white" : "bg-blue-500 text-white"
+                          )}>
                             <Clock className="h-3 w-3" /> {booking.paymentStatus.replace('_', ' ')}
                           </Badge>
                         </div>

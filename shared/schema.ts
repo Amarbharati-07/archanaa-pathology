@@ -60,8 +60,8 @@ export const reviews = pgTable("reviews", {
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
-  testId: integer("test_id"),
-  packageId: integer("package_id"),
+  testIds: integer("test_ids").array(),
+  packageIds: integer("package_ids").array(),
   date: timestamp("date").notNull(),
   time: text("time").notNull(),
   totalAmount: integer("total_amount").notNull(),
@@ -151,8 +151,8 @@ export const insertPackageSchema = z.object({
 });
 
 export const createBookingSchema = z.object({
-  testId: z.number().optional(),
-  packageId: z.number().optional(),
+  testIds: z.array(z.number()).optional(),
+  packageIds: z.array(z.number()).optional(),
   date: z.string().min(1, "Date required").transform(d => new Date(d)),
   time: z.string().min(1, "Time required"),
   totalAmount: z.number().min(1, "Amount must be positive"),

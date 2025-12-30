@@ -203,6 +203,7 @@ export class DatabaseStorage implements IStorage {
       technicianName: data.technicianName || "",
       referredBy: data.referredBy || "",
       clinicalRemarks: data.clinicalRemarks || "",
+      uploadDate: new Date(),
     }).returning();
     return result[0];
   }

@@ -109,7 +109,10 @@ export default function AdminPatients() {
                           <div key={booking.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
                             <div className="flex gap-6 items-center">
                               <div className="flex flex-col">
-                                <span className="text-sm font-bold text-slate-800">{booking.testName || booking.packageName}</span>
+                                <span className="text-sm font-bold text-slate-800">
+                                  {booking.testNames && booking.testNames.length > 0 ? booking.testNames.join(", ") : 
+                                   booking.packageNames && booking.packageNames.length > 0 ? booking.packageNames.join(", ") : "N/A"}
+                                </span>
                                 <span className="text-xs text-slate-500 flex items-center gap-1">
                                   <Calendar className="w-3 h-3" /> {format(new Date(booking.date), 'dd MMM yyyy')} | <Clock className="w-3 h-3" /> {booking.time}
                                 </span>

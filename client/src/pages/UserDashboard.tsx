@@ -41,6 +41,8 @@ interface Booking {
   address: string;
   distance: number;
   createdAt: string;
+  testNames?: string[];
+  packageNames?: string[];
 }
 
 interface Payment {
@@ -72,11 +74,23 @@ export default function UserDashboard() {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [bookingsRes, paymentsRes] = await Promise.all([
+      const [bookingsRes, paymentsRes, testsRes, packagesRes] = await Promise.all([
         apiRequest("GET", "/api/user/bookings"),
         apiRequest("GET", "/api/user/payments"),
+        apiRequest("GET", "/api/tests"),
+        apiRequest("GET", "/api/packages"),
       ]);
-      setBookings(await bookingsRes.json());
+      const bookingsData = await bookingsRes.json();
+      const tests = await testsRes.json();
+      const packages = await packagesRes.json();
+      
+      const enrichedBookings = bookingsData.map((b: any) => ({
+        ...b,
+        testNames: b.testIds?.map((id: number) => tests.find((t: any) => t.id === id)?.name).filter(Boolean) || [],
+        packageNames: b.packageIds?.map((id: number) => packages.find((p: any) => p.id === id)?.name).filter(Boolean) || [],
+      }));
+
+      setBookings(enrichedBookings);
       setPayments(await paymentsRes.json());
     } catch (err: any) {
       console.error("Error loading dashboard:", err);
@@ -299,7 +313,10 @@ export default function UserDashboard() {
                               <Microscope className="h-7 w-7 text-blue-600" />
                             </div>
                             <div>
-                              <h3 className="font-bold text-xl text-slate-900">Test Booking</h3>
+                              <h3 className="font-bold text-xl text-slate-900">
+                                {booking.testNames && booking.testNames.length > 0 ? booking.testNames.join(", ") : 
+                                 booking.packageNames && booking.packageNames.length > 0 ? booking.packageNames.join(", ") : "Test Booking"}
+                              </h3>
                               <p className="text-sm text-slate-500 font-medium">Booking ID: #BK-{booking.id}</p>
                             </div>
                           </div>
@@ -373,7 +390,15 @@ export default function UserDashboard() {
                       bookings.map((booking) => (
                         <tr key={booking.id} className="hover:bg-slate-50/50 transition-colors">
                           <td className="p-6 font-bold text-slate-900">#BK-{booking.id}</td>
-                          <td className="p-6 font-medium text-slate-700 capitalize">{booking.bookingMode.replace('_', ' ')}</td>
+                          <td className="p-6 font-medium text-slate-700 capitalize">
+                            <div className="flex flex-col">
+                              <span>{booking.bookingMode.replace('_', ' ')}</span>
+                              <span className="text-[10px] text-slate-400">
+                                {booking.testNames && booking.testNames.length > 0 ? booking.testNames.join(", ") : 
+                                 booking.packageNames && booking.packageNames.length > 0 ? booking.packageNames.join(", ") : ""}
+                              </span>
+                            </div>
+                          </td>
                           <td className="p-6 text-slate-600 font-medium">{new Date(booking.date).toLocaleDateString()}</td>
                           <td className="p-6 font-bold text-slate-900">₹{booking.totalAmount}</td>
                           <td className="p-6">{getStatusBadge(booking.testStatus)}</td>

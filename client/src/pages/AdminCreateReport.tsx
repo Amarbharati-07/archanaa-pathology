@@ -59,75 +59,66 @@ export default function AdminCreateReport() {
       const patientData = patients.find((p: any) => p.id === currentBooking.userId);
       setPatient(patientData);
 
-      // Get test/package details for parameters
-      if (currentBooking.testId) {
-        const tRes = await fetch(`/api/tests/${currentBooking.testId}`);
-        let test = await tRes.json();
-        
-        // If test doesn't exist, fetch all tests and use the first one with parameters
-        if (tRes.status === 404 || test.message === "Test not found") {
-          const allTestsRes = await fetch("/api/tests");
-          const allTests = await allTestsRes.json();
-          test = allTests.find((t: any) => t.parameters && t.parameters.length > 0) || allTests[0];
-        }
-        
-        setTestDetails(test);
-        
-        // Initialize paramValues with units and normal ranges from the test
-        if (test.parameters && Array.isArray(test.parameters)) {
-          const initialValues: any = {};
-          test.parameters.forEach((p: any) => {
-            initialValues[p.name] = {
-              value: "",
-              unit: p.unit || "",
-              normalRange: p.normalRange || ""
-            };
-          });
-          setParamValues(initialValues);
-        }
-      } else if (currentBooking.packageId) {
-        // Handle packages - fetch the package and all its tests
-        const pkgRes = await fetch(`/api/packages/${currentBooking.packageId}`);
-        const fullPkg = await pkgRes.json();
-        
-        // Fetch all tests to find ones included in this package
-        const allTestsRes = await fetch("/api/tests");
-        const allTests = await allTestsRes.json();
-        
-        // The package.includes field contains test names
-        const packageTestNames = fullPkg.includes || [];
-        const packageTests = allTests.filter((t: any) => 
-          packageTestNames.some((name: string) => 
-            name.trim().toLowerCase() === t.name.trim().toLowerCase() ||
-            t.name.trim().toLowerCase().includes(name.trim().toLowerCase()) ||
-            name.trim().toLowerCase().includes(t.name.trim().toLowerCase())
-          )
-        );
+      // Handle tests
+      const allTestParams: any[] = [];
+      const testNames: string[] = [];
 
-        // Combine all parameters from all tests in the package
-        const allParams: any[] = [];
-        packageTests.forEach((t: any) => {
+      if (currentBooking.testIds && currentBooking.testIds.length > 0) {
+        const testsRes = await fetch("/api/tests");
+        const allTests = await testsRes.json();
+        const bookedTests = currentBooking.testIds.map((id: number) => allTests.find((t: any) => t.id === id)).filter(Boolean);
+        
+        bookedTests.forEach((t: any) => {
+          testNames.push(t.name);
           if (t.parameters && Array.isArray(t.parameters)) {
             t.parameters.forEach((p: any) => {
-              if (!allParams.find(existing => existing.name === p.name)) {
-                allParams.push(p);
+              if (!allTestParams.find(existing => existing.name === p.name)) {
+                allTestParams.push(p);
               }
             });
           }
         });
-
-        setTestDetails({ ...fullPkg, parameters: allParams });
-        
-        const initialValues: any = {};
-        allParams.forEach((p: any) => {
-          initialValues[p.name] = {
-            value: "",
-            unit: p.unit || "",
-            normalRange: p.normalRange || ""
-          };
-        });
-        setParamValues(initialValues);
       }
+
+      if (currentBooking.packageIds && currentBooking.packageIds.length > 0) {
+        const packagesRes = await fetch("/api/packages");
+        const allPackages = await packagesRes.json();
+        const testsRes = await fetch("/api/tests");
+        const allTests = await testsRes.json();
+        
+        const bookedPkgs = currentBooking.packageIds.map((id: number) => allPackages.find((p: any) => p.id === id)).filter(Boolean);
+        
+        bookedPkgs.forEach((pkg: any) => {
+          testNames.push(pkg.name);
+          const pkgTests = allTests.filter((t: any) => 
+            pkg.includes?.some((name: string) => 
+              name.trim().toLowerCase() === t.name.trim().toLowerCase()
+            )
+          );
+          
+          pkgTests.forEach((t: any) => {
+            if (t.parameters && Array.isArray(t.parameters)) {
+              t.parameters.forEach((p: any) => {
+                if (!allTestParams.find(existing => existing.name === p.name)) {
+                  allTestParams.push(p);
+                }
+              });
+            }
+          });
+        });
+      }
+
+      setTestDetails({ name: testNames.join(", "), parameters: allTestParams });
+      
+      const initialValues: any = {};
+      allTestParams.forEach((p: any) => {
+        initialValues[p.name] = {
+          value: "",
+          unit: p.unit || "",
+          normalRange: p.normalRange || ""
+        };
+      });
+      setParamValues(initialValues);
     } catch (error) {
       console.error("Error loading data:", error);
       toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
@@ -184,7 +175,7 @@ export default function AdminCreateReport() {
           bookingId: booking.id,
           testId: booking.testId || null,
           packageId: booking.packageId || null,
-          testName: booking.testName || booking.packageName,
+          testName: testDetails.name,
           resultSummary: "Complete",
           doctorRemarks: remarks,
           technicianName: technician,

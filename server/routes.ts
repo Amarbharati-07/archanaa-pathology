@@ -113,8 +113,21 @@ export async function registerRoutes(
   // Get user's bookings
   app.get("/api/user/bookings", authUserMiddleware, async (req: AuthRequest, res) => {
     try {
-      const bookings = await storage.getBookingsByUser(req.user!.id);
-      res.json(bookings);
+      const allBookings = await storage.getBookingsByUser(req.user!.id);
+      const tests = await storage.getTests();
+      const packages = await storage.getPackages();
+
+      const enrichedBookings = allBookings.map(b => {
+        const bookedTests = b.testIds ? b.testIds.map(id => tests.find(t => t.id === id)).filter(Boolean) : [];
+        const bookedPackages = b.packageIds ? b.packageIds.map(id => packages.find(p => p.id === id)).filter(Boolean) : [];
+        
+        return {
+          ...b,
+          testNames: bookedTests.map(t => t!.name),
+          packageNames: bookedPackages.map(p => p!.name),
+        };
+      });
+      res.json(enrichedBookings);
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
@@ -301,24 +314,29 @@ export async function registerRoutes(
       const tests = await storage.getTests();
       const packages = await storage.getPackages();
 
-      const bookingDetails = allBookings.map(b => ({
-        id: b.id,
-        userId: b.userId,
-        testId: b.testId || null,
-        packageId: b.packageId || null,
-        userName: users.find(u => u.id === b.userId)?.name || "Unknown",
-        phone: users.find(u => u.id === b.userId)?.phone || "",
-        testName: b.testId ? (tests.find(t => t.id === b.testId)?.name || `Test #${b.testId}`) : null,
-        packageName: b.packageId ? (packages.find(p => p.id === b.packageId)?.name || `Package #${b.packageId}`) : null,
-        date: b.date,
-        time: b.time,
-        testStatus: b.testStatus,
-        paymentStatus: b.paymentStatus,
-        totalAmount: b.totalAmount,
-        bookingMode: b.bookingMode,
-        address: b.address,
-        distance: b.distance,
-      }));
+      const bookingDetails = allBookings.map(b => {
+        const bookedTests = b.testIds ? b.testIds.map(id => tests.find(t => t.id === id)).filter(Boolean) : [];
+        const bookedPackages = b.packageIds ? b.packageIds.map(id => packages.find(p => p.id === id)).filter(Boolean) : [];
+        
+        return {
+          id: b.id,
+          userId: b.userId,
+          testIds: b.testIds || [],
+          packageIds: b.packageIds || [],
+          userName: users.find(u => u.id === b.userId)?.name || "Unknown",
+          phone: users.find(u => u.id === b.userId)?.phone || "",
+          testNames: bookedTests.map(t => t!.name),
+          packageNames: bookedPackages.map(p => p!.name),
+          date: b.date,
+          time: b.time,
+          testStatus: b.testStatus,
+          paymentStatus: b.paymentStatus,
+          totalAmount: b.totalAmount,
+          bookingMode: b.bookingMode,
+          address: b.address,
+          distance: b.distance,
+        };
+      });
 
       res.json(bookingDetails);
     } catch (err: any) {
