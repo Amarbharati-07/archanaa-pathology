@@ -641,7 +641,229 @@ const SEED_TESTS = [
       { name: "Casts", unit: "/hpf", normalRange: "Absent", paramCode: "UCAST" },
       { name: "Crystals", unit: "/hpf", normalRange: "Absent", paramCode: "UCRY" },
     ],
-  }
+  },
+  {
+    name: "Urine Microalbumin",
+    description: "Detects small amounts of albumin in urine. Early marker for kidney damage in diabetics.\n\nSample Type: Urine (Random/24hr)\nFasting: No\nMethod: Immunoturbidimetry",
+    price: 450,
+    reportTime: "24 hours",
+    category: "Urine",
+    isPopular: false,
+    parameters: [
+      { name: "Microalbumin", unit: "mg/L", normalRange: "<20", paramCode: "MALB" },
+      { name: "Albumin/Creatinine Ratio", unit: "mg/g", normalRange: "<30", paramCode: "ACR" },
+    ],
+  },
+  {
+    name: "24-Hour Urine Protein",
+    description: "Measures total protein excreted in urine over 24 hours. Important for kidney disease assessment.\n\nSample Type: Urine (24-hour)\nFasting: No\nMethod: Colorimetric",
+    price: 350,
+    reportTime: "24 hours",
+    category: "Urine",
+    isPopular: false,
+    parameters: [
+      { name: "24-Hour Urine Protein", unit: "mg/24hr", normalRange: "<150", paramCode: "U24P" },
+    ],
+  },
+  {
+    name: "Urine Culture & Sensitivity",
+    description: "Identifies bacteria causing urinary tract infection and determines antibiotic sensitivity.\n\nSample Type: Urine (Midstream)\nFasting: No\nMethod: Culture",
+    price: 650,
+    reportTime: "48-72 hours",
+    category: "Urine",
+    isPopular: false,
+    parameters: [
+      { name: "Colony Count", unit: "CFU/mL", normalRange: "<10,000", paramCode: "UCOL" },
+      { name: "Organism Identified", unit: "", normalRange: "No Growth", paramCode: "UORG" },
+    ],
+  },
+
+  // ==================== STOOL TESTS ====================
+  {
+    name: "Stool Routine Examination",
+    description: "Microscopic examination of stool for parasites, ova, and other abnormalities.\n\nSample Type: Stool\nFasting: No\nMethod: Microscopy",
+    price: 150,
+    reportTime: "4 hours",
+    category: "Stool",
+    isPopular: false,
+    parameters: [
+      { name: "Color", unit: "", normalRange: "Brown", paramCode: "SCOL" },
+      { name: "Consistency", unit: "", normalRange: "Soft", paramCode: "SCON" },
+      { name: "Mucus", unit: "", normalRange: "Absent", paramCode: "SMUC" },
+      { name: "Blood", unit: "", normalRange: "Absent", paramCode: "SBLD" },
+      { name: "Ova/Cysts", unit: "", normalRange: "Not Seen", paramCode: "SOVA" },
+      { name: "RBC", unit: "/hpf", normalRange: "Nil", paramCode: "SRBC" },
+      { name: "WBC", unit: "/hpf", normalRange: "0-5", paramCode: "SWBC" },
+    ],
+  },
+  {
+    name: "Stool Occult Blood",
+    description: "Detects hidden blood in stool. Screening test for colorectal cancer.\n\nSample Type: Stool\nFasting: No\nMethod: Immunochromatography",
+    price: 250,
+    reportTime: "4 hours",
+    category: "Stool",
+    isPopular: false,
+    parameters: [
+      { name: "Occult Blood", unit: "", normalRange: "Negative", paramCode: "FOB" },
+    ],
+  },
+
+  // ==================== SPECIAL TESTS ====================
+  {
+    name: "Amylase",
+    description: "Enzyme for pancreatic function. Elevated in pancreatitis.\n\nSample Type: Serum\nFasting: No\nMethod: Enzymatic Colorimetric",
+    price: 400,
+    reportTime: "24 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "Amylase", unit: "U/L", normalRange: "28-100", paramCode: "AMY" },
+    ],
+  },
+  {
+    name: "Lipase",
+    description: "More specific marker for pancreatitis than amylase.\n\nSample Type: Serum\nFasting: No\nMethod: Enzymatic Colorimetric",
+    price: 500,
+    reportTime: "24 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "Lipase", unit: "U/L", normalRange: "0-60", paramCode: "LIPASE" },
+    ],
+  },
+  {
+    name: "LDH (Lactate Dehydrogenase)",
+    description: "Enzyme present in many tissues. Elevated in tissue damage.\n\nSample Type: Serum\nFasting: No\nMethod: Enzymatic Kinetic",
+    price: 350,
+    reportTime: "24 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "LDH", unit: "U/L", normalRange: "140-280", paramCode: "LDH" },
+    ],
+  },
+  {
+    name: "CPK (Total Creatine Kinase)",
+    description: "Enzyme found in muscle. Elevated in muscle damage, heart attack, and muscular disorders.\n\nSample Type: Serum\nFasting: No\nMethod: Enzymatic Kinetic",
+    price: 400,
+    reportTime: "24 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "Total CPK", unit: "U/L", normalRange: "30-200 (M), 20-170 (F)", paramCode: "CPK" },
+    ],
+  },
+  {
+    name: "PSA (Prostate Specific Antigen)",
+    description: "Screening test for prostate cancer and monitoring prostate conditions.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
+    price: 900,
+    reportTime: "48 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "Total PSA", unit: "ng/mL", normalRange: "<4.0", paramCode: "PSA" },
+    ],
+  },
+  {
+    name: "Free PSA",
+    description: "Helps differentiate between benign prostate conditions and prostate cancer.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
+    price: 1200,
+    reportTime: "48 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "Free PSA", unit: "ng/mL", normalRange: "N/A", paramCode: "FPSA" },
+      { name: "Free/Total PSA Ratio", unit: "%", normalRange: ">25%", paramCode: "FPSARAT" },
+    ],
+  },
+  {
+    name: "Beta HCG",
+    description: "Pregnancy hormone. Confirms pregnancy and monitors pregnancy progress.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
+    price: 600,
+    reportTime: "24 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "Beta HCG", unit: "mIU/mL", normalRange: "<5 (Non-pregnant)", paramCode: "BHCG" },
+    ],
+  },
+  {
+    name: "AFP (Alpha Fetoprotein)",
+    description: "Tumor marker for liver cancer and germ cell tumors. Also used in prenatal screening.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
+    price: 800,
+    reportTime: "48 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "AFP", unit: "ng/mL", normalRange: "<10", paramCode: "AFP" },
+    ],
+  },
+  {
+    name: "CA-125",
+    description: "Tumor marker primarily used for ovarian cancer monitoring.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
+    price: 1100,
+    reportTime: "48 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "CA-125", unit: "U/mL", normalRange: "<35", paramCode: "CA125" },
+    ],
+  },
+  {
+    name: "CEA (Carcinoembryonic Antigen)",
+    description: "Tumor marker for colorectal, lung, breast, and other cancers.\n\nSample Type: Serum\nFasting: No\nMethod: CLIA/ECLIA",
+    price: 1000,
+    reportTime: "48 hours",
+    category: "Special",
+    isPopular: false,
+    parameters: [
+      { name: "CEA", unit: "ng/mL", normalRange: "<5 (Non-smokers), <10 (Smokers)", paramCode: "CEA" },
+    ],
+  },
+  {
+    name: "Vitamin A",
+    description: "Measures retinol levels. Important for vision, immunity, and skin health.\n\nSample Type: Serum\nFasting: Yes (10 hours)\nMethod: HPLC",
+    price: 1500,
+    reportTime: "72 hours",
+    category: "Vitamins",
+    isPopular: false,
+    parameters: [
+      { name: "Vitamin A (Retinol)", unit: "µg/dL", normalRange: "20-60", paramCode: "VITA" },
+    ],
+  },
+  {
+    name: "Vitamin E",
+    description: "Measures alpha-tocopherol levels. Important antioxidant.\n\nSample Type: Serum\nFasting: Yes (10 hours)\nMethod: HPLC",
+    price: 1500,
+    reportTime: "72 hours",
+    category: "Vitamins",
+    isPopular: false,
+    parameters: [
+      { name: "Vitamin E (Alpha-Tocopherol)", unit: "mg/L", normalRange: "5-20", paramCode: "VITE" },
+    ],
+  },
+  {
+    name: "Zinc",
+    description: "Essential trace element for immunity, wound healing, and metabolism.\n\nSample Type: Serum\nFasting: Yes (10 hours)\nMethod: Colorimetric/AAS",
+    price: 500,
+    reportTime: "48 hours",
+    category: "Vitamins",
+    isPopular: false,
+    parameters: [
+      { name: "Zinc", unit: "µg/dL", normalRange: "60-120", paramCode: "ZINC" },
+    ],
+  },
+  {
+    name: "Copper",
+    description: "Essential trace element for many enzymatic reactions and iron metabolism.\n\nSample Type: Serum\nFasting: No\nMethod: Colorimetric/AAS",
+    price: 500,
+    reportTime: "48 hours",
+    category: "Vitamins",
+    isPopular: false,
+    parameters: [
+      { name: "Copper", unit: "µg/dL", normalRange: "70-140", paramCode: "CU" },
+    ],
+  },
 ];
 
 const SEED_PACKAGES = [
