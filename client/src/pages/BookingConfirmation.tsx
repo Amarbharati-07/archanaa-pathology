@@ -70,10 +70,12 @@ export default function BookingConfirmation() {
 
     setLoading(true);
     try {
-      const firstItem = items[0];
+      const testIds = items.filter(item => item.type === 'test').map(item => item.id);
+      const packageIds = items.filter(item => item.type === 'package').map(item => item.id);
+      
       const bookingPayload = {
-        testId: firstItem.type === "test" ? firstItem.id : undefined,
-        packageId: firstItem.type === "package" ? firstItem.id : undefined,
+        testIds: testIds.length > 0 ? testIds : undefined,
+        packageIds: packageIds.length > 0 ? packageIds : undefined,
         date: new Date(values.date).toISOString(),
         time: values.time,
         totalAmount: finalPrice,
@@ -82,7 +84,8 @@ export default function BookingConfirmation() {
         distance: form.watch("bookingMode") === "home_collection" ? distance : 0,
       };
 
-      const booking = await apiRequest("POST", "/api/bookings", bookingPayload);
+      const bookingRes = await apiRequest("POST", "/api/bookings", bookingPayload);
+      const booking = await bookingRes.json();
       setBookingData(booking);
       setPaymentOpen(true);
     } catch (error: any) {

@@ -99,6 +99,7 @@ export default function UserDashboard() {
   
   const { data: reports, isLoading: reportsLoading } = useQuery<any[]>({
     queryKey: ["/api/user/reports"],
+    enabled: !!user,
   });
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function UserDashboard() {
       return;
     }
     loadDashboardData();
-  }, [user]);
+  }, [user, activeTab]);
 
   const loadDashboardData = async () => {
     setLoading(true);
